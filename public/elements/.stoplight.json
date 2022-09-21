@@ -1,0 +1,16 @@
+{
+  "formats": {
+    "markdown": {
+      "rootDir": "docs"
+    },
+    "image": {
+      "rootDir": "docs/assets/images"
+    },
+    "openapi": {
+      "rootDir": "hidden"
+    },
+    "json_schema": {
+      "rootDir": "hidden"
+    }
+  }
+}

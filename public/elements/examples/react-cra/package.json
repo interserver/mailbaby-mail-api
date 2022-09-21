@@ -1,0 +1,40 @@
+{
+  "name": "@stoplight/elements-starter-react",
+  "version": "1.0.0",
+  "description": "Basic React app with embedded Stoplight Elements",
+  "author": "Stoplight <support@stoplight.io>",
+  "license": "Unlicense",
+  "scripts": {
+    "start": "PORT=4200 react-scripts start",
+    "build": "react-scripts build",
+    "serve": "serve -s -l 4200 build"
+  },
+  "dependencies": {
+    "@stoplight/elements": "^7.0.0",
+    "@stoplight/elements-dev-portal": "^1.0.0",
+    "react": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.11",
+    "@types/react": "^17.0.11",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-router-dom": "^5.1.7",
+    "node-sass": "^6.0.1",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3",
+    "serve": "^13.0.2",
+    "typescript": "^4.3.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

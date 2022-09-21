@@ -1,32 +1,38 @@
 {
-  "name": "workerman/webman",
+  "name": "interserver/mailbaby-mail-api",
   "type": "project",
   "keywords": [
     "high performance",
     "http service"
   ],
-  "homepage": "https://www.workerman.net",
+  "homepage": "http://mail.baby",
   "license": "MIT",
-  "description": "High performance HTTP Service Framework.",
+  "description": "API service for accessing the Mail.Baby services.",
   "authors": [
     {
-      "name": "walkor",
-      "email": "walkor@workerman.net",
-      "homepage": "https://www.workerman.net",
+      "name": "Joe Huss",
+      "email": "detain@interserver.net",
+      "homepage": "https://www.interserver.net",
       "role": "Developer"
     }
   ],
   "support": {
-    "email": "walkor@workerman.net",
+    "email": "detain@interserver.net",
     "issues": "https://github.com/walkor/webman/issues",
     "forum": "https://wenda.workerman.net/",
     "wiki": "https://workerman.net/doc/webman",
-    "source": "https://github.com/walkor/webman"
+    "source": "https://github.com/interserver/mailbaby-mail-api"
   },
   "require": {
     "php": ">=7.2",
     "workerman/webman-framework": "^1.4.3",
-    "monolog/monolog": "^2.0"
+    "monolog/monolog": "^2.0",
+    "vlucas/phpdotenv": "^5.4",
+    "psr/container": "^1.1.1",
+    "illuminate/database": "^8.83",
+    "illuminate/pagination": "^8.83",
+    "symfony/var-dumper": "^5.4",
+    "phpmailer/phpmailer": "^6.6"
   },
   "suggest": {
     "ext-event": "For better performance. "
@@ -50,5 +56,8 @@
     "pre-package-uninstall": [
       "support\\Plugin::uninstall"
     ]
+  },
+  "require-dev": {
+    "league/openapi-psr7-validator": "^0.15.2"
   }
 }

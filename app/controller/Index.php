@@ -8,7 +8,8 @@ class Index
 {
     public function index(Request $request)
     {
-        return response('hello webman');
+        //return response('hello webman');
+        return view('index/view', ['name' => 'webman']);
     }
 
     public function view(Request $request)

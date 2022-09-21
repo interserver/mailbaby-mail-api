@@ -14,8 +14,20 @@
 
 use Webman\Route;
 
+Route::get('/ping', function($request) {
+	return response('Server is up and running', 200);
+});
+Route::options('/ping', function($request) {
+	return response('Server is up and running', 200);
+});
 
+Route::group('/mail', function() {
+	Route::any('', [app\controller\Mail::class, 'index']);
+    Route::any('/send', [app\controller\Mail::class, 'send']);
+    Route::any('/advsend', [app\controller\Mail::class, 'advsend']);
+	Route::any('/log', [app\controller\Mail::class, 'log']);
 
-
-
-
+})->middleware([
+	app\middleware\AuthCheck::class
+]);
+Route::disableDefaultRoute();

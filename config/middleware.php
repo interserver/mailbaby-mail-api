@@ -12,4 +12,16 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-return [];
+return [
+    // global middleware
+    '' => [
+        //app\middleware\AuthCheck::class,
+        app\middleware\AccessControl::class,
+    ],
+    // api application middleware (application middleware is only valid in multi-application mode)
+    /*
+    'api' => [
+        app\middleware\ApiOnly::class,
+    ]
+    */
+];

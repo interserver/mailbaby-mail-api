@@ -1,0 +1,43 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>MailBaby API Documentation</title>
+    <script src="/elements/packages/elements/dist/web-components.min.js"></script>
+    <link rel="stylesheet" href="/elements/packages/elements/dist/styles.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Mail Baby API</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="https://www.mailbaby.net">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://www.interserver.net">InterServer</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://my.interserver.net">My</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    <main role="main" class="container-fluid" style="margin-top: 50px;">
+      <elements-api
+        apiDescriptionUrl="https://raw.githubusercontent.com/interserver/mailbaby-mail-api/master/public/spec/openapi.yaml"
+        router="hash"
+      />
+    </main>
+  </body>
+</html>
