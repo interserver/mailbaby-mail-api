@@ -32,7 +32,8 @@
     "illuminate/database": "^8.83",
     "illuminate/pagination": "^8.83",
     "symfony/var-dumper": "^5.4",
-    "phpmailer/phpmailer": "^6.6"
+    "phpmailer/phpmailer": "^6.6",
+    "webman/console": "^1.2"
   },
   "suggest": {
     "ext-event": "For better performance. "
