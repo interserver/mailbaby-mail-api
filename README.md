@@ -1,4 +1,4 @@
-+# MailBaby API
+# MailBaby API
 
 API service for accessing the Mail.Baby services.
 
