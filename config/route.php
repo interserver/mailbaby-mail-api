@@ -13,7 +13,6 @@
  */
 
 use Webman\Route;
-
 Route::get('/ping', function($request) {
 	return response('Server is up and running', 200);
 });
@@ -30,4 +29,8 @@ Route::group('/mail', function() {
 })->middleware([
 	app\middleware\AuthCheck::class
 ]);
+// Set cross domain for all OPTIONS requests
+Route::options('[{path:.+}]', function (){
+    return response('');
+});
 Route::disableDefaultRoute();

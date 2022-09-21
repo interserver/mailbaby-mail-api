@@ -13,15 +13,7 @@
  */
 
 return [
-    // global middleware
     '' => [
-        //app\middleware\AuthCheck::class,
-        //app\middleware\AccessControl::class,
-    ],
-    // api application middleware (application middleware is only valid in multi-application mode)
-    /*
-    'api' => [
-        app\middleware\ApiOnly::class,
+        \Webman\Cors\CORS::class
     ]
-    */
 ];
