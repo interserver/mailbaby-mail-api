@@ -49,12 +49,10 @@ Building Elements:
 git clone git@github.com:stoplightio/elements.git
 cd elements
 sed s#"\"httpsnippet\".*$"#"\"httpsnippet\": \"detain/httpsnippet\#master\","#g -i packages/elements-core/package.json
-src="https://raw.githubusercontent.com/stoplightio/Public-APIs/master/reference/zoom/openapi.yaml"
 dst="https://raw.githubusercontent.com/interserver/mailbaby-mail-api/master/public/spec/openapi.yaml"
-for i in examples/angular/src/app/api/api.component.ts examples/react-gatsby/src/pages/zoom-api.tsx examples/react-cra/src/components/API.tsx; do
-  sed s#"${src}"#"${dst}"#g -i $i
+for src in https://raw.githubusercontent.com/stoplightio/Public-APIs/master/reference/zoom/openapi.yaml https://api.apis.guru/v2/specs/github.com/1.1.4/openapi.yaml; do
+  grep -r $src -l | xargs -n 1 sed s#"$src"#"$dst"#g -i
 done
-sed s#"https://api.apis.guru/v2/specs/github.com/1.1.4/openapi.yaml"#"${dst}"#g -i examples/bootstrap/index.html
 yarn
 yarn build
 yarn build:angular
