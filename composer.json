@@ -34,6 +34,7 @@
     "illuminate/pagination": "*",
     "symfony/var-dumper": "*",
     "phpmailer/phpmailer": "*",
+    "respect/validation": "*",
     "webman/console": "*",
     "webman/cors": "*"
   },
