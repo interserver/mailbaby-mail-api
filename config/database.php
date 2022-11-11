@@ -56,6 +56,22 @@ return [
 			],
 		],
 
+        'mongodb' => [
+            'driver'   => 'mongodb',
+            'host'     => env('MONGO_HOSTNAME', '127.0.0.1'),
+            'database' => env('MONGO_DATABASE', null),
+            'username' => env('MONGO_USERNAME', null),
+            'password' => env('MONGO_PASSWORD', null),
+            'port'     =>  27017,
+            'options' => [
+                // here you can pass more settings to the Mongo Driver Manager
+                // see https://www.php.net/manual/en/mongodb-driver-manager.construct.php under "Uri Options" for a list of complete parameters that you can use
+
+                'database' => 'admin', // required with Mongo 3+
+            ],
+        ],
+
+
 		'sqlite' => [
 			'driver' => 'sqlite',
 			'database' => env('DB_DATABASE', ''),

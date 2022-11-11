@@ -27,14 +27,15 @@
     "php": ">=7.2",
     "workerman/webman-framework": "^1.4.3",
     "monolog/monolog": "^2.0",
-    "vlucas/phpdotenv": "^5.4",
-    "psr/container": "^1.1.1",
-    "illuminate/database": "^8.83",
-    "illuminate/pagination": "^8.83",
-    "symfony/var-dumper": "^5.4",
-    "phpmailer/phpmailer": "^6.6",
-    "webman/console": "^1.2",
-    "webman/cors": "^1.0"
+    "vlucas/phpdotenv": "*",
+    "psr/container": "*",
+    "jenssegers/mongodb": "*",
+    "illuminate/database": "*",
+    "illuminate/pagination": "*",
+    "symfony/var-dumper": "*",
+    "phpmailer/phpmailer": "*",
+    "webman/console": "*",
+    "webman/cors": "*"
   },
   "suggest": {
     "ext-event": "For better performance. "
@@ -61,5 +62,10 @@
   },
   "require-dev": {
     "league/openapi-psr7-validator": "^0.15.2"
+  },
+  "config": {
+    "allow-plugins": {
+      "kylekatarnls/update-helper": false
+    }
   }
 }
