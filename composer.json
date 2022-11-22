@@ -31,6 +31,8 @@
     "psr/container": "*",
     "jenssegers/mongodb": "*",
     "illuminate/database": "*",
+    "illuminate/redis": "*",
+    "illuminate/events": "*",
     "illuminate/pagination": "*",
     "symfony/var-dumper": "*",
     "phpmailer/phpmailer": "*",
