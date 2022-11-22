@@ -14,6 +14,12 @@
 
 return [
     'default' => [
+        'host' => 'redis.mailbaby.net',
+        'password' => null,
+        'port' => 6379,
+        'database' => 2,
+    ],
+    'local' => [
         'host' => '127.0.0.1',
         'password' => null,
         'port' => 6379,
