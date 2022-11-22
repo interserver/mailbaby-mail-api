@@ -10,10 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\Table;
 
 
-class ConfigMysql extends Command
+class ConfigDb extends Command
 {
-    protected static $defaultName = 'config:mysql';
-    protected static $defaultDescription = 'config mysql';
+    protected static $defaultName = 'config:db';
+    protected static $defaultDescription = 'config db';
 
     /**
      * @param InputInterface $input
@@ -22,7 +22,7 @@ class ConfigMysql extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('MySQL configuration information is as follows:');
+        $output->writeln('Db configuration information is as follows:');
         $config = config('database');
         $headers = ['name', 'default', 'driver', 'host', 'port', 'database', 'username', 'password', 'unix_socket', 'charset', 'collation', 'prefix', 'strict', 'engine', 'schema', 'sslmode'];
         $rows = [];
