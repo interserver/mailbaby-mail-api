@@ -14,11 +14,10 @@ if (!file_exists(__DIR__.'/mailbaby-api-samples'))
 else
 	passthru('cd '.__DIR__.'/mailbaby-api-samples && git pull --all');
 echo "Determining latest OpenAPI Generator jar\n";
-//$branch = '5.1.1';
-//$branch = '5.2.0';
-$branch = '6.0.0';
-$latest = trim(`curl -s https://oss.sonatype.org/content/repositories/snapshots/org/openapitools/openapi-generator-cli/{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
-echo "Grabbing latest OpenAPI Generator jar\n";
+$prefix = 'https://oss.sonatype.org/content/repositories/snapshots/org/openapitools/openapi-generator-cli/';
+$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|tail -n 1|cut -d/ -f10|cut -d- -f1`);
+$latest = trim(`curl -s {$prefix}{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
+echo "Grabbing latest OpenAPI Generator jar {$latest}\n";
 passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O openapi-generator-cli.jar');
 echo "Generating a list of OpenAPI Generator clients we can generate\n";
 $cmd = 'java -jar '.__DIR__.'/openapi-generator-cli.jar list';
@@ -52,8 +51,10 @@ if ($buildOpenApi === true) {
 }
 if ($buildSwagger === true) {
 	echo "Determining latest Swagger Generator jar\n";
-	$latest = trim(`curl -s https://oss.sonatype.org/content/repositories/snapshots/io/swagger/codegen/v3/swagger-codegen-cli/3.0.26-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
-	echo "Grabbing latest Swagger Generator jar\n";
+	$prefix = 'https://oss.sonatype.org/content/repositories/snapshots/io/swagger/codegen/v3/swagger-codegen-cli/';
+	$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|tail -n 1|cut -d/ -f12|cut -d- -f1`);
+	$latest = trim(`curl -s {$prefix}/{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
+	echo "Grabbing latest Swagger Generator jar {$latest}\n";
 	passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O swagger-codegen-cli.jar');
 	echo "Generating and parsing a list of Swagger Generator clients we can generate\n";
 	$langs = explode(', ', trim(exec('cd '.__DIR__.' && java -jar swagger-codegen-cli.jar langs | cut -d \[ -f2-|cut -d\] -f1')));
