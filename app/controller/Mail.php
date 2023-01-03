@@ -233,7 +233,13 @@ class Mail
 		$id = $request->get('id', null);
 		$limit = $request->get('limit', 100);
 		$skip = $request->get('skip', 0);
-		$search = $request->get('search', '');
+        $search = $request->get('search', '');
+        $startDate = $request->get('startDate', false);
+        $endDate = $request->get('endDate', false);
+        if (!v::anyOf(v::intVal(), v::nullType())->validate($startDate))
+            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified startDate value was invalid.'], JSON_UNESCAPED_UNICODE));
+        if (!v::anyOf(v::intVal(), v::nullType())->validate($endDate))
+            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified endDate value was invalid.'], JSON_UNESCAPED_UNICODE));
         if (!v::intVal()->validate($skip))
             return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified skip value was invalid.'], JSON_UNESCAPED_UNICODE));
         if (!v::intVal()->validate($limit))
@@ -257,9 +263,15 @@ class Mail
 				return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'No active mail order was found.'], JSON_UNESCAPED_UNICODE));
 		}
 		$id = $order->mail_id;
+        $where = [];
+        $where[] = ['mail_messagestore.user', '=', 'mb'.$id];
+        if ($startDate !== false)
+            $where[] = ['mail_messagestore.time', '>=', $startDate];
+        if ($endDate !== false)
+            $where[] = ['mail_messagestore.time', '<=', $startDate];
    		$total = Db::connection('zonemta')
    			->table('mail_messagestore')
-			->where('mail_messagestore.user', 'mb'.$id)
+			->where($where)
 			->count();
 		$return = [
 			'total' => $total,
@@ -273,7 +285,7 @@ class Mail
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
    			->leftJoin('mail_senderdelivered_extra', 'mail_senderdelivered._id', '=', 'mail_senderdelivered_extra.senderdelivered_id')
    			->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_messageheaders.subject', 'mail_messageheaders.messageId', 'mail_messageheaders.created', 'mail_messageheaders.time', 'mail_messageheaders.user', 'mail_messageheaders.transtype', 'mail_messageheaders.transhost', 'mail_messageheaders.originhost', 'mail_messageheaders.origin', 'mail_messageheaders.interface', 'mail_messageheaders.date', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.sourceMd5', 'mail_senderdelivered.seq', 'mail_senderdelivered.domain', 'mail_senderdelivered.recipient', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned', 'mail_senderdelivered.queued', 'mail_senderdelivered._lock', 'mail_senderdelivered.logger', 'mail_senderdelivered.mxPort', 'mail_senderdelivered.connectionKey', 'mail_senderdelivered.mxHostname', 'mail_senderdelivered.sentBodyHash', 'mail_senderdelivered.sentBodySize', 'mail_senderdelivered.md5Match', 'mail_senderdelivered.fbl', 'mail_senderdelivered_extra.doc')
-			->where('mail_messagestore.user', 'mb'.$id)
+            ->where($where)
 			->offset($skip)
 			->limit($limit)
 			->get();
