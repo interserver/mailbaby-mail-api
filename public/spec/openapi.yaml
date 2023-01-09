@@ -3,11 +3,11 @@ servers:
   # Added by API Auto Mocking Plugin
   - description: Live API Endpoint
     url: 'https://api.mailbaby.net'
-  - description: Temporary API Endpoint
-    url: 'http://mystage.interserver.net:8787'
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.0.0
+    url: https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0
 info:
+  title: MailBaby Email Delivery API
+  version: 1.1.0
   description: |
     **Send emails fast and with confidence through our easy to use [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) API interface.**
 
@@ -22,8 +22,6 @@ info:
     In order to use most of the API calls you must pass credentials from the [my.interserver.net](https://my.interserver.net/) site.
 
     We support several different authentication methods but the preferred method is to use the **API Key** which you can get from the [Account Security](https://my.interserver.net/account_security) page.
-  version: 1.0.1
-  title: MailBaby Email Delivery API
   contact:
     email: support@interserver.net
     url: https://www.mail.baby/contact/
@@ -138,8 +136,7 @@ paths:
       summary: displays the mail log
       operationId: viewMailLog
       description: |
-        By passing in the appropriate options, you can search for
-        available inventory in the system
+        Get a listing of the emails sent through this system
       parameters:
         - name: id
           in: query
@@ -150,7 +147,43 @@ paths:
             format: int64
         - in: query
           name: search
-          description: pass an optional search string for looking up inventory
+          description: pass an optional search string for looking up mail
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: origin
+          description: originating ip address sending mail
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: mx
+          description: mx record mail was sent to
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: from
+          description: from email address
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: to
+          description: to/destination email address
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: subject
+          description: subject of the email
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: mailid
+          description: mail id
           required: false
           schema:
             type: string
