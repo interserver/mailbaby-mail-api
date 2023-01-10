@@ -236,6 +236,12 @@ class Mail
         $search = $request->get('search', '');
         $startDate = $request->get('startDate', null);
         $endDate = $request->get('endDate', null);
+        $origin = $request->get('origin', null);
+        $mx = $request->get('mx', null);
+        $from = $request->get('from', null);
+        $to = $request->get('to', null);
+        $subject = $request->get('subject', null);
+        $mailId = $request->get('mailid', null);
         if (!v::anyOf(v::intVal(), v::nullType())->validate($startDate))
             return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified startDate value '.var_export($startDate).' was invalid.'], JSON_UNESCAPED_UNICODE));
         if (!v::anyOf(v::intVal(), v::nullType())->validate($endDate))

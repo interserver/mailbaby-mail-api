@@ -142,6 +142,7 @@ paths:
           in: query
           description: The ID of your mail order this will be sent through.
           required: false
+          example: 2604
           schema:
             type: integer
             format: int64
@@ -149,48 +150,56 @@ paths:
           name: search
           description: pass an optional search string for looking up mail
           required: false
+          example: Deal
           schema:
             type: string
         - in: query
           name: origin
           description: originating ip address sending mail
           required: false
+          example: 1.2.3.4
           schema:
             type: string
         - in: query
           name: mx
           description: mx record mail was sent to
           required: false
+          example: mx.google.com
           schema:
             type: string
         - in: query
           name: from
           description: from email address
           required: false
+          example: me@sender.com
           schema:
             type: string
         - in: query
           name: to
           description: to/destination email address
           required: false
+          example: you@receiver.com
           schema:
             type: string
         - in: query
           name: subject
-          description: subject of the email
+          description: subject containing this string
           required: false
+          example: Support
           schema:
             type: string
         - in: query
           name: mailid
           description: mail id
           required: false
+          example: 185997065c60008840
           schema:
             type: string
         - in: query
           name: skip
           description: number of records to skip for pagination
           required: false
+          example: 1000
           schema:
             type: integer
             format: int32
@@ -200,6 +209,7 @@ paths:
           name: limit
           description: maximum number of records to return
           required: false
+          example: 1000
           schema:
             type: integer
             format: int32
@@ -210,6 +220,7 @@ paths:
           name: startDate
           description: earliest date to get emails in unix timestamp format
           required: false
+          example: 1641781008
           schema:
             type: integer
             format: int64
@@ -219,6 +230,7 @@ paths:
           name: endDate
           description: earliest date to get emails in unix timestamp format
           required: false
+          example: 1673317008
           schema:
             type: integer
             format: int64
