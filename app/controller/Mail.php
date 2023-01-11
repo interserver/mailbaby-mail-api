@@ -75,26 +75,26 @@ class Mail
 
     public function send(Request $request) : Response {
     	if ($request->method() != 'POST')
-    		return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'This should be a POST request.'], JSON_UNESCAPED_UNICODE));
+    		return $this->jsonErrorResponse('This should be a POST request.', 400);
         $accountInfo = $request->accountInfo;
         $id = $request->post('id');
         if (!is_null($id)) {
             if (!v::intVal()->validate($id))
-                return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified ID was invalid.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('The specified ID was invalid.', 400);
             $order = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_id', $id)
                 ->where('mail_status', 'active')
                 ->first();
             if (is_null($order))
-                return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'The mail order with the specified ID was not found or not active.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
         } else {
             $order = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_status', 'active')
                 ->first();
             if (is_null($order))
-                return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'No active mail order was found.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
         $sent = false;
@@ -136,7 +136,7 @@ class Mail
 
     public function advsend(Request $request) : Response {
     	if ($request->method() != 'POST')
-    		return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'This should be a POST request.'], JSON_UNESCAPED_UNICODE));
+    		return $this->jsonErrorResponse('This should be a POST request.', 400);
         $accountInfo = $request->accountInfo;
         if ($request->header('content-type') == 'application/x-www-form-urlencoded') {
         	$data = [];
@@ -152,26 +152,26 @@ class Mail
         $id = isset($data['id']) ? $data['id'] : null;
         if (!is_null($id)) {
             if (!v::intVal()->validate($id))
-                return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified ID was invalid.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('The specified ID was invalid.', 400);
             $order = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_id', $id)
                 ->where('mail_status', 'active')
                 ->first();
             if (is_null($order))
-                return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'The mail order with the specified ID was not found or not active.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
         } else {
             $order = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_status', 'active')
                 ->first();
             if (is_null($order))
-                return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'No active mail order was found.'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
         foreach (['from', 'to', 'subject', 'body'] as $field)
             if (!isset($data[$field]))
-                return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'Missing the required "'.$field.'" field'], JSON_UNESCAPED_UNICODE));
+                return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 404);
 
 
         $sent = false;
@@ -199,7 +199,7 @@ class Mail
                             }
                         }
                     } else {
-                        return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'The "'.strtolower($type).'" field is supposed to be an array.'], JSON_UNESCAPED_UNICODE));
+                        return $this->jsonErrorResponse('The "'.strtolower($type).'" field is supposed to be an array.', 404);
                     }
                 }
             }
@@ -214,7 +214,7 @@ class Mail
                         }
                     }
                 } else {
-                    return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'The "attachments" field is supposed to be an array.'], JSON_UNESCAPED_UNICODE));
+                    return $this->jsonErrorResponse('The "attachments" field is supposed to be an array.', 404);
                 }
             }
             $mailer->Body = $data['body'];
@@ -233,7 +233,6 @@ class Mail
 		$id = $request->get('id', null);
 		$limit = $request->get('limit', 100);
 		$skip = $request->get('skip', 0);
-        $search = $request->get('search', '');
         $startDate = $request->get('startDate', null);
         $endDate = $request->get('endDate', null);
         $origin = $request->get('origin', null);
@@ -242,31 +241,41 @@ class Mail
         $to = $request->get('to', null);
         $subject = $request->get('subject', null);
         $mailId = $request->get('mailid', null);
+        if (!v::anyOf(v::stringType()->length(19, 19), v::nullType())->validate($mailId))
+            return $this->jsonErrorResponse('The specified mailid value was not a valid email id.', 400);
+        if (!v::anyOf(v::email(), v::nullType())->validate($from))
+            return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
+        if (!v::anyOf(v::email(), v::nullType())->validate($to))
+            return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
+        if (!v::anyOf(v::domain(), v::nullType())->validate($mx))
+            return $this->jsonErrorResponse('The specified mx value was not a valid hostname.', 400);
+        if (!v::anyOf(v::ip(), v::nullType())->validate($origin))
+            return $this->jsonErrorResponse('The specified origin value was not a valid IP address.', 400);
         if (!v::anyOf(v::intVal(), v::nullType())->validate($startDate))
-            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified startDate value '.var_export($startDate).' was invalid.'], JSON_UNESCAPED_UNICODE));
+            return $this->jsonErrorResponse('The specified startDate value '.var_export($startDate).' was invalid.', 400);
         if (!v::anyOf(v::intVal(), v::nullType())->validate($endDate))
-            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified endDate value '.var_export($endDate).' was invalid.'], JSON_UNESCAPED_UNICODE));
+            return $this->jsonErrorResponse('The specified endDate value '.var_export($endDate).' was invalid.', 400);
         if (!v::intVal()->validate($skip))
-            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified skip value was invalid.'], JSON_UNESCAPED_UNICODE));
+            return $this->jsonErrorResponse('The specified skip value was invalid.', 400);
         if (!v::intVal()->validate($limit))
-            return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified limit value was invalid.'], JSON_UNESCAPED_UNICODE));
+            return $this->jsonErrorResponse('The specified limit value was invalid.', 400);
 		if (!is_null($id)) {
 			if (!v::intVal()->validate($id))
-				return new Response(400, ['Content-Type' => 'application/json'], json_encode(['code' => 400, 'message' => 'The specified ID was invalid.'], JSON_UNESCAPED_UNICODE));
+				return $this->jsonErrorResponse('The specified ID was invalid.', 400);
 			$order = Db::table('mail')
 				->where('mail_custid', $accountInfo->account_id)
 				->where('mail_id', $id)
 				->where('mail_status', 'active')
 				->first();
 			if (is_null($order))
-				return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'The mail order with the specified ID was not found or not active.'], JSON_UNESCAPED_UNICODE));
+				return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
 		} else {
 			$order = Db::table('mail')
 				->where('mail_custid', $accountInfo->account_id)
 				->where('mail_status', 'active')
 				->first();
 			if (is_null($order))
-				return new Response(404, ['Content-Type' => 'application/json'], json_encode(['code' => 404, 'message' => 'No active mail order was found.'], JSON_UNESCAPED_UNICODE));
+				return $this->jsonErrorResponse('No active mail order was found.', 404);
 		}
 		$id = $order->mail_id;
         $where = [];
@@ -275,7 +284,18 @@ class Mail
             $where[] = ['mail_messagestore.time', '>=', (int)$startDate];
         if (!is_null($endDate))
             $where[] = ['mail_messagestore.time', '<=', (int)$endDate];
-        //error_log('Mail Where:'.json_encode($where));
+        if (!is_null($origin))
+            $where[] = ['mail_messagestore.origin', '=', $origin];
+        if (!is_null($mx))
+            $where[] = ['mail_senderdelivered.mxHostname', '=', $mx];
+        if (!is_null($from))
+            $where[] = ['mail_messagestore.from', '=', $from];
+        if (!is_null($to))
+            $where[] = ['mail_messagestore.to', '=', $to];
+        if (!is_null($mailId))
+            $where[] = ['mail_messagestore.id', '=', $mailId];
+        if (!is_null($subject))
+            $where[] = ['mail_headers.value', '=', $subject];
    		$total = Db::connection('zonemta')
    			->table('mail_messagestore')
 			->where($where)
@@ -289,10 +309,16 @@ class Mail
 		];
    		$orders = Db::connection('zonemta')
    			->table('mail_messagestore')
-   			->leftJoin('mail_messageheaders', 'mail_messagestore.id', '=', 'mail_messageheaders.id')
+   			->leftJoin('mail_messageheaders', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'mail_messageheaders.id')
+                    ->on('mail_messageheaders.field','=','subject');
+            })
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
-   			->leftJoin('mail_senderdelivered_extra', 'mail_senderdelivered._id', '=', 'mail_senderdelivered_extra.senderdelivered_id')
-               ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_messageheaders.subject', 'mail_messageheaders.messageId', 'mail_messageheaders.created', 'mail_messageheaders.time', 'mail_messageheaders.user', 'mail_messageheaders.transtype', 'mail_messageheaders.transhost', 'mail_messageheaders.originhost', 'mail_messageheaders.origin', 'mail_messageheaders.interface', 'mail_messageheaders.date', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.sourceMd5', 'mail_senderdelivered.seq', 'mail_senderdelivered.domain', 'mail_senderdelivered.recipient', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned', 'mail_senderdelivered.queued', 'mail_senderdelivered._lock', 'mail_senderdelivered.logger', 'mail_senderdelivered.mxPort', 'mail_senderdelivered.connectionKey', 'mail_senderdelivered.mxHostname', 'mail_senderdelivered.sentBodyHash', 'mail_senderdelivered.sentBodySize', 'mail_senderdelivered.md5Match', 'mail_senderdelivered.fbl', 'mail_senderdelivered_extra.doc')
+            ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_headers.value AS subject',
+                'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
+                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_senderdelivered.recipient',
+                'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned', 'mail_senderdelivered.queued',
+                'mail_senderdelivered.mxHostname', 'mail_senderdelivered.response')
             ->where($where)
 			->offset($skip)
 			->limit($limit)
