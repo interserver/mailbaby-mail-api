@@ -309,9 +309,9 @@ class Mail
 		];
    		$orders = Db::connection('zonemta')
    			->table('mail_messagestore')
-   			->leftJoin('mail_messageheaders', function ($join) {
-                $join->on('mail_messagestore.id', '=', 'mail_messageheaders.id')
-                    ->on('mail_messageheaders.field','=','subject');
+   			->leftJoin('mail_headers', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'mail_headers.id')
+                    ->on('mail_headers.field','=', Db::raw('"subject"'));
             })
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_headers.value AS subject',
