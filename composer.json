@@ -34,7 +34,7 @@
     "illuminate/redis": "*",
     "illuminate/events": "*",
     "symfony/var-dumper": "*",
-    "phpmailer/phpmailer": "*",
+    "phpmailer/phpmailer": "dev-master",
     "respect/validation": "*",
     "webman/console": "*",
     "webman/cors": "*"

@@ -115,6 +115,11 @@ class Mail
         $mailer->SMTPAuth = true;
         $mailer->Username = $username;
         $mailer->Password = $password;
+        //Enable SMTP debugging
+        //SMTP::DEBUG_OFF = off (for production use)
+        //SMTP::DEBUG_CLIENT = client messages
+        //SMTP::DEBUG_SERVER = client and server messages
+        $mailer->SMTPDebug = SMTP::DEBUG_OFF;
         $mailer->Subject = $subject;
         $mailer->isHTML($isHtml);
         try {
@@ -127,7 +132,8 @@ class Mail
             if (!$mailer->send()) {
                 return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
             }
-            return json(['status' =>'ok', 'text' => 'ok']);
+            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
+            return json(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
             return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
         }
@@ -183,6 +189,11 @@ class Mail
         $mailer->SMTPAuth = true;
         $mailer->Username = (string)$order->mail_username;
         $mailer->Password = (string)$this->getMailPassword($request, $id);
+        //Enable SMTP debugging
+        //SMTP::DEBUG_OFF = off (for production use)
+        //SMTP::DEBUG_CLIENT = client messages
+        //SMTP::DEBUG_SERVER = client and server messages
+        $mailer->SMTPDebug = SMTP::DEBUG_OFF;
         $mailer->Subject = $data['subject'];
         $mailer->isHTML(strip_tags($data['body']) != $data['body']);
         try {
@@ -222,7 +233,9 @@ class Mail
             if (!$mailer->send()) {
                 return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
             }
-            return json(['status' =>'ok', 'text' => 'ok']);
+            // SERVER -> CLIENT: 250 Message queued as 185caa69ff7000f47c
+            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
+            return json(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
             return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
         }
