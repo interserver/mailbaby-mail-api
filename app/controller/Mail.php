@@ -32,7 +32,7 @@ class Mail
 	* @return \support\Response
 	*/
 	public function jsonErrorResponse($message, $status = 200) : Response {
-		return new Response($status, ['Content-Type' => 'application/json'], ['code' => $status, 'message' => $message]);
+		return new Response($status, ['Content-Type' => 'application/json'], json_encode(['code' => $status, 'message' => $message], JSON_UNESCAPED_UNICODE));
 	}
 
 	public function index(Request $request) : Response {
@@ -254,7 +254,7 @@ class Mail
         $to = $request->get('to', null);
         $subject = $request->get('subject', null);
         $mailId = $request->get('mailid', null);
-        if (!v::anyOf(v::stringType()->length(19, 19), v::nullType())->validate($mailId))
+        if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
             return $this->jsonErrorResponse('The specified mailid value was not a valid email id.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($from))
             return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
