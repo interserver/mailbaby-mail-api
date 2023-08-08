@@ -1,18 +1,19 @@
 <?php
-namespace app\controller;
+namespace app\controller\Mail;
 
 use support\Request;
 use support\Response;
 use support\Db;
 use support\bootstrap\Log;
+use app\controller\BaseController;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 use Respect\Validation\Validator as v;
 
-class Mail extends BaseController
+class Rules extends BaseController
 {
-	public function index(Request $request) : Response {
+	public function get(Request $request) : Response {
 		$accountInfo = $request->accountInfo;
 		$orders = Db::table('mail')
 			->where('mail_custid', $accountInfo->account_id)
@@ -31,7 +32,7 @@ class Mail extends BaseController
 		return json($return);
 	}
 
-	public function view(Request $request, $id) : Response {
+	public function delete(Request $request, $id) : Response {
 		$accountInfo = $request->accountInfo;
 		if (!v::intVal()->validate($id))
 			return response('The specified ID was invalid.', 400);
@@ -50,7 +51,7 @@ class Mail extends BaseController
 		return json($return);
 	}
 
-    public function send(Request $request) : Response {
+    public function post(Request $request) : Response {
     	if ($request->method() != 'POST')
     		return $this->jsonErrorResponse('This should be a POST request.', 400);
         $accountInfo = $request->accountInfo;

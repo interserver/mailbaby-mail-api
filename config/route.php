@@ -25,7 +25,9 @@ Route::group('/mail', function() {
     Route::any('/send', [app\controller\Mail::class, 'send']);
     Route::any('/advsend', [app\controller\Mail::class, 'advsend']);
     Route::any('/log', [app\controller\Mail::class, 'log']);
-    Route::any('/rules', [app\controller\Mail::class, 'rules']);
+    Route::get('/rules', [app\controller\Mail\Rules::class, 'get']);
+    Route::post('/rules', [app\controller\Mail\Rules::class, 'post']);
+    Route::delete('/rules', [app\controller\Mail\Rules::class, 'delete']);
     Route::any('/stats', [app\controller\Mail::class, 'stats']);
     Route::any('/blocks', [app\controller\Mail::class, 'blocks']);
     Route::any('/alerts', [app\controller\Mail::class, 'alerts']);
