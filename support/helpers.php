@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * This file is part of webman.
@@ -17,6 +18,7 @@ use support\Container;
 use support\Request;
 use support\Response;
 use support\Translation;
+use support\view\Raw;
 use support\view\Blade;
 use support\view\Raw;
 use support\view\ThinkPHP;
@@ -28,6 +30,9 @@ use Webman\App;
 use Webman\Config;
 use Webman\Route;
 use Workerman\Worker;
+
+// Webman version
+const WEBMAN_VERSION = '1.4';
 
 // Project base path
 define('BASE_PATH', dirname(__DIR__));
@@ -41,9 +46,9 @@ function run_path(string $path = ''): string
 {
     static $runPath = '';
     if (!$runPath) {
-        $runPath = is_phar() ? dirname(Phar::running(false)) : BASE_PATH;
+        $runPath = \is_phar() ? \dirname(\Phar::running(false)) : BASE_PATH;
     }
-    return path_combine($runPath, $path);
+    return \path_combine($runPath, $path);
 }
 
 /**
@@ -54,9 +59,9 @@ function run_path(string $path = ''): string
 function base_path($path = ''): string
 {
     if (false === $path) {
-        return run_path();
+        return \run_path();
     }
-    return path_combine(BASE_PATH, $path);
+    return \path_combine(BASE_PATH, $path);
 }
 
 /**
@@ -66,7 +71,7 @@ function base_path($path = ''): string
  */
 function app_path(string $path = ''): string
 {
-    return path_combine(BASE_PATH . DIRECTORY_SEPARATOR . 'app', $path);
+    return \path_combine(BASE_PATH . DIRECTORY_SEPARATOR . 'app', $path);
 }
 
 /**
@@ -78,9 +83,9 @@ function public_path(string $path = ''): string
 {
     static $publicPath = '';
     if (!$publicPath) {
-        $publicPath = \config('app.public_path') ?: run_path('public');
+        $publicPath = \config('app.public_path') ? : \run_path('public');
     }
-    return path_combine($publicPath, $path);
+    return \path_combine($publicPath, $path);
 }
 
 /**
@@ -90,7 +95,7 @@ function public_path(string $path = ''): string
  */
 function config_path(string $path = ''): string
 {
-    return path_combine(BASE_PATH . DIRECTORY_SEPARATOR . 'config', $path);
+    return \path_combine(BASE_PATH . DIRECTORY_SEPARATOR . 'config', $path);
 }
 
 /**
@@ -102,9 +107,9 @@ function runtime_path(string $path = ''): string
 {
     static $runtimePath = '';
     if (!$runtimePath) {
-        $runtimePath = \config('app.runtime_path') ?: run_path('runtime');
+        $runtimePath = \config('app.runtime_path') ? : \run_path('runtime');
     }
-    return path_combine($runtimePath, $path);
+    return \path_combine($runtimePath, $path);
 }
 
 /**
@@ -312,8 +317,8 @@ function session($key = null, $default = null)
         $session->put($key);
         return null;
     }
-    if (strpos($key, '.')) {
-        $keyArray = explode('.', $key);
+    if (\strpos($key, '.')) {
+        $keyArray = \explode('.', $key);
         $value = $session->all();
         foreach ($keyArray as $index) {
             if (!isset($value[$index])) {
@@ -423,7 +428,7 @@ function worker_bind($worker, $class)
         'onWorkerReload'
     ];
     foreach ($callbackMap as $name) {
-        if (method_exists($class, $name)) {
+        if (\method_exists($class, $name)) {
             $worker->$name = [$class, $name];
         }
     }
@@ -456,6 +461,14 @@ function worker_start($processName, $config)
             $worker->$property = $config[$property];
         }
     }
+    if (isset($config['handler']) && $config['handler'] == App::class) {
+        if (empty($worker->user)) {
+            $worker->user  = config('server.user', '');
+        }
+        if (empty($worker->group)) {
+            $worker->group  = config('server.group', '');
+        }
+    }
 
     $worker->onWorkerStart = function ($worker) use ($config) {
         require_once base_path('/support/bootstrap.php');
@@ -478,11 +491,11 @@ function worker_start($processName, $config)
  */
 function get_realpath(string $filePath): string
 {
-    if (strpos($filePath, 'phar://') === 0) {
+    if (\strpos($filePath, 'phar://') === 0) {
         return $filePath;
-    } else {
-        return realpath($filePath);
     }
+
+    return \realpath($filePath);
 }
 
 /**
@@ -513,4 +526,15 @@ function cpu_count(): int
         }
     }
     return $count > 0 ? $count : 4;
+}
+
+/**
+ * get GET or POST request parameters, if no parameter name is passed, an array of all values is returned, default values is supported
+ * @param string|null $param param's name
+ * @param string|null $default default value
+ * @return mixed|null
+ */
+function input(string $param = null, string $default = null)
+{
+    return is_null($param) ? request()->all() : request()->input($param, $default);
 }
