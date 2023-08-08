@@ -60,119 +60,54 @@ class Rules extends BaseController
 
     public function post(Request $request) : Response {
         $accountInfo = $request->accountInfo;
-        $rows = Db::table('mail')
-            ->where('mail_custid', $accountInfo->account_id)
-            ->where('mail_status', 'active')
-            ->get();
-        $users = [];
-        foreach ($rows as $row) {
-            $users[] = $row->mail_username;
-        }
-        if (count($users) == 0) {
-            return $this->jsonErrorResponse('No active mail orders.', 400);
-        }
-        return json(['status' =>'ok', 'text' => $transId]);
-    }
-
-
-    public function advsend(Request $request) : Response {
-        if ($request->method() != 'POST')
-            return $this->jsonErrorResponse('This should be a POST request.', 400);
-        $accountInfo = $request->accountInfo;
-        if ($request->header('content-type') == 'application/x-www-form-urlencoded') {
-            $data = [];
-            foreach (['subject', 'body', 'from', 'to', 'id', 'replyto', 'cc', 'bcc'] as $var) {
-                $value = $request->post($var);
-                if (!is_null($value)) {
-                    $data[$var] = $value;
-                }
-            }
-        } else {
-            $data = json_decode($request->rawBody(), true);
-        }
-        $id = isset($data['id']) ? $data['id'] : null;
-        if (!is_null($id)) {
-            if (!v::intVal()->validate($id))
-                return $this->jsonErrorResponse('The specified ID was invalid.', 400);
-            $order = Db::table('mail')
+        $data = $request->post('data');
+        $type = $request->post('type');
+        $orderId = $request->post('orderId', null);
+        if (!v::intVal()->validate($orderId))
+            return response('The specified ID was invalid.', 400);
+        if (is_null($orderId)) {
+            $rows = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_status', 'active')
+                ->get();
+            $users = [];
+            foreach ($rows as $row) {
+                $users[] = $row->mail_username;
+            }
+            if (count($users) == 0) {
+                return $this->jsonErrorResponse('No active mail orders.', 400);
+            }
+            $username = $users[0];
+        } else {
+            $row = Db::table('mail')
+                ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_status', 'active')
                 ->where('mail_id', $id)
-                ->where('mail_status', 'active')
                 ->first();
-            if (is_null($order))
-                return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
-        } else {
-            $order = Db::table('mail')
-                ->where('mail_custid', $accountInfo->account_id)
-                ->where('mail_status', 'active')
-                ->first();
-            if (is_null($order))
-                return $this->jsonErrorResponse('No active mail order was found.', 404);
-            $id = $order->mail_id;
+            $username = $row->mail_username;
+            if (count($users) == 0) {
+                return $this->jsonErrorResponse('No active mail orders.', 400);
+            }
         }
-        foreach (['from', 'to', 'subject', 'body'] as $field)
-            if (!isset($data[$field]))
-            return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 404);
-
-
-            $sent = false;
-        $mailer = new PHPMailer(true);
-        $mailer->CharSet = 'utf-8';
-        $mailer->isSMTP();
-        $mailer->Port = 25;
-        $mailer->Host = 'relay.mailbaby.net';
-        $mailer->SMTPAuth = true;
-        $mailer->Username = (string)$order->mail_username;
-        $mailer->Password = (string)$this->getMailPassword($request, $id);
-        //Enable SMTP debugging
-        //SMTP::DEBUG_OFF = off (for production use)
-        //SMTP::DEBUG_CLIENT = client messages
-        //SMTP::DEBUG_SERVER = client and server messages
-        $mailer->SMTPDebug = SMTP::DEBUG_OFF;
-        $mailer->Subject = $data['subject'];
-        $mailer->isHTML(strip_tags($data['body']) != $data['body']);
-        try {
-            $mailer->setFrom($data['from']['email'], isset($data['from']['name']) ? $data['from']['name'] : '');
-            foreach ($data['to'] as $contact)
-                $mailer->addAddress($contact['email'], isset($contact['name']) ? $contact['name'] : '');
-            foreach (['ReplyTo', 'CC', 'BCC'] as $type) {
-                if (isset($data[strtolower($type)])) {
-                    if (is_array($data[strtolower($type)])) {
-                        if (count($data[strtolower($type)]) > 0) {
-                            foreach ($data[strtolower($type)] as $contact) {
-                                $call = 'add'.$type;
-                                $mailer->$call($contact['email'], isset($contact['name']) ? $contact['name'] : '');
-                            }
-                        }
-                    } else {
-                        return $this->jsonErrorResponse('The "'.strtolower($type).'" field is supposed to be an array.', 404);
-                    }
-                }
-            }
-            if (isset($data['attachments'])) {
-                if (is_array($data['attachments'])) {
-                    if (count($data['attachments']) > 0) {
-                        foreach ($data['attachments'] as $idx => $attachment) {
-                            $fileData = base64_decode($attachment['data']);
-                            $localFile = tempnam(sys_get_temp_dir(), 'attachment');
-                            file_put_contents($localFile, $fileData);
-                            $mailer->addAttachment($localFile, isset($attachment['filename']) ? $attachment['filename'] : '');
-                        }
-                    }
-                } else {
-                    return $this->jsonErrorResponse('The "attachments" field is supposed to be an array.', 404);
-                }
-            }
-            $mailer->Body = $data['body'];
-            $mailer->preSend();
-            if (!$mailer->send()) {
-                return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
-            }
-            // SERVER -> CLIENT: 250 Message queued as 185caa69ff7000f47c
-            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
-            return json(['status' =>'ok', 'text' => $transId]);
-        } catch (Exception $e) {
-            return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
+        if (!v::in(['domain', 'email', 'startswith'])->validate($type)) {
+            return $this->jsonErrorResponse('Invalid value for type.', 400);
         }
+        if ($type == 'domain' && !v::domain()->validate($data)) {
+            return $this->jsonErrorResponse('Invalid domain name in data.', 400);
+        }
+        if ($type == 'email' && !v::email()->validate($data)) {
+            return $this->jsonErrorResponse('Invalid email address in data.', 400);
+        }
+        if ($type == 'startswith' && !v::regex('/^[A-Z0-9+_\.-]+$/')->validate($data)) {
+            return $this->jsonErrorResponse('Invalid email start string, it should contain only alphanumeric characters, +_.-', 400);
+        }
+        $rows = Db::connection('zonemta')
+            ->table('mail_spam')
+            ->insert([
+                'user' => $username,
+                'type' => $type,
+                'data' => $data
+            ]);
+        return json(['status' =>'ok', 'text' => $transId]);
     }
 }
