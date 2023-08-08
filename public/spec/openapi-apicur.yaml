@@ -1,657 +1,1200 @@
 openapi: 3.0.3
-servers:
-  # Added by API Auto Mocking Plugin
-  - description: Live API Endpoint
-    url: 'https://api.mailbaby.net'
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0
 info:
-  title: MailBaby Email Delivery API
-  version: 1.1.0
-  description: |
-    **Send emails fast and with confidence through our easy to use [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) API interface.**
+    title: MailBaby Email Delivery and Management Service API
+    version: 1.1.0
+    description: >
+        **Send emails fast and with confidence through our easy to use
+        [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) API interface.**
 
+        # Overview
 
-    # 📌 Overview
+        This is the API interface to the [Mail Baby](https//mail.baby/) Mail services provided by
+        [InterServer](https://www.interserver.net). To use this service you must have an account with us at
+        [my.interserver.net](https://my.interserver.net).
 
-    This is the API interface to the [Mail Baby](https//mail.baby/) Mail services provided by [InterServer](https://www.interserver.net). To use this service you must have an account with us at [my.interserver.net](https://my.interserver.net).
+        # Authentication
 
+        In order to use most of the API calls you must pass credentials from the
+        [my.interserver.net](https://my.interserver.net/) site.
 
-    # 🔐 Authentication
-
-    In order to use most of the API calls you must pass credentials from the [my.interserver.net](https://my.interserver.net/) site.
-
-    We support several different authentication methods but the preferred method is to use the **API Key** which you can get from the [Account Security](https://my.interserver.net/account_security) page.
-  contact:
-    email: support@interserver.net
-    url: https://www.mail.baby/contact/
-    name: Mail Baby
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  termsOfService: 'https://www.interserver.net/terms-of-service.html'
+        We support several different authentication methods but the preferred method is to use the **API Key**
+        which you can get from the [Account Security](https://my.interserver.net/account_security) page.
+    termsOfService: 'https://www.interserver.net/terms-of-service.html'
+    contact:
+        name: Mail Baby
+        url: 'https://www.mail.baby/contact/'
+        email: support@interserver.net
+    license:
+        name: GNU GPLv3
+        url: 'https://www.gnu.org/licenses/gpl.txt'
+servers:
+    -
+        url: 'https://api.mailbaby.net'
+        description: Live API Endpoint
+    -
+        url: 'https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0'
+        description: SwaggerHub API Auto Mocking
 paths:
-  /mail:
-    get:
-      summary: displays a list of mail service orders
-      operationId: getMailOrders
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1234
-                    status:
-                      type: string
-                      example: active
-                    username:
-                      type: string
-                      example: mb1234
-                    password:
-                      type: string
-                      example: guest123
-                    comment:
-                      type: string
-                      example: main mail account
-                  required:
-                    - id
-                    - status
-                    - username
-          links:
-            sendMailByIdLink:
-              operationId: sendMail
-              parameters:
-                id: '$response.body#/0/id'
-              description: The `id` value returned in the response can be used as the `id` parameter in `GET /mail/advsend`.
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/Unauthorized'
-  /mail/send:
-    post:
-      summary: Sends an Email
-      operationId: sendMail
-      description: |
-        Sends an email through one of your mail orders.
+    /mail:
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    required:
+                                        - id
+                                        - status
+                                        - username
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: integer
+                                            example: 1234
+                                        status:
+                                            type: string
+                                            example: active
+                                        username:
+                                            type: string
+                                            example: mb1234
+                                        password:
+                                            type: string
+                                            example: guest123
+                                        comment:
+                                            type: string
+                                            example: main mail account
+                    links:
+                        sendMailByIdLink:
+                            operationId: sendMail
+                            parameters:
+                                id: '$response.body#/0/id'
+                            description: >-
+                                The `id` value returned in the response can be used as the `id` parameter in
+                                `GET /mail/advsend`.
+                    description: OK
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/Unauthorized'
+            operationId: getMailOrders
+            summary: displays a list of mail service orders
+    /mail/blocks:
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    required:
+                                        - id
+                                        - status
+                                        - username
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: integer
+                                            example: 1234
+                                        status:
+                                            type: string
+                                            example: active
+                                        username:
+                                            type: string
+                                            example: mb1234
+                                        password:
+                                            type: string
+                                            example: guest123
+                                        comment:
+                                            type: string
+                                            example: main mail account
+                    links:
+                        delistBlockLink:
+                            operationId: delistBlock
+                            parameters:
+                                id: '$response.body#/0/id'
+                            description: >-
+                                The `id` value returned in the response can be used as the `id` parameter in
+                                `GET /mail/advsend`.
+                    description: OK
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/Unauthorized'
+            operationId: getMailBlocks
+            summary: displays a list of blocked email addresses
+        post:
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: searchAlert
+            summary: Adds a new email alert
+            description: |
+                Removes an email address from the various block lists.
+        delete:
+            parameters:
+                -
+                    example: 2604
+                    name: id
+                    description: The ID of your mail order this will be sent through.
+                    schema:
+                        format: int64
+                        type: integer
+                    in: query
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: delistBlock
+            summary: Removes an email address from the blocked list
+            description: |
+                Removes an email address from the various block lists.
+    /mail/alerts:
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    required:
+                                        - id
+                                        - status
+                                        - username
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: integer
+                                            example: 1234
+                                        status:
+                                            type: string
+                                            example: active
+                                        username:
+                                            type: string
+                                            example: mb1234
+                                        password:
+                                            type: string
+                                            example: guest123
+                                        comment:
+                                            type: string
+                                            example: main mail account
+                    links:
+                        delistBlockLink:
+                            operationId: delistBlock
+                            parameters:
+                                id: '$response.body#/0/id'
+                            description: >-
+                                The `id` value returned in the response can be used as the `id` parameter in
+                                `GET /mail/advsend`.
+                    description: OK
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/Unauthorized'
+            operationId: getAlerts
+            summary: displays a list of blocked email addresses
+        post:
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: addAlert
+            summary: Adds a new email alert
+            description: |
+                Removes an email address from the various block lists.
+        delete:
+            parameters:
+                -
+                    example: 2604
+                    name: id
+                    description: The ID of your mail order this will be sent through.
+                    schema:
+                        format: int64
+                        type: integer
+                    in: query
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: deleteAlert
+            summary: Removes an email address from the blocked list
+            description: |
+                Removes an email address from the various block lists.
+    /mail/rules:
+        summary: Deny Rules
+        description: >-
+            The deny rules allow you to setup assorted types of rules which will automatically deny the email
+            from being sent through our system when  the citeria match.
+        get:
+            tags:
+                - mail
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/DenyRuleRecord'
+                            examples:
+                                ExampleMailRulesList:
+                                    value:
+                                        -
+                                            id: '14'
+                                            user: mb20682
+                                            type: email
+                                            data: domeinwo@server.guesshost.net
+                                            created: '2022-03-22 19:16:35'
+                                        -
+                                            id: '15'
+                                            user: mb20682
+                                            type: email
+                                            data: mamediieva@thedigital.gov.ua
+                                            created: '2022-03-22 19:18:01'
+                    links:
+                        delistBlockLink:
+                            operationId: delistBlock
+                            parameters:
+                                id: '$response.body#/0/id'
+                            description: >-
+                                The `id` value returned in the response can be used as the `id` parameter in
+                                `GET /mail/advsend`.
+                    description: OK
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/Unauthorized'
+            operationId: getRules
+            summary: displays a list of blocked email addresses
+            description: Returns a listing of all the demy block rules you have configured.
+        post:
+            requestBody:
+                description: These are the fields needed to create a new email deny rule.
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/DenyRuleNew'
+                        examples:
+                            DenyRuleNewFormExample:
+                                value:
+                                    user: mb20682
+                                    type: email
+                                    data: domeinwo@server.guesshost.net
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DenyRuleNew'
+                        examples:
+                            DenyRuleNewJsonExample:
+                                value:
+                                    user: mb20682
+                                    type: email
+                                    data: domeinwo@server.guesshost.net
+                required: true
+            tags:
+                - mail
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: addRule
+            summary: Creates a new email deny rule.
+            description: Adds a new email deny rule into the system to block new emails that match the given criteria
+        delete:
+            tags:
+                - mail
+            parameters:
+                -
+                    example: 2604
+                    name: id
+                    description: The ID of your mail order this will be sent through.
+                    schema:
+                        format: int64
+                        type: integer
+                    in: query
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: deleteRule
+            summary: Removes an email address from the blocked list
+            description: |
+                Removes an email address from the various block lists.
+    /mail/stats:
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    required:
+                                        - id
+                                        - status
+                                        - username
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: integer
+                                            example: 1234
+                                        status:
+                                            type: string
+                                            example: active
+                                        username:
+                                            type: string
+                                            example: mb1234
+                                        password:
+                                            type: string
+                                            example: guest123
+                                        comment:
+                                            type: string
+                                            example: main mail account
+                    links:
+                        delistBlockLink:
+                            operationId: delistBlock
+                            parameters:
+                                id: '$response.body#/0/id'
+                            description: >-
+                                The `id` value returned in the response can be used as the `id` parameter in
+                                `GET /mail/advsend`.
+                    description: OK
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/Unauthorized'
+            operationId: getStats
+            summary: displays a list of blocked email addresses
+    /mail/send:
+        post:
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendMail'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: sendMail
+            summary: Sends an Email
+            description: >
+                Sends an email through one of your mail orders.
 
-        *Note*: If you want to send to multiple recipients or use file attachments use the advsend (Advanced Send) call instead.
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SendMail'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SendMail'
-      responses:
-        '200':
-          description: search results matching criteria
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
-        '400':
-          $ref: '#/components/responses/BadInput'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /mail/advsend:
-    post:
-      summary: Sends an Email with Advanced Options
-      operationId: sendAdvMail
-      description: Sends An email through one of your mail orders allowing additional options such as file attachments, cc, bcc, etc.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SendMailAdv'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SendMailAdv'
-      responses:
-        '200':
-          description: search results matching criteria
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
-        '400':
-          $ref: '#/components/responses/BadInput'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /mail/log:
-    get:
-      summary: displays the mail log
-      operationId: viewMailLog
-      description: |
-        Get a listing of the emails sent through this system
-      parameters:
-        - name: id
-          in: query
-          description: The ID of your mail order this will be sent through.
-          required: false
-          example: 2604
-          schema:
-            type: integer
-            format: int64
-        - in: query
-          name: origin
-          description: originating ip address sending mail
-          required: false
-          example: 1.2.3.4
-          schema:
-            type: string
-        - in: query
-          name: mx
-          description: mx record mail was sent to
-          required: false
-          example: mx.google.com
-          schema:
-            type: string
-        - in: query
-          name: from
-          description: from email address
-          required: false
-          example: me@sender.com
-          schema:
-            type: string
-        - in: query
-          name: to
-          description: to/destination email address
-          required: false
-          example: you@receiver.com
-          schema:
-            type: string
-        - in: query
-          name: subject
-          description: subject containing this string
-          required: false
-          example: Support
-          schema:
-            type: string
-        - in: query
-          name: mailid
-          description: mail id
-          required: false
-          example: 185997065c60008840
-          schema:
-            type: string
-        - in: query
-          name: skip
-          description: number of records to skip for pagination
-          required: false
-          example: 1000
-          schema:
-            type: integer
-            format: int32
-            default: 0
-            minimum: 0
-        - in: query
-          name: limit
-          description: maximum number of records to return
-          required: false
-          example: 1000
-          schema:
-            type: integer
-            format: int32
-            default: 100
-            minimum: 1
-            maximum: 10000
-        - in: query
-          name: startDate
-          description: earliest date to get emails in unix timestamp format
-          required: false
-          example: 1641781008
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            maximum: 9999999999
-        - in: query
-          name: endDate
-          description: earliest date to get emails in unix timestamp format
-          required: false
-          example: 1673317008
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-            maximum: 9999999999
-      responses:
-        '200':
-          description: search results matching criteria
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MailLog'
-        '400':
-          description: bad input parameter
-  /ping:
-    get:
-      summary: Checks if the server is running
-      operationId: pingServer
-      security: []
-      responses:
-        '200':
-          description: Server is up and running
-        default:
-          description: Something is wrong
-      parameters: []
+
+                *Note*: If you want to send to multiple recipients or use file attachments use the advsend
+                (Advanced Send) call instead.
+    /mail/advsend:
+        post:
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendMailAdv'
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/SendMailAdv'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: sendAdvMail
+            summary: Sends an Email with Advanced Options
+            description: >-
+                Sends An email through one of your mail orders allowing additional options such as file
+                attachments, cc, bcc, etc.
+    /mail/log:
+        get:
+            parameters:
+                -
+                    example: 2604
+                    name: id
+                    description: The ID of your mail order this will be sent through.
+                    schema:
+                        format: int64
+                        type: integer
+                    in: query
+                    required: false
+                -
+                    example: 1.2.3.4
+                    name: origin
+                    description: originating ip address sending mail
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: mx.google.com
+                    name: mx
+                    description: mx record mail was sent to
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: me@sender.com
+                    name: from
+                    description: from email address
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: you@receiver.com
+                    name: to
+                    description: to/destination email address
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: Support
+                    name: subject
+                    description: subject containing this string
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: 185997065c60008840
+                    name: mailid
+                    description: mail id
+                    schema:
+                        type: string
+                    in: query
+                    required: false
+                -
+                    example: 1000
+                    name: skip
+                    description: number of records to skip for pagination
+                    schema:
+                        format: int32
+                        default: 0
+                        minimum: 0
+                        type: integer
+                    in: query
+                    required: false
+                -
+                    example: 1000
+                    name: limit
+                    description: maximum number of records to return
+                    schema:
+                        format: int32
+                        default: 100
+                        maximum: 10000
+                        minimum: 1
+                        type: integer
+                    in: query
+                    required: false
+                -
+                    example: 1641781008
+                    name: startDate
+                    description: earliest date to get emails in unix timestamp format
+                    schema:
+                        format: int64
+                        maximum: 9999999999
+                        minimum: 0
+                        type: integer
+                    in: query
+                    required: false
+                -
+                    example: 1673317008
+                    name: endDate
+                    description: earliest date to get emails in unix timestamp format
+                    schema:
+                        format: int64
+                        maximum: 9999999999
+                        minimum: 0
+                        type: integer
+                    in: query
+                    required: false
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MailLog'
+                    description: search results matching criteria
+                '400':
+                    description: bad input parameter
+            operationId: viewMailLog
+            summary: displays the mail log
+            description: |
+                Get a listing of the emails sent through this system
+    /ping:
+        get:
+            responses:
+                '200':
+                    description: Server is up and running
+                default:
+                    description: Something is wrong
+            operationId: pingServer
+            summary: Checks if the server is running
+    /maildenyrules:
+        summary: Path used to manage the list of maildenyrules.
+        description: >-
+            The REST endpoint/path used to list and create zero or more `MailDenyRule` entities.  This path
+            contains a `GET` and `POST` operation to perform the list and create tasks, respectively.
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/MailDenyRule'
+                    description: Successful response - returns an array of `MailDenyRule` entities.
+            operationId: getMailDenyRules
+            summary: List All MailDenyRules
+            description: Gets a list of all `MailDenyRule` entities.
+        post:
+            requestBody:
+                description: A new `MailDenyRule` to be created.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MailDenyRule'
+                required: true
+            responses:
+                '201':
+                    description: Successful response.
+            operationId: createMailDenyRule
+            summary: Create a MailDenyRule
+            description: Creates a new instance of a `MailDenyRule`.
+    '/maildenyrules/{maildenyruleId}':
+        summary: Path used to manage a single MailDenyRule.
+        description: >-
+            The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`. 
+            This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and
+            delete tasks, respectively.
+        get:
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MailDenyRule'
+                    description: Successful response - returns a single `MailDenyRule`.
+            operationId: getMailDenyRule
+            summary: Get a MailDenyRule
+            description: Gets the details of a single instance of a `MailDenyRule`.
+        put:
+            requestBody:
+                description: Updated `MailDenyRule` information.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MailDenyRule'
+                required: true
+            responses:
+                '202':
+                    description: Successful response.
+            operationId: updateMailDenyRule
+            summary: Update a MailDenyRule
+            description: Updates an existing `MailDenyRule`.
+        delete:
+            responses:
+                '204':
+                    description: Successful response.
+            operationId: deleteMailDenyRule
+            summary: Delete a MailDenyRule
+            description: Deletes an existing `MailDenyRule`.
+        parameters:
+            -
+                name: maildenyruleId
+                description: A unique identifier for a `MailDenyRule`.
+                schema:
+                    type: string
+                in: path
+                required: true
 components:
-  # Security scheme definitions (see Authentication)
-  securitySchemes:
-    apiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-KEY
-  # Reusable schemas (data models)
-  schemas:
-    # Schema for error response body
-    GenericResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          example: ok
-        text:
-          type: string
-          example: The command completed successfully.
-    MailLog:
-      type: object
-      description: Mail log records
-      properties:
-        total:
-          type: integer
-          example: 10234
-          description: total number of mail log entries
-        skip:
-          type: integer
-          example: 0
-          description: number of emails skipped in listing
-        limit:
-          type: integer
-          example: 100
-          description: number of emails to return
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/MailLogEntry'
-      required:
-        - total
-        - skip
-        - limit
-        - emails
-    MailLogEntry:
-      type: object
-      description: An email record
-      properties:
-        _id:
-          type: integer
-          example: 103172
-          description: internal db id
-        id:
-          type: string
-          example: 17c7eda538e0005d03
-          description: mail id
-        from:
-          type: string
-          example: person@mysite.com
-          description: from address
-        to:
-          type: string
-          example: client@isp.com
-          description: to address
-        subject:
-          type: string
-          example: sell 0.005 shares
-          description: email subject
-        messageId:
-          type: string
-          example: <vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>
-          description: message id
-        created:
-          type: string
-          example: 2021-10-14 08:50:10
-          description: creation date
-        time:
-          type: integer
-          example: 1634215809
-          description: creation timestamp
-        user:
-          type: string
-          example: mb5658
-          description: user account
-        transtype:
-          type: string
-          example: ESMTPSA
-          description: transaction type
-        origin:
-          type: string
-          example: 199.231.189.154
-          description: origin ip
-        interface:
-          type: string
-          example: feeder
-          description: interface name
-        sendingZone:
-          type: string
-          example: interserver
-          description: sending zone
-        bodySize:
-          type: integer
-          example: 63
-          description: email body size in bytes
-        seq:
-          type: integer
-          example: 1
-          description: index of email in the to adderess list
-        recipient:
-          type: string
-          example: client@isp.com
-          description: to address this email is being sent to
-        domain:
-          type: string
-          example: interserver.net
-          description: to address domain
-        locked:
-          type: integer
-          example: 1
-          description: locked status
-        lockTime:
-          type: integer
-          example: 1634215818533
-          description: lock timestamp
-        assigned:
-          type: string
-          example: relay1
-          description: assigned server
-        queued:
-          type: string
-          example: 2021-10-14T12:50:15.487Z
-          description: queued timestamp
-        mxHostname:
-          type: string
-          example: mx.j.is.cc
-          description: mx hostname
-        response:
-          type: string
-          example: 250 2.0.0 Ok queued as C91D83E128C
-          description: mail delivery response
-      required:
-        - _id
-        - id
-        - from
-        - to
-        - subject
-        - created
-        - time
-        - user
-        - transtype
-        - origin
-        - interface
-        - sendingZone
-        - bodySize
-        - seq
-        - recipient
-        - domain
-        - locked
-        - lockTime
-        - assigned
-        - queued
-        - mxHostname
-        - response
-    SendMail:
-      type: object
-      description: Details for an Email
-      properties:
-        to:
-          type: string
-          description: The Contact whom is the primary recipient of this email.
-          example: johndoe@company.com
-        from:
-          type: string
-          description: The contact whom is the this email is from.
-          example: janedoe@company.com
-        subject:
-          type: string
-          description: The subject or title of the email
-          example: Attention Client
-        body:
-          type: string
-          description: The main email contents.
-          example: This is an email to inform you that something noteworthy happened.
-      required:
-        - to
-        - from
-        - subject
-        - body
-    SendMailAdv:
-      title: Email details
-      type: object
-      properties:
-        subject:
-          type: string
-          description: The subject or title of the email
-          example: Your Package has been Delivered!
-        body:
-          type: string
-          description: The main email contents.
-          example: The package you ordered on 2021-01-23 has been delivered. If the package is broken into many pieces, please blaim someone else.
-        from:
-          type: object
-          description: The information to use for the From address in the email. from.
-          properties:
-            email:
-              type: string
-              example: business@company.com
-              description: The email address
-            name:
-              type: string
-              example: The Man
-              description: (optional) Name to use for the sending contact.
-          required:
-            - email
-        to:
-          type: array
-          description: A list of destionation email addresses to send this to
-          items:
-            type: object
-            description: An Email Contact
-            properties:
-              email:
-                type: string
-                example: johndoe@isp.com
-                description: The email address
-              name:
-                type: string
-                example: John Doe
-                description: (optional) Name to use for the destination contact.
-            required:
-              - email
-        replyto:
-          type: array
-          description: (optional) A list of email addresses that specify where replies to the email should be sent instead of the _from_ address.
-          items:
-            type: object
-            description: An Email Contact
-            properties:
-              email:
-                type: string
-                example: support@company.com
-                description: The email address
-              name:
-                type: string
-                example: Support Staff
-                description: (optional) Name to use for the sending contact.
-            required:
-              - email
-        cc:
-          type: array
-          description: (optional) A list of email addresses to carbon copy this message to.  They are listed on the email and anyone getting the email can see this full list of Contacts who received the email as well.
-          items:
-            type: object
-            description: An Email Contact
-            properties:
-              email:
-                type: string
-                example: janedoe@isp.com
-                description: The email address
-              name:
-                type: string
-                example: Jane Doe
-                description: (optional) Name to use for the CC contact.
-            required:
-              - email
-        bcc:
-          type: array
-          description: (optional) list of email addresses that should receive copies of the email.  They are hidden on the email and anyone gettitng the email would not see the other people getting the email in this list.
-          items:
-            type: object
-            description: An Email Contact
-            properties:
-              email:
-                type: string
-                example: records@company.com
-                description: The email address
-              name:
-                type: string
-                example: Records Department
-                description: (optional) Name to use for the BCC contact.
-            required:
-              - email
-        attachments:
-          type: array
-          description: (optional) File attachments to include in the email.  The file contents must be base64 encoded!
-          items:
-            type: object
-            description: A File attachment for an email
-            properties:
-              filename:
-                type: string
-                example: company_logo.png
-                description: (optional) Filename to specify for the attachment.
-              data:
-                type: string
-                format: binary
-                description: Contents of the attached file (must be base64 encoded)
-            required:
-              - data
-        id:
-          type: integer
-          format: int64
-          description: (optional)  ID of the Mail order within our system to use as the Mail Account.
-          example: 5000
-      description: Details for an Email
-      required:
-        - from
-        - to
-        - subject
-        - body
-  # Reusable request bodies
-  requestBodies: {}
-  # Reusable responses, such as 401 Unauthorized or 400 Bad Request
-  responses:
-    BadInput:
-      description: The specified resource was not found
-      content:
-        application/json:
-          schema:
+    schemas:
+        GenericResponse:
             type: object
             properties:
-              code:
-                type: string
-              message:
-                type: string
+                status:
+                    type: string
+                    example: ok
+                text:
+                    type: string
+                    example: The command completed successfully.
+        MailLog:
+            description: Mail log records
             required:
-              - code
-              - message
-    AlreadyExists:
-      description: The specified resource was not found
-      content:
-        application/json:
-          schema:
+                - total
+                - skip
+                - limit
+                - emails
             type: object
             properties:
-              code:
-                type: string
-              message:
-                type: string
+                total:
+                    description: total number of mail log entries
+                    type: integer
+                    example: 10234
+                skip:
+                    description: number of emails skipped in listing
+                    type: integer
+                    example: 0
+                limit:
+                    description: number of emails to return
+                    type: integer
+                    example: 100
+                emails:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MailLogEntry'
+        MailLogEntry:
+            description: An email record
             required:
-              - code
-              - message
-    NotFound:
-      description: The specified resource was not found
-      content:
-        application/json:
-          schema:
+                - _id
+                - id
+                - from
+                - to
+                - subject
+                - created
+                - time
+                - user
+                - transtype
+                - origin
+                - interface
+                - sendingZone
+                - bodySize
+                - seq
+                - recipient
+                - domain
+                - locked
+                - lockTime
+                - assigned
+                - queued
+                - mxHostname
+                - response
             type: object
             properties:
-              code:
-                type: string
-              message:
-                type: string
+                _id:
+                    description: internal db id
+                    type: integer
+                    example: 103172
+                id:
+                    description: mail id
+                    type: string
+                    example: 17c7eda538e0005d03
+                from:
+                    description: from address
+                    type: string
+                    example: person@mysite.com
+                to:
+                    description: to address
+                    type: string
+                    example: client@isp.com
+                subject:
+                    description: email subject
+                    type: string
+                    example: sell 0.005 shares
+                messageId:
+                    description: message id
+                    type: string
+                    example: <vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>
+                created:
+                    description: creation date
+                    type: string
+                    example: '2021-10-14 08:50:10'
+                time:
+                    description: creation timestamp
+                    type: integer
+                    example: 1634215809
+                user:
+                    description: user account
+                    type: string
+                    example: mb5658
+                transtype:
+                    description: transaction type
+                    type: string
+                    example: ESMTPSA
+                origin:
+                    description: origin ip
+                    type: string
+                    example: 199.231.189.154
+                interface:
+                    description: interface name
+                    type: string
+                    example: feeder
+                sendingZone:
+                    description: sending zone
+                    type: string
+                    example: interserver
+                bodySize:
+                    description: email body size in bytes
+                    type: integer
+                    example: 63
+                seq:
+                    description: index of email in the to adderess list
+                    type: integer
+                    example: 1
+                recipient:
+                    description: to address this email is being sent to
+                    type: string
+                    example: client@isp.com
+                domain:
+                    description: to address domain
+                    type: string
+                    example: interserver.net
+                locked:
+                    description: locked status
+                    type: integer
+                    example: 1
+                lockTime:
+                    description: lock timestamp
+                    type: integer
+                    example: 1634215818533
+                assigned:
+                    description: assigned server
+                    type: string
+                    example: relay1
+                queued:
+                    description: queued timestamp
+                    type: string
+                    example: '2021-10-14T12:50:15.487Z'
+                mxHostname:
+                    description: mx hostname
+                    type: string
+                    example: mx.j.is.cc
+                response:
+                    description: mail delivery response
+                    type: string
+                    example: 250 2.0.0 Ok queued as C91D83E128C
+        SendMail:
+            description: Details for an Email
             required:
-              - code
-              - message
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
+                - to
+                - from
+                - subject
+                - body
             type: object
             properties:
-              code:
-                type: string
-              message:
-                type: string
+                to:
+                    description: The Contact whom is the primary recipient of this email.
+                    type: string
+                    example: johndoe@company.com
+                from:
+                    description: The contact whom is the this email is from.
+                    type: string
+                    example: janedoe@company.com
+                subject:
+                    description: The subject or title of the email
+                    type: string
+                    example: Attention Client
+                body:
+                    description: The main email contents.
+                    type: string
+                    example: This is an email to inform you that something noteworthy happened.
+        SendMailAdv:
+            title: Email details
+            description: Details for an Email
             required:
-              - code
-              - message
-  # Reusable response headers
-  headers: {}
-  # Reusable examples
-  examples: {}
-  # Reusable links
-  links: {}
-  # Reusable callbacks
-  callbacks: {}
-  # Reusable path, query, header and cookie parameters
-  parameters:
-    offsetParam:      # Can be referenced via '#/components/parameters/offsetParam'
-      name: offset
-      in: query
-      description: Number of items to skip before returning the results.
-      required: false
-      schema:
-        type: integer
-        format: int32
-        minimum: 0
-        default: 0
-    limitParam:       # Can be referenced as '#/components/parameters/limitParam'
-      name: limit
-      in: query
-      description: Maximum number of items to return.
-      required: false
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 100
-        default: 20
+                - from
+                - to
+                - subject
+                - body
+            type: object
+            properties:
+                subject:
+                    description: The subject or title of the email
+                    type: string
+                    example: Your Package has been Delivered!
+                body:
+                    description: The main email contents.
+                    type: string
+                    example: >-
+                        The package you ordered on 2021-01-23 has been delivered. If the package is broken
+                        into many pieces, please blaim someone else.
+                from:
+                    description: The information to use for the From address in the email. from.
+                    required:
+                        - email
+                    type: object
+                    properties:
+                        email:
+                            description: The email address
+                            type: string
+                            example: business@company.com
+                        name:
+                            description: (optional) Name to use for the sending contact.
+                            type: string
+                            example: The Man
+                to:
+                    description: A list of destionation email addresses to send this to
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: johndoe@isp.com
+                            name:
+                                description: (optional) Name to use for the destination contact.
+                                type: string
+                                example: John Doe
+                replyto:
+                    description: >-
+                        (optional) A list of email addresses that specify where replies to the email should be
+                        sent instead of the _from_ address.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: support@company.com
+                            name:
+                                description: (optional) Name to use for the sending contact.
+                                type: string
+                                example: Support Staff
+                cc:
+                    description: >-
+                        (optional) A list of email addresses to carbon copy this message to.  They are listed
+                        on the email and anyone getting the email can see this full list of Contacts who
+                        received the email as well.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: janedoe@isp.com
+                            name:
+                                description: (optional) Name to use for the CC contact.
+                                type: string
+                                example: Jane Doe
+                bcc:
+                    description: >-
+                        (optional) list of email addresses that should receive copies of the email.  They are
+                        hidden on the email and anyone gettitng the email would not see the other people
+                        getting the email in this list.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: records@company.com
+                            name:
+                                description: (optional) Name to use for the BCC contact.
+                                type: string
+                                example: Records Department
+                attachments:
+                    description: >-
+                        (optional) File attachments to include in the email.  The file contents must be base64
+                        encoded!
+                    type: array
+                    items:
+                        description: A File attachment for an email
+                        required:
+                            - data
+                        type: object
+                        properties:
+                            filename:
+                                description: (optional) Filename to specify for the attachment.
+                                type: string
+                                example: company_logo.png
+                            data:
+                                format: binary
+                                description: Contents of the attached file (must be base64 encoded)
+                                type: string
+                id:
+                    format: int64
+                    description: (optional)  ID of the Mail order within our system to use as the Mail Account.
+                    type: integer
+                    example: 5000
+        DenyRuleRecord:
+            title: Root Type for DenyRule
+            description: The data for a email deny rule record.
+            type: object
+            allOf:
+                -
+                    required:
+                        - id
+                        - created
+                    type: object
+                    properties:
+                        id:
+                            description: The deny rule Id number.
+                            type: integer
+                            example: '41124'
+                        created:
+                            format: date-time
+                            description: the date the rule was created.
+                            type: string
+                            example: '2022-03-22 19:16:35'
+                -
+                    $ref: '#/components/schemas/DenyRuleNew'
+            example:
+                id: 14
+                user: mb20682
+                type: email
+                data: domeinwo@server.guesshost.net
+                created: '2022-03-22 19:16:35'
+        MailDenyRule:
+            title: Root Type for MailDenyRule
+            description: '    A rule which will will be matched against new emails to be elivered and if it matches the mail will be denied delivery.'
+            type: object
+            properties:
+                ruleId:
+                    format: int32
+                    type: integer
+                mailId:
+                    format: int32
+                    type: integer
+                type:
+                    type: string
+                data:
+                    type: string
+                created:
+                    format: date-time
+                    type: string
+            example:
+                ruleId: 14
+                mailId: 412
+                type: email
+                data: domeinwo@server.guesshost.net
+                created: '2022-03-22 19:16:35'
+        DenyRuleNew:
+            title: Root Type for DenyRule
+            description: The data for a email deny rule record.
+            required:
+                - type
+                - data
+            type: object
+            properties:
+                user:
+                    description: >-
+                        Mail account username that will be tied to this rule.  If not specified the first
+                        active mail order will be used.
+                    type: string
+                    example: mb20682
+                type:
+                    description: The type of deny rule.
+                    enum:
+                        - domain
+                        - email
+                        - startswith
+                    type: string
+                    example: email
+                data:
+                    description: >-
+                        The content of the rule.  If a domain type rule then an example would be google.com. 
+                        For a begins with type an example would be msgid-.  For the email typer an example
+                        would be user@server.com.
+                    type: string
+                    example: domeinwo@server.guesshost.net
+            example:
+                user: mb20682
+                type: email
+                data: domeinwo@server.guesshost.net
+    responses:
+        BadInput:
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - code
+                            - message
+                        type: object
+                        properties:
+                            code:
+                                type: string
+                            message:
+                                type: string
+            description: The specified resource was not found
+        AlreadyExists:
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - code
+                            - message
+                        type: object
+                        properties:
+                            code:
+                                type: string
+                            message:
+                                type: string
+            description: The specified resource was not found
+        NotFound:
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - code
+                            - message
+                        type: object
+                        properties:
+                            code:
+                                type: string
+                            message:
+                                type: string
+            description: The specified resource was not found
+        Unauthorized:
+            content:
+                application/json:
+                    schema:
+                        required:
+                            - code
+                            - message
+                        type: object
+                        properties:
+                            code:
+                                type: string
+                            message:
+                                type: string
+            description: Unauthorized
+    parameters:
+        offsetParam:
+            name: offset
+            description: Number of items to skip before returning the results.
+            schema:
+                format: int32
+                default: 0
+                minimum: 0
+                type: integer
+            in: query
+            required: false
+        limitParam:
+            name: limit
+            description: Maximum number of items to return.
+            schema:
+                format: int32
+                default: 20
+                maximum: 100
+                minimum: 1
+                type: integer
+            in: query
+            required: false
+    securitySchemes:
+        apiKeyAuth:
+            type: apiKey
+            name: X-API-KEY
+            in: header
 security:
-  - apiKeyAuth: []
+    -
+        apiKeyAuth: []
 externalDocs:
-  description: FAQ
-  url: https://www.mail.baby/tips/
+    description: FAQ
+    url: 'https://www.mail.baby/tips/'
