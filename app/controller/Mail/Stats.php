@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 use Respect\Validation\Validator as v;
 
-class Rules extends BaseController
+class Stats extends BaseController
 {
     public function get(Request $request) : Response {
         $accountInfo = $request->accountInfo;
