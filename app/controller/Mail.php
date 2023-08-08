@@ -73,6 +73,19 @@ class Mail
 		return json($return);
 	}
 
+    public function rules(Request $request) : Response {
+    }
+
+    public function alerts(Request $request) : Response {
+    }
+
+    public function blocks(Request $request) : Response {
+    }
+
+    public function stats(Request $request) : Response {
+    }
+
+
     public function send(Request $request) : Response {
     	if ($request->method() != 'POST')
     		return $this->jsonErrorResponse('This should be a POST request.', 400);

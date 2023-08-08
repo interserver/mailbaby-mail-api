@@ -24,7 +24,11 @@ Route::group('/mail', function() {
 	Route::any('', [app\controller\Mail::class, 'index']);
     Route::any('/send', [app\controller\Mail::class, 'send']);
     Route::any('/advsend', [app\controller\Mail::class, 'advsend']);
-	Route::any('/log', [app\controller\Mail::class, 'log']);
+    Route::any('/log', [app\controller\Mail::class, 'log']);
+    Route::any('/rules', [app\controller\Mail::class, 'rules']);
+    Route::any('/stats', [app\controller\Mail::class, 'stats']);
+    Route::any('/blocks', [app\controller\Mail::class, 'blocks']);
+    Route::any('/alerts', [app\controller\Mail::class, 'alerts']);
 
 })->middleware([
 	app\middleware\AuthCheck::class
