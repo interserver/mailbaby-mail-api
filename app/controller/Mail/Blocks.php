@@ -26,11 +26,53 @@ class Blocks extends BaseController
         if (count($users) == 0) {
             return $this->jsonErrorResponse('No active mail orders.', 400);
         }
-        $rows = Db::connection('zonemta')
-            ->table('mail_spam')
-            ->whereIn('user', $users)
-            ->get();
-        $return = $rows->all();
+        $output = '';
+        $daysHistory = 5;
+        $hoursHistory = $daysHistory * 24;
+        $manualBlockDays = 30;
+        $subjectBlockDays = 3;
+        $subjectBlockHours = $subjectBlockDays * 24;
+        $username = $db->real_escape($this->serviceInfo['mail_username']);
+        $return = [
+            'local' => [],
+            'mbtrap' => [],
+            'subject' => [],
+        ];
+        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='LOCAL_BL_RCPT' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser='{$username}' order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
+        if ($lines != '') {
+            $lines = explode("\n", $lines);
+            foreach ($lines as $line) {
+                $line = explode("\t", $line);
+                $return['local'][]  = [
+                    'Date' => $line[0],
+                    'SMTPFrom' => $line[1],
+                    'MessageId' => $line[2],
+                    'Subject' => $line[3],
+                    'MimeRecipients' => $line[4],
+                ];
+            }
+        }
+        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='MBTRAP' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser='{$username}' order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
+        if ($lines != '') {
+            $lines = explode("\n", $lines);
+            foreach ($lines as $line) {
+                $line = explode("\t", $line);
+                $return['mbtrap'][]  = [
+                    'Date' => $line[0],
+                    'SMTPFrom' => $line[1],
+                    'MessageId' => $line[2],
+                    'Subject' => $line[3],
+                    'MimeRecipients' => $line[4],
+                ];
+            }
+        }
+        /*
+        $db = new Db(ZONEMTA_RSPAMD_MYSQL_DB, ZONEMTA_RSPAMD_MYSQL_USERNAME, ZONEMTA_RSPAMD_MYSQL_PASSWORD, ZONEMTA_RSPAMD_MYSQL_HOST);
+        $db->query("SELECT fromemail, headersubject FROM rspamd WHERE user = '{$username}' AND date > NOW() - INTERVAL {$subjectBlockHours} HOUR and (headersubject LIKE '%@%' OR headersubject LIKE '%smtp%' OR headersubject LIKE '%socks5%' OR headersubject LIKE '%socks4%') GROUP BY headersubject HAVING COUNT(headersubject) > 4", __LINE__, __FILE__);
+        while ($db->next_record(MYSQL_ASSOC)) {
+            $return['subject'][] = $db->Record;
+        }
+        */
         return json($return);
     }
 
@@ -50,6 +92,17 @@ class Blocks extends BaseController
         if (count($users) == 0) {
             return $this->jsonErrorResponse('No active mail orders.', 400);
         }
+        /*
+        $db = new Db(ZONEMTA_RSPAMD_MYSQL_DB, ZONEMTA_RSPAMD_MYSQL_USERNAME, ZONEMTA_RSPAMD_MYSQL_PASSWORD, ZONEMTA_RSPAMD_MYSQL_HOST);
+        $username = $db->real_escape($this->serviceInfo['mail_username']);
+        if (isset($GLOBALS['tf']->variables->request['unblock'])) {
+            $unblock = $db->real_escape(trim($GLOBALS['tf']->variables->request['unblock']));
+            $db->query("delete from rspamd where fromemail='{$unblock}'", __LINE__, __FILE__);
+            $db->query("delete from mailchannels where fromemail='{$unblock}'", __LINE__, __FILE__);
+            $db->query("delete from mailbaby where fromemail='{$unblock}'", __LINE__, __FILE__);
+            add_output("Email '$unblock' Unblocked/Delisted<br>");
+        }
+        */
         $rows = Db::connection('zonemta')
             ->table('mail_spam')
             ->whereIn('user', $users)
