@@ -218,18 +218,6 @@ class Mail extends BaseController
         }
     }
 
-    public function rules(Request $request) : Response {
-    }
-
-    public function alerts(Request $request) : Response {
-    }
-
-    public function blocks(Request $request) : Response {
-    }
-
-    public function stats(Request $request) : Response {
-    }
-
 	public function log(Request $request) {
 		$accountInfo = $request->accountInfo;
 		$id = $request->get('id', null);
