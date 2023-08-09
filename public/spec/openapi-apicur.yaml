@@ -84,29 +84,28 @@ paths:
                     content:
                         application/json:
                             schema:
-                                type: array
-                                items:
-                                    required:
-                                        - id
-                                        - status
-                                        - username
-                                    type: object
-                                    properties:
-                                        id:
-                                            type: integer
-                                            example: 1234
-                                        status:
-                                            type: string
-                                            example: active
-                                        username:
-                                            type: string
-                                            example: mb1234
-                                        password:
-                                            type: string
-                                            example: guest123
-                                        comment:
-                                            type: string
-                                            example: main mail account
+                                $ref: '#/components/schemas/MailBlocks'
+                            examples:
+                                MailBlocksExample:
+                                    value:
+                                        local:
+                                            -
+                                                Date: '2023-08-07'
+                                                SMTPFrom: user@domain.com
+                                                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                                                Subject: Test Email
+                                                MimeRecipients: '[''client@site.com'']'
+                                        mbtrap:
+                                            -
+                                                Date: '2023-08-07'
+                                                SMTPFrom: user@domain.com
+                                                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                                                Subject: Test Email
+                                                MimeRecipients: '[''client@site.com'']'
+                                        subject:
+                                            -
+                                                fromemail: user@domain.com
+                                                headersubject: Test Email
                     links:
                         delistBlockLink:
                             operationId: delistBlock
@@ -1134,6 +1133,80 @@ components:
                 id: 21472
                 status: active
                 username: mb21472
+        MailBlockClickHouse:
+            title: Root Type for MailBlockClickHouse
+            description: A block entry from the clickhouse mailblocks server.
+            type: object
+            properties:
+                Date:
+                    format: date
+                    type: string
+                SMTPFrom:
+                    type: string
+                MessageId:
+                    type: string
+                Subject:
+                    type: string
+                MimeRecipients:
+                    type: string
+            example:
+                Date: '2023-08-07'
+                SMTPFrom: user@domain.com
+                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                Subject: Test Email
+                MimeRecipients: '[''client@site.com'']'
+        MailBlockRspamd:
+            title: Root Type for MailBlockRspamd
+            description: This is a block entry from the rspamd block list.
+            type: object
+            properties:
+                fromemail:
+                    type: string
+                headersubject:
+                    type: string
+            example:
+                fromemail: user@domain.com
+                headersubject: Test email
+        MailBlocks:
+            title: Root Type for MailBlocks
+            description: The listing of blocked emails.
+            required:
+                - local
+                - mbtrap
+                - subject
+            type: object
+            properties:
+                local:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MailBlockClickHouse'
+                mbtrap:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MailBlockClickHouse'
+                subject:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MailBlockRspamd'
+            example:
+                local:
+                    -
+                        Date: '2023-08-07'
+                        SMTPFrom: user@domain.com
+                        MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                        Subject: Test Email
+                        MimeRecipients: '[''client@site.com'']'
+                mbtrap:
+                    -
+                        Date: '2023-08-07'
+                        SMTPFrom: user@domain.com
+                        MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                        Subject: Test Email
+                        MimeRecipients: '[''client@site.com'']'
+                subject:
+                    -
+                        fromemail: user@domain.com
+                        headersubject: Test Email
     responses:
         BadInput:
             content:
