@@ -346,7 +346,7 @@ paths:
         post:
             requestBody:
                 content:
-                    application/json:
+                    application/x-www-form-urlencoded:
                         schema:
                             $ref: '#/components/schemas/SendMailAdv'
                         examples:
@@ -365,7 +365,7 @@ paths:
                                             filename: some text
                                             data: <FILE>
                                     id: 66
-                    application/x-www-form-urlencoded:
+                    application/json:
                         schema:
                             $ref: '#/components/schemas/SendMailAdv'
                         examples:
