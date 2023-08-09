@@ -37,6 +37,8 @@ servers:
 paths:
     /mail:
         get:
+            tags:
+                - mail
             responses:
                 '200':
                     content:
@@ -82,6 +84,8 @@ paths:
             summary: displays a list of mail service orders
     /mail/blocks:
         get:
+            tags:
+                - mail
             responses:
                 '200':
                     content:
@@ -125,34 +129,9 @@ paths:
                     $ref: '#/components/responses/Unauthorized'
             operationId: getMailBlocks
             summary: displays a list of blocked email addresses
-        post:
-            requestBody:
-                content:
-                    application/x-www-form-urlencoded:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: searchAlert
-            summary: Adds a new email alert
-            description: |
-                Removes an email address from the various block lists.
         delete:
+            tags:
+                - mail
             parameters:
                 -
                     example: 2604
@@ -177,106 +156,6 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
             operationId: delistBlock
-            summary: Removes an email address from the blocked list
-            description: |
-                Removes an email address from the various block lists.
-    /mail/alerts:
-        get:
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items:
-                                    required:
-                                        - id
-                                        - status
-                                        - username
-                                    type: object
-                                    properties:
-                                        id:
-                                            type: integer
-                                            example: 1234
-                                        status:
-                                            type: string
-                                            example: active
-                                        username:
-                                            type: string
-                                            example: mb1234
-                                        password:
-                                            type: string
-                                            example: guest123
-                                        comment:
-                                            type: string
-                                            example: main mail account
-                    links:
-                        delistBlockLink:
-                            operationId: delistBlock
-                            parameters:
-                                id: '$response.body#/0/id'
-                            description: >-
-                                The `id` value returned in the response can be used as the `id` parameter in
-                                `GET /mail/advsend`.
-                    description: OK
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/Unauthorized'
-            operationId: getAlerts
-            summary: displays a list of blocked email addresses
-        post:
-            requestBody:
-                content:
-                    application/x-www-form-urlencoded:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: addAlert
-            summary: Adds a new email alert
-            description: |
-                Removes an email address from the various block lists.
-        delete:
-            parameters:
-                -
-                    example: 2604
-                    name: id
-                    description: The ID of your mail order this will be sent through.
-                    schema:
-                        format: int64
-                        type: integer
-                    in: query
-                    required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: deleteAlert
             summary: Removes an email address from the blocked list
             description: |
                 Removes an email address from the various block lists.
@@ -388,6 +267,8 @@ paths:
                 Removes an email address from the various block lists.
     /mail/stats:
         get:
+            tags:
+                - mail
             responses:
                 '200':
                     content:
@@ -433,6 +314,8 @@ paths:
             summary: displays a list of blocked email addresses
     /mail/send:
         post:
+            tags:
+                - mail
             requestBody:
                 content:
                     application/x-www-form-urlencoded:
@@ -465,6 +348,8 @@ paths:
                 (Advanced Send) call instead.
     /mail/advsend:
         post:
+            tags:
+                - mail
             requestBody:
                 content:
                     application/json:
@@ -494,6 +379,8 @@ paths:
                 attachments, cc, bcc, etc.
     /mail/log:
         get:
+            tags:
+                - mail
             parameters:
                 -
                     example: 2604

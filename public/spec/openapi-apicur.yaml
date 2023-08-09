@@ -323,60 +323,9 @@ paths:
             operationId: getRules
             summary: displays a list of blocked email addresses
             description: Returns a listing of all the demy block rules you have configured.
-        post:
-            requestBody:
-                description: These are the fields needed to create a new email deny rule.
-                content:
-                    application/x-www-form-urlencoded:
-                        schema:
-                            $ref: '#/components/schemas/DenyRuleNew'
-                        examples:
-                            DenyRuleNewFormExample:
-                                value:
-                                    user: mb20682
-                                    type: email
-                                    data: domeinwo@server.guesshost.net
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/DenyRuleNew'
-                        examples:
-                            DenyRuleNewJsonExample:
-                                value:
-                                    user: mb20682
-                                    type: email
-                                    data: domeinwo@server.guesshost.net
-                required: true
-            tags:
-                - mail
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: addRule
-            summary: Creates a new email deny rule.
-            description: Adds a new email deny rule into the system to block new emails that match the given criteria
         delete:
             tags:
                 - mail
-            parameters:
-                -
-                    example: 2604
-                    name: id
-                    description: The ID of your mail order this will be sent through.
-                    schema:
-                        format: int64
-                        type: integer
-                    in: query
-                    required: true
             responses:
                 '200':
                     content:
@@ -1207,6 +1156,17 @@ components:
                     -
                         fromemail: user@domain.com
                         headersubject: Test Email
+        EmailAddress:
+            title: Root Type for EmailAddress
+            description: an email address
+            type: object
+            properties:
+                email:
+                    description: an email address
+                    type: string
+                    example: user@domain.com
+            example:
+                email: user@domain.com
     responses:
         BadInput:
             content:
