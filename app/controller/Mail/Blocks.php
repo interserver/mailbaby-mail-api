@@ -90,11 +90,11 @@ class Blocks extends BaseController
             ->delete();
         Db::connection('rspamd')
             ->table('mailchannels')
-            ->where('fromemail', $email)
+            ->where('email', $email)
             ->delete();
         Db::connection('rspamd')
             ->table('mailbaby')
-            ->where('fromemail', $email)
+            ->where('emailfrom', $email)
             ->delete();
         return json(['status' =>'ok', 'record deleted']);
     }
