@@ -6,9 +6,6 @@ use support\Response;
 use support\Db;
 use support\bootstrap\Log;
 use app\controller\BaseController;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 use Respect\Validation\Validator as v;
 
 class Alerts extends BaseController

@@ -6,9 +6,6 @@ use support\Response;
 use support\Db;
 use support\bootstrap\Log;
 use app\controller\BaseController;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 use Respect\Validation\Validator as v;
 
 class Blocks extends BaseController
@@ -32,13 +29,13 @@ class Blocks extends BaseController
         $manualBlockDays = 30;
         $subjectBlockDays = 3;
         $subjectBlockHours = $subjectBlockDays * 24;
-        $username = $db->real_escape($this->serviceInfo['mail_username']);
         $return = [
             'local' => [],
             'mbtrap' => [],
             'subject' => [],
         ];
-        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='LOCAL_BL_RCPT' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser='{$username}' order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
+        $userStr = implode("','", $users);
+        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='LOCAL_BL_RCPT' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
         if ($lines != '') {
             $lines = explode("\n", $lines);
             foreach ($lines as $line) {
@@ -52,7 +49,7 @@ class Blocks extends BaseController
                 ];
             }
         }
-        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='MBTRAP' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser='{$username}' order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
+        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='MBTRAP' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
         if ($lines != '') {
             $lines = explode("\n", $lines);
             foreach ($lines as $line) {
