@@ -339,15 +339,51 @@ paths:
                 *Note*: If you want to send to multiple recipients or use file attachments use the advsend
                 (Advanced Send) call instead.
     /mail/advsend:
+        summary: Sends an Email with Advanced Options
+        description: >-
+            Sends An email through one of your mail orders allowing additional options such as file
+            attachments, cc, bcc, etc.
         post:
             requestBody:
                 content:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/SendMailAdv'
+                        examples:
+                            AdvSendExample:
+                                value:
+                                    subject: Welcome
+                                    body: Hello
+                                    from:
+                                        email: user@domain.com
+                                    to:
+                                        -
+                                            email: someone@client.com
+                                            name: Mr Client
+                                    attachments:
+                                        -
+                                            filename: some text
+                                            data: <FILE>
+                                    id: 66
                     application/x-www-form-urlencoded:
                         schema:
                             $ref: '#/components/schemas/SendMailAdv'
+                        examples:
+                            AdvSendExample:
+                                value:
+                                    subject: Welcome
+                                    body: Hello
+                                    from:
+                                        email: user@domain.com
+                                    to:
+                                        -
+                                            email: someone@client.com
+                                            name: Mr Client
+                                    attachments:
+                                        -
+                                            filename: some text
+                                            data: <FILE>
+                                    id: 66
                 required: true
             tags:
                 - Sending
@@ -1127,7 +1163,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EmailAddressName'
-                    example: '[{"email": "user@domain.com", "name": "John Smith"}]'
+                    example: '{"email": "user@domain.com", "name": "John Smith"}'
                 replyto:
                     description: >-
                         (optional) A list of email addresses that specify where replies to the email should be
@@ -1185,36 +1221,20 @@ components:
                     description: (optional)  ID of the Mail order within our system to use as the Mail Account.
                     type: integer
                     example: '5000'
-            example: |-
-                {
-                    "subject": "Welcome",
-                    "body": "Hello",
-                    "from": [
-                        {
-                            "email": "user@domain.com"
-                        }
-                    ],
-                    "to": [
-                        {
-                            "email": "someone@client.com",
-                            "name": "Mr Client"
-                        },
-                        {
-                            "email": "some text",
-                            "name": "some text"
-                        }
-                    "attachments": [
-                        {
-                            "filename": "some text",
-                            "data": "<FILE>"
-                        },
-                        {
-                            "filename": "some text",
-                            "data": "<FILE>"
-                        }
-                    ],
-                    "id": 66
-                }
+            example:
+                subject: Welcome
+                body: Hello
+                from:
+                    email: user@domain.com
+                to:
+                    -
+                        email: someone@client.com
+                        name: Mr Client
+                attachments:
+                    -
+                        filename: some text
+                        data: <FILE>
+                id: 66
         EmailAddressName:
             title: Root Type for EmailAddressName
             description: An email contact.
