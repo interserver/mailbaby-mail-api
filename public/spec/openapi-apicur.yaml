@@ -31,14 +31,11 @@ servers:
     -
         url: 'https://api.mailbaby.net'
         description: Live API Endpoint
-    -
-        url: 'https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0'
-        description: SwaggerHub API Auto Mocking
 paths:
     /mail:
         get:
             tags:
-                - mail
+                - Services
             responses:
                 '200':
                     content:
@@ -79,6 +76,8 @@ paths:
                 username, and optional comment.
     /mail/blocks:
         get:
+            tags:
+                - Blocking
             responses:
                 '200':
                     content:
@@ -90,30 +89,30 @@ paths:
                                     value:
                                         local:
                                             -
-                                                Date: '2023-08-07'
-                                                SMTPFrom: user@domain.com
-                                                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
-                                                Subject: Test Email
-                                                MimeRecipients: '[''client@site.com'']'
+                                                date: '2023-08-07'
+                                                from: user@domain.com
+                                                messageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                                                subject: Test Email
+                                                to: '[''client@site.com'']'
                                         mbtrap:
                                             -
-                                                Date: '2023-08-07'
-                                                SMTPFrom: user@domain.com
-                                                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
-                                                Subject: Test Email
-                                                MimeRecipients: '[''client@site.com'']'
+                                                date: '2023-08-07'
+                                                from: user@domain.com
+                                                messageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                                                subject: Test Email
+                                                to: '[''client@site.com'']'
                                         subject:
                                             -
-                                                fromemail: user@domain.com
-                                                headersubject: Test Email
+                                                from: user@domain.com
+                                                subject: Test Email
                     links:
                         delistBlockLink:
                             operationId: delistBlock
                             parameters:
-                                id: '$response.body#/0/id'
+                                email: '$response.body#/local/0/from'
                             description: >-
-                                The `id` value returned in the response can be used as the `id` parameter in
-                                `GET /mail/advsend`.
+                                The `from` value returned in the response can be used as the `email` parameter
+                                in `DELETE /mail/blocks`.
                     description: OK
                 '401':
                     $ref: '#/components/responses/Unauthorized'
@@ -121,34 +120,9 @@ paths:
                     $ref: '#/components/responses/Unauthorized'
             operationId: getMailBlocks
             summary: displays a list of blocked email addresses
-        post:
-            requestBody:
-                content:
-                    application/x-www-form-urlencoded:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: searchAlert
-            summary: Adds a new email alert
-            description: |
-                Removes an email address from the various block lists.
         delete:
+            tags:
+                - Blocking
             parameters:
                 -
                     example: 2604
@@ -176,106 +150,6 @@ paths:
             summary: Removes an email address from the blocked list
             description: |
                 Removes an email address from the various block lists.
-    /mail/alerts:
-        get:
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items:
-                                    required:
-                                        - id
-                                        - status
-                                        - username
-                                    type: object
-                                    properties:
-                                        id:
-                                            type: integer
-                                            example: 1234
-                                        status:
-                                            type: string
-                                            example: active
-                                        username:
-                                            type: string
-                                            example: mb1234
-                                        password:
-                                            type: string
-                                            example: guest123
-                                        comment:
-                                            type: string
-                                            example: main mail account
-                    links:
-                        delistBlockLink:
-                            operationId: delistBlock
-                            parameters:
-                                id: '$response.body#/0/id'
-                            description: >-
-                                The `id` value returned in the response can be used as the `id` parameter in
-                                `GET /mail/advsend`.
-                    description: OK
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/Unauthorized'
-            operationId: getAlerts
-            summary: displays a list of blocked email addresses
-        post:
-            requestBody:
-                content:
-                    application/x-www-form-urlencoded:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SendMail'
-                required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: addAlert
-            summary: Adds a new email alert
-            description: |
-                Removes an email address from the various block lists.
-        delete:
-            parameters:
-                -
-                    example: 2604
-                    name: id
-                    description: The ID of your mail order this will be sent through.
-                    schema:
-                        format: int64
-                        type: integer
-                    in: query
-                    required: true
-            responses:
-                '200':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/GenericResponse'
-                    description: search results matching criteria
-                '400':
-                    $ref: '#/components/responses/BadInput'
-                '401':
-                    $ref: '#/components/responses/Unauthorized'
-                '404':
-                    $ref: '#/components/responses/NotFound'
-            operationId: deleteAlert
-            summary: Removes an email address from the blocked list
-            description: |
-                Removes an email address from the various block lists.
     /mail/rules:
         summary: Deny Rules
         description: >-
@@ -283,7 +157,7 @@ paths:
             from being sent through our system when  the citeria match.
         get:
             tags:
-                - mail
+                - Blocking
             responses:
                 '200':
                     content:
@@ -321,11 +195,52 @@ paths:
                 '404':
                     $ref: '#/components/responses/Unauthorized'
             operationId: getRules
-            summary: displays a list of blocked email addresses
-            description: Returns a listing of all the demy block rules you have configured.
+            summary: Displays a listing of deny email rules.
+            description: Returns a listing of all the deny block rules you have configured.
+        post:
+            requestBody:
+                description: These are the fields needed to create a new email deny rule.
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            $ref: '#/components/schemas/DenyRuleNew'
+                        examples:
+                            DenyRuleNewFormExample:
+                                value:
+                                    user: mb20682
+                                    type: email
+                                    data: domeinwo@server.guesshost.net
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DenyRuleNew'
+                        examples:
+                            DenyRuleNewJsonExample:
+                                value:
+                                    user: mb20682
+                                    type: email
+                                    data: domeinwo@server.guesshost.net
+                required: true
+            tags:
+                - Blocking
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenericResponse'
+                    description: search results matching criteria
+                '400':
+                    $ref: '#/components/responses/BadInput'
+                '401':
+                    $ref: '#/components/responses/Unauthorized'
+                '404':
+                    $ref: '#/components/responses/NotFound'
+            operationId: addRule
+            summary: Creates a new email deny rule.
+            description: Adds a new email deny rule into the system to block new emails that match the given criteria
         delete:
             tags:
-                - mail
+                - Blocking
             responses:
                 '200':
                     content:
@@ -340,11 +255,12 @@ paths:
                 '404':
                     $ref: '#/components/responses/NotFound'
             operationId: deleteRule
-            summary: Removes an email address from the blocked list
-            description: |
-                Removes an email address from the various block lists.
+            summary: Removes an deny mail rule.
+            description: Removes one of the configured deny mail rules from the system.
     /mail/stats:
         get:
+            tags:
+                - History
             responses:
                 '200':
                     content:
@@ -399,6 +315,8 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SendMail'
                 required: true
+            tags:
+                - Sending
             responses:
                 '200':
                     content:
@@ -431,6 +349,8 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SendMailAdv'
                 required: true
+            tags:
+                - Sending
             responses:
                 '200':
                     content:
@@ -451,6 +371,8 @@ paths:
                 attachments, cc, bcc, etc.
     /mail/log:
         get:
+            tags:
+                - History
             parameters:
                 -
                     example: 2604
@@ -569,6 +491,8 @@ paths:
                 Get a listing of the emails sent through this system
     /ping:
         get:
+            tags:
+                - Status
             responses:
                 '200':
                     description: Server is up and running
@@ -582,6 +506,8 @@ paths:
             The REST endpoint/path used to list and create zero or more `MailDenyRule` entities.  This path
             contains a `GET` and `POST` operation to perform the list and create tasks, respectively.
         get:
+            tags:
+                - Blocking
             responses:
                 '200':
                     content:
@@ -602,6 +528,8 @@ paths:
                         schema:
                             $ref: '#/components/schemas/MailDenyRule'
                 required: true
+            tags:
+                - Blocking
             responses:
                 '201':
                     description: Successful response.
@@ -615,6 +543,8 @@ paths:
             This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and
             delete tasks, respectively.
         get:
+            tags:
+                - Blocking
             responses:
                 '200':
                     content:
@@ -633,6 +563,8 @@ paths:
                         schema:
                             $ref: '#/components/schemas/MailDenyRule'
                 required: true
+            tags:
+                - Blocking
             responses:
                 '202':
                     description: Successful response.
@@ -640,6 +572,8 @@ paths:
             summary: Update a MailDenyRule
             description: Updates an existing `MailDenyRule`.
         delete:
+            tags:
+                - Blocking
             responses:
                 '204':
                     description: Successful response.
@@ -1087,35 +1021,35 @@ components:
             description: A block entry from the clickhouse mailblocks server.
             type: object
             properties:
-                Date:
+                date:
                     format: date
                     type: string
-                SMTPFrom:
+                from:
                     type: string
-                MessageId:
+                messageId:
                     type: string
-                Subject:
+                subject:
                     type: string
-                MimeRecipients:
+                to:
                     type: string
             example:
-                Date: '2023-08-07'
-                SMTPFrom: user@domain.com
-                MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
-                Subject: Test Email
-                MimeRecipients: '[''client@site.com'']'
+                date: '2023-08-07'
+                from: user@domain.com
+                messageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                subject: Test Email
+                to: '[''client@site.com'']'
         MailBlockRspamd:
             title: Root Type for MailBlockRspamd
             description: This is a block entry from the rspamd block list.
             type: object
             properties:
-                fromemail:
+                from:
                     type: string
-                headersubject:
+                subject:
                     type: string
             example:
-                fromemail: user@domain.com
-                headersubject: Test email
+                from: user@domain.com
+                subject: Test email
         MailBlocks:
             title: Root Type for MailBlocks
             description: The listing of blocked emails.
@@ -1140,22 +1074,22 @@ components:
             example:
                 local:
                     -
-                        Date: '2023-08-07'
-                        SMTPFrom: user@domain.com
-                        MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
-                        Subject: Test Email
-                        MimeRecipients: '[''client@site.com'']'
+                        date: '2023-08-07'
+                        from: user@domain.com
+                        messageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                        subject: Test Email
+                        to: '[''client@site.com'']'
                 mbtrap:
                     -
-                        Date: '2023-08-07'
-                        SMTPFrom: user@domain.com
-                        MessageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
-                        Subject: Test Email
-                        MimeRecipients: '[''client@site.com'']'
+                        date: '2023-08-07'
+                        from: user@domain.com
+                        messageId: pFaRqFUEWkucjhTuIzYuoAgWU@domain.com
+                        subject: Test Email
+                        to: '[''client@site.com'']'
                 subject:
                     -
-                        fromemail: user@domain.com
-                        headersubject: Test Email
+                        from: user@domain.com
+                        subject: Test Email
         EmailAddress:
             title: Root Type for EmailAddress
             description: an email address
@@ -1249,11 +1183,30 @@ components:
     securitySchemes:
         apiKeyAuth:
             type: apiKey
+            description: >-
+                This authentication method uses a X-API-KEY HTTP header with the API Key from your account for
+                validation.
             name: X-API-KEY
             in: header
 security:
     -
         apiKeyAuth: []
+tags:
+    -
+        name: Services
+        description: Mail service orders.
+    -
+        name: Sending
+        description: Email delivery commands
+    -
+        name: Blocking
+        description: Management of email blocking rules and block lists.
+    -
+        name: History
+        description: Information about already delivered emails.
+    -
+        name: Status
+        description: Service Status
 externalDocs:
     description: FAQ
     url: 'https://www.mail.baby/tips/'

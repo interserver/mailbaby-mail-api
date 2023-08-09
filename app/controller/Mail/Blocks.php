@@ -41,11 +41,11 @@ class Blocks extends BaseController
             foreach ($lines as $line) {
                 $line = explode("\t", $line);
                 $return['local'][]  = [
-                    'Date' => $line[0],
-                    'SMTPFrom' => $line[1],
-                    'MessageId' => $line[2],
-                    'Subject' => $line[3],
-                    'MimeRecipients' => $line[4],
+                    'date' => $line[0],
+                    'from' => $line[1],
+                    'messageId' => $line[2] == 'undef' ? null : $line[2],
+                    'subject' => $line[3],
+                    'to' => $line[4],
                 ];
             }
         }
@@ -55,17 +55,17 @@ class Blocks extends BaseController
             foreach ($lines as $line) {
                 $line = explode("\t", $line);
                 $return['mbtrap'][]  = [
-                    'Date' => $line[0],
-                    'SMTPFrom' => $line[1],
-                    'MessageId' => $line[2],
-                    'Subject' => $line[3],
-                    'MimeRecipients' => $line[4],
+                    'date' => $line[0],
+                    'from' => $line[1],
+                    'messageId' => $line[2] == 'undef' ? null : $line[2],
+                    'subject' => $line[3],
+                    'to' => $line[4],
                 ];
             }
         }
         $rows = Db::connection('rspamd')
             ->table('rspamd')
-            ->select('fromemail', 'headersubject')
+            ->select('fromemail as from', 'headersubject as subject')
             ->whereIn('user', $users)
             ->whereRaw('date > NOW() - INTERVAL '.$subjectBlockHours.' HOUR')
             ->where(function($query) {
@@ -86,15 +86,15 @@ class Blocks extends BaseController
         $email = $request->post('email');
         Db::connection('rspamd')
             ->table('rspamd')
-            ->where('fromemail', $unblock)
+            ->where('fromemail', $email)
             ->delete();
         Db::connection('rspamd')
             ->table('mailchannels')
-            ->where('fromemail', $unblock)
+            ->where('fromemail', $email)
             ->delete();
         Db::connection('rspamd')
             ->table('mailbaby')
-            ->where('fromemail', $unblock)
+            ->where('fromemail', $email)
             ->delete();
         return json(['status' =>'ok', 'record deleted']);
     }
