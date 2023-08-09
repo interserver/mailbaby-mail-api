@@ -31,10 +31,6 @@ Route::group('/mail', function() {
     Route::get('/stats', [app\controller\Mail\Stats::class, 'get']);
     Route::get('/blocks', [app\controller\Mail\Blocks::class, 'get']);
     Route::delete('/blocks', [app\controller\Mail\Blocks::class, 'delete']);
-    Route::get('/alerts', [app\controller\Mail\Alerts::class, 'get']);
-    Route::post('/alerts', [app\controller\Mail\Alerts::class, 'post']);
-    Route::delete('/alerts', [app\controller\Mail\Alerts::class, 'delete']);
-
 })->middleware([
 	app\middleware\AuthCheck::class
 ]);
