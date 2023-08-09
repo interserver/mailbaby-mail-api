@@ -37,6 +37,8 @@ servers:
 paths:
     /mail:
         get:
+            tags:
+                - mail
             responses:
                 '200':
                     content:
@@ -44,27 +46,19 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    required:
-                                        - id
-                                        - status
-                                        - username
-                                    type: object
-                                    properties:
-                                        id:
-                                            type: integer
-                                            example: 1234
-                                        status:
-                                            type: string
-                                            example: active
-                                        username:
-                                            type: string
-                                            example: mb1234
-                                        password:
-                                            type: string
-                                            example: guest123
-                                        comment:
-                                            type: string
-                                            example: main mail account
+                                    $ref: '#/components/schemas/MailOrder'
+                            examples:
+                                MailOrders:
+                                    value:
+                                        -
+                                            id: 39
+                                            status: active
+                                            username: mb39
+                                        -
+                                            id: 33
+                                            status: canceled
+                                            username: mb33
+                                            comment: test order
                     links:
                         sendMailByIdLink:
                             operationId: sendMail
@@ -80,6 +74,9 @@ paths:
                     $ref: '#/components/responses/Unauthorized'
             operationId: getMailOrders
             summary: displays a list of mail service orders
+            description: >-
+                This will return a list of the mail orders you have in our system including their id, status,
+                username, and optional comment.
     /mail/blocks:
         get:
             responses:
@@ -666,7 +663,7 @@ paths:
     '/maildenyrules/{maildenyruleId}':
         summary: Path used to manage a single MailDenyRule.
         description: >-
-            The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`. 
+            The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`.
             This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and
             delete tasks, respectively.
         get:
@@ -1099,7 +1096,7 @@ components:
                     example: email
                 data:
                     description: >-
-                        The content of the rule.  If a domain type rule then an example would be google.com. 
+                        The content of the rule.  If a domain type rule then an example would be google.com.
                         For a begins with type an example would be msgid-.  For the email typer an example
                         would be user@server.com.
                     type: string
@@ -1108,6 +1105,35 @@ components:
                 user: mb20682
                 type: email
                 data: domeinwo@server.guesshost.net
+        MailOrder:
+            title: Root Type for MailOrder
+            description: A mail order record
+            required:
+                - status
+                - id
+                - username
+            type: object
+            properties:
+                id:
+                    format: int32
+                    description: The ID of the order.
+                    type: integer
+                    example: '21472'
+                status:
+                    description: The order status.
+                    type: string
+                    example: active
+                username:
+                    description: The username to use for this order.
+                    type: string
+                    example: mb21472
+                comment:
+                    description: Optional order comment.
+                    type: string
+            example:
+                id: 21472
+                status: active
+                username: mb21472
     responses:
         BadInput:
             content:
