@@ -63,101 +63,39 @@ class Blocks extends BaseController
                 ];
             }
         }
-        /*
-        $db = new Db(ZONEMTA_RSPAMD_MYSQL_DB, ZONEMTA_RSPAMD_MYSQL_USERNAME, ZONEMTA_RSPAMD_MYSQL_PASSWORD, ZONEMTA_RSPAMD_MYSQL_HOST);
-        $db->query("SELECT fromemail, headersubject FROM rspamd WHERE user = '{$username}' AND date > NOW() - INTERVAL {$subjectBlockHours} HOUR and (headersubject LIKE '%@%' OR headersubject LIKE '%smtp%' OR headersubject LIKE '%socks5%' OR headersubject LIKE '%socks4%') GROUP BY headersubject HAVING COUNT(headersubject) > 4", __LINE__, __FILE__);
-        while ($db->next_record(MYSQL_ASSOC)) {
-            $return['subject'][] = $db->Record;
-        }
-        */
+        $rows = Db::connection('rspamd')
+            ->table('rspamd')
+            ->select('fromemail', 'headersubject')
+            ->whereIn('user', $users)
+            ->whereRaw('date > NOW() - INTERVAL '.$subjectBlockHours.' HOUR')
+            ->where(function($query) {
+                $query->where('headersubject', 'like', '%@%')
+                    ->orWhere('headersubject', 'like', '%smtp%')
+                    ->orWhere('headersubject', 'like', '%socks5%')
+                    ->orWhere('headersubject', 'like', '%socks4%');
+            })
+            ->groupBy('fromemail', 'headersubject')
+            ->havingRaw('COUNT(headersubject) > 4')
+            ->get();
+        $return['subject'] = $rows->all();
         return json($return);
     }
 
     public function delete(Request $request) : Response {
         $accountInfo = $request->accountInfo;
-        $id = $request->post('id');
-        if (!v::intVal()->validate($id))
-            return response('The specified ID was invalid.', 400);
-        $rows = Db::table('mail')
-            ->where('mail_custid', $accountInfo->account_id)
-            ->where('mail_status', 'active')
-            ->get();
-        $users = [];
-        foreach ($rows as $row) {
-            $users[] = $row->mail_username;
-        }
-        if (count($users) == 0) {
-            return $this->jsonErrorResponse('No active mail orders.', 400);
-        }
-        /*
-        $db = new Db(ZONEMTA_RSPAMD_MYSQL_DB, ZONEMTA_RSPAMD_MYSQL_USERNAME, ZONEMTA_RSPAMD_MYSQL_PASSWORD, ZONEMTA_RSPAMD_MYSQL_HOST);
-        $username = $db->real_escape($this->serviceInfo['mail_username']);
-        if (isset($GLOBALS['tf']->variables->request['unblock'])) {
-            $unblock = $db->real_escape(trim($GLOBALS['tf']->variables->request['unblock']));
-            $db->query("delete from rspamd where fromemail='{$unblock}'", __LINE__, __FILE__);
-            $db->query("delete from mailchannels where fromemail='{$unblock}'", __LINE__, __FILE__);
-            $db->query("delete from mailbaby where fromemail='{$unblock}'", __LINE__, __FILE__);
-            add_output("Email '$unblock' Unblocked/Delisted<br>");
-        }
-        */
-        $rows = Db::connection('zonemta')
-            ->table('mail_spam')
-            ->whereIn('user', $users)
-            ->where('id', $id)
+        $email = $request->post('email');
+        Db::connection('rspamd')
+            ->table('rspamd')
+            ->where('fromemail', $unblock)
+            ->delete();
+        Db::connection('rspamd')
+            ->table('mailchannels')
+            ->where('fromemail', $unblock)
+            ->delete();
+        Db::connection('rspamd')
+            ->table('mailbaby')
+            ->where('fromemail', $unblock)
             ->delete();
         return json(['status' =>'ok', 'record deleted']);
-    }
-
-    public function post(Request $request) : Response {
-        $accountInfo = $request->accountInfo;
-        $data = $request->post('data');
-        $type = $request->post('type');
-        $orderId = $request->post('orderId', null);
-        if (!v::intVal()->validate($orderId))
-            return response('The specified ID was invalid.', 400);
-        if (is_null($orderId)) {
-            $rows = Db::table('mail')
-                ->where('mail_custid', $accountInfo->account_id)
-                ->where('mail_status', 'active')
-                ->get();
-            $users = [];
-            foreach ($rows as $row) {
-                $users[] = $row->mail_username;
-            }
-            if (count($users) == 0) {
-                return $this->jsonErrorResponse('No active mail orders.', 400);
-            }
-            $username = $users[0];
-        } else {
-            $row = Db::table('mail')
-                ->where('mail_custid', $accountInfo->account_id)
-                ->where('mail_status', 'active')
-                ->where('mail_id', $id)
-                ->first();
-            $username = $row->mail_username;
-            if (count($users) == 0) {
-                return $this->jsonErrorResponse('No active mail orders.', 400);
-            }
-        }
-        if (!v::in(['domain', 'email', 'startswith'])->validate($type)) {
-            return $this->jsonErrorResponse('Invalid value for type.', 400);
-        }
-        if ($type == 'domain' && !v::domain()->validate($data)) {
-            return $this->jsonErrorResponse('Invalid domain name in data.', 400);
-        }
-        if ($type == 'email' && !v::email()->validate($data)) {
-            return $this->jsonErrorResponse('Invalid email address in data.', 400);
-        }
-        if ($type == 'startswith' && !v::regex('/^[A-Z0-9+_\.-]+$/')->validate($data)) {
-            return $this->jsonErrorResponse('Invalid email start string, it should contain only alphanumeric characters, +_.-', 400);
-        }
-        $rows = Db::connection('zonemta')
-            ->table('mail_spam')
-            ->insert([
-                'user' => $username,
-                'type' => $type,
-                'data' => $data
-            ]);
-        return json(['status' =>'ok', 'text' => $transId]);
     }
 }

@@ -30,7 +30,6 @@ Route::group('/mail', function() {
     Route::delete('/rules', [app\controller\Mail\Rules::class, 'delete']);
     Route::get('/stats', [app\controller\Mail\Stats::class, 'get']);
     Route::get('/blocks', [app\controller\Mail\Blocks::class, 'get']);
-    Route::post('/blocks', [app\controller\Mail\Blocks::class, 'post']);
     Route::delete('/blocks', [app\controller\Mail\Blocks::class, 'delete']);
     Route::get('/alerts', [app\controller\Mail\Alerts::class, 'get']);
     Route::post('/alerts', [app\controller\Mail\Alerts::class, 'post']);
