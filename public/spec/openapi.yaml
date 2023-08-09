@@ -571,9 +571,9 @@ paths:
     '/maildenyrules/{maildenyruleId}':
         summary: Path used to manage a single MailDenyRule.
         description: >-
-            The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`.
-            This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and
-            delete tasks, respectively.
+            The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`. This
+            path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and delete
+            tasks, respectively.
         get:
             tags:
                 - Blocking
@@ -656,140 +656,6 @@ components:
                     description: The main email contents.
                     type: string
                     example: This is an email to inform you that something noteworthy happened.
-        SendMailAdv:
-            title: Email details
-            description: Details for an Email
-            required:
-                - from
-                - to
-                - subject
-                - body
-            type: object
-            properties:
-                subject:
-                    description: The subject or title of the email
-                    type: string
-                    example: Your Package has been Delivered!
-                body:
-                    description: The main email contents.
-                    type: string
-                    example: >-
-                        The package you ordered on 2021-01-23 has been delivered. If the package is broken
-                        into many pieces, please blaim someone else.
-                from:
-                    description: The information to use for the From address in the email. from.
-                    required:
-                        - email
-                    type: object
-                    properties:
-                        email:
-                            description: The email address
-                            type: string
-                            example: business@company.com
-                        name:
-                            description: (optional) Name to use for the sending contact.
-                            type: string
-                            example: The Man
-                to:
-                    description: A list of destionation email addresses to send this to
-                    type: array
-                    items:
-                        description: An Email Contact
-                        required:
-                            - email
-                        type: object
-                        properties:
-                            email:
-                                description: The email address
-                                type: string
-                                example: johndoe@isp.com
-                            name:
-                                description: (optional) Name to use for the destination contact.
-                                type: string
-                                example: John Doe
-                replyto:
-                    description: >-
-                        (optional) A list of email addresses that specify where replies to the email should be
-                        sent instead of the _from_ address.
-                    type: array
-                    items:
-                        description: An Email Contact
-                        required:
-                            - email
-                        type: object
-                        properties:
-                            email:
-                                description: The email address
-                                type: string
-                                example: support@company.com
-                            name:
-                                description: (optional) Name to use for the sending contact.
-                                type: string
-                                example: Support Staff
-                cc:
-                    description: >-
-                        (optional) A list of email addresses to carbon copy this message to.  They are listed
-                        on the email and anyone getting the email can see this full list of Contacts who
-                        received the email as well.
-                    type: array
-                    items:
-                        description: An Email Contact
-                        required:
-                            - email
-                        type: object
-                        properties:
-                            email:
-                                description: The email address
-                                type: string
-                                example: janedoe@isp.com
-                            name:
-                                description: (optional) Name to use for the CC contact.
-                                type: string
-                                example: Jane Doe
-                bcc:
-                    description: >-
-                        (optional) list of email addresses that should receive copies of the email.  They are
-                        hidden on the email and anyone gettitng the email would not see the other people
-                        getting the email in this list.
-                    type: array
-                    items:
-                        description: An Email Contact
-                        required:
-                            - email
-                        type: object
-                        properties:
-                            email:
-                                description: The email address
-                                type: string
-                                example: records@company.com
-                            name:
-                                description: (optional) Name to use for the BCC contact.
-                                type: string
-                                example: Records Department
-                attachments:
-                    description: >-
-                        (optional) File attachments to include in the email.  The file contents must be base64
-                        encoded!
-                    type: array
-                    items:
-                        description: A File attachment for an email
-                        required:
-                            - data
-                        type: object
-                        properties:
-                            filename:
-                                description: (optional) Filename to specify for the attachment.
-                                type: string
-                                example: company_logo.png
-                            data:
-                                format: binary
-                                description: Contents of the attached file (must be base64 encoded)
-                                type: string
-                id:
-                    format: int64
-                    description: (optional)  ID of the Mail order within our system to use as the Mail Account.
-                    type: integer
-                    example: 5000
         DenyRuleRecord:
             title: Root Type for DenyRule
             description: The data for a email deny rule record.
@@ -907,6 +773,12 @@ components:
         MailBlockClickHouse:
             title: Root Type for MailBlockClickHouse
             description: A block entry from the clickhouse mailblocks server.
+            required:
+                - date
+                - to
+                - subject
+                - messageId
+                - from
             type: object
             properties:
                 date:
@@ -929,6 +801,9 @@ components:
         MailBlockRspamd:
             title: Root Type for MailBlockRspamd
             description: This is a block entry from the rspamd block list.
+            required:
+                - subject
+                - from
             type: object
             properties:
                 from:
@@ -1195,7 +1070,7 @@ components:
                         to: client@isp.com
                         subject: sell 0.005 shares
                         messageId: <vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>
-                        created: 2021-10-14 08:50:10
+                        created: '2021-10-14T08:50:10.000Z'
                         time: 1634215809
                         user: mb5658
                         transtype: ESMTPSA
@@ -1209,9 +1084,143 @@ components:
                         locked: 1
                         lockTime: '1634215818533'
                         assigned: relay1
-                        queued: 2021-10-14T12:50:15.487Z
+                        queued: '2021-10-14T12:50:15.487Z'
                         mxHostname: mx.j.is.cc
                         response: 250 2.0.0 Ok queued as C91D83E128C
+        SendMailAdv:
+            title: Email details
+            description: Details for an Email
+            required:
+                - from
+                - to
+                - subject
+                - body
+            type: object
+            properties:
+                subject:
+                    description: The subject or title of the email
+                    type: string
+                    example: Your Package has been Delivered!
+                body:
+                    description: The main email contents.
+                    type: string
+                    example: >-
+                        The package you ordered on 2021-01-23 has been delivered. If the package is broken
+                        into many pieces, please blaim someone else.
+                from:
+                    description: The information to use for the From address in the email. from.
+                    required:
+                        - email
+                    type: object
+                    properties:
+                        email:
+                            description: The email address
+                            type: string
+                            example: business@company.com
+                        name:
+                            description: (optional) Name to use for the sending contact.
+                            type: string
+                            example: The Man
+                to:
+                    description: A list of destionation email addresses to send this to
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: johndoe@isp.com
+                            name:
+                                description: (optional) Name to use for the destination contact.
+                                type: string
+                                example: John Doe
+                replyto:
+                    description: >-
+                        (optional) A list of email addresses that specify where replies to the email should be
+                        sent instead of the _from_ address.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: support@company.com
+                            name:
+                                description: (optional) Name to use for the sending contact.
+                                type: string
+                                example: Support Staff
+                cc:
+                    description: >-
+                        (optional) A list of email addresses to carbon copy this message to.  They are listed
+                        on the email and anyone getting the email can see this full list of Contacts who
+                        received the email as well.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: janedoe@isp.com
+                            name:
+                                description: (optional) Name to use for the CC contact.
+                                type: string
+                                example: Jane Doe
+                bcc:
+                    description: >-
+                        (optional) list of email addresses that should receive copies of the email.  They are
+                        hidden on the email and anyone gettitng the email would not see the other people
+                        getting the email in this list.
+                    type: array
+                    items:
+                        description: An Email Contact
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address
+                                type: string
+                                example: records@company.com
+                            name:
+                                description: (optional) Name to use for the BCC contact.
+                                type: string
+                                example: Records Department
+                attachments:
+                    description: >-
+                        (optional) File attachments to include in the email.  The file contents must be base64
+                        encoded!
+                    type: array
+                    items:
+                        description: A File attachment for an email
+                        required:
+                            - data
+                        type: object
+                        properties:
+                            filename:
+                                description: (optional) Filename to specify for the attachment.
+                                type: string
+                                example: company_logo.png
+                            data:
+                                format: binary
+                                description: Contents of the attached file (must be base64 encoded)
+                                type: string
+                id:
+                    format: int64
+                    description: (optional)  ID of the Mail order within our system to use as the Mail Account.
+                    type: integer
+                    example: '5000'
     responses:
         BadInput:
             content:
