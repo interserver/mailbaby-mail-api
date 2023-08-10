@@ -1052,25 +1052,41 @@ components:
                         The package you ordered on 2021-01-23 has been delivered. If the package is broken
                         into many pieces, please blaim someone else.
                 from:
-                    $ref: '#/components/schemas/EmailAddressName'
-                    description: The information to use for the From address in the email. from.
                     required:
                         - email
+                    type: object
                     properties:
                         email:
-                            description: The email address
+                            description: The email address.
                             type: string
-                            example: business@company.com
+                            example: user@domain.com
                         name:
-                            description: (optional) Name to use for the sending contact.
+                            description: Name to use for the sending contact.
                             type: string
-                            example: The Man
-                    example: '{"email": "user@domain.com", "name": "John Smith"}'
+                            example: John Smith
+                    example:
+                        email: user@domain.com
+                        name: John Smith
+                    description: The information to use for the From address in the email. from.
                 to:
                     description: A list of destionation email addresses to send this to
                     type: array
                     items:
-                        $ref: '#/components/schemas/EmailAddressName'
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address.
+                                type: string
+                                example: user@domain.com
+                            name:
+                                description: Name to use for the sending contact.
+                                type: string
+                                example: John Smith
+                        example:
+                            email: user@domain.com
+                            name: John Smith
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 replyto:
                     description: >-
@@ -1078,7 +1094,21 @@ components:
                         sent instead of the _from_ address.
                     type: array
                     items:
-                        $ref: '#/components/schemas/EmailAddressName'
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address.
+                                type: string
+                                example: user@domain.com
+                            name:
+                                description: Name to use for the sending contact.
+                                type: string
+                                example: John Smith
+                        example:
+                            email: user@domain.com
+                            name: John Smith
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 cc:
                     description: >-
@@ -1087,7 +1117,21 @@ components:
                         received the email as well.
                     type: array
                     items:
-                        $ref: '#/components/schemas/EmailAddressName'
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address.
+                                type: string
+                                example: user@domain.com
+                            name:
+                                description: Name to use for the sending contact.
+                                type: string
+                                example: John Smith
+                        example:
+                            email: user@domain.com
+                            name: John Smith
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 bcc:
                     description: >-
@@ -1096,7 +1140,21 @@ components:
                         getting the email in this list.
                     type: array
                     items:
-                        $ref: '#/components/schemas/EmailAddressName'
+                        required:
+                            - email
+                        type: object
+                        properties:
+                            email:
+                                description: The email address.
+                                type: string
+                                example: user@domain.com
+                            name:
+                                description: Name to use for the sending contact.
+                                type: string
+                                example: John Smith
+                        example:
+                            email: user@domain.com
+                            name: John Smith
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 attachments:
                     description: >-
@@ -1104,7 +1162,23 @@ components:
                         encoded!
                     type: array
                     items:
-                        $ref: '#/components/schemas/MailAttachment'
+                        description: (optional) File attachments to include in the email.  The file contents must be base64
+                        required:
+                            - data
+                            - filename
+                        type: object
+                        properties:
+                            filename:
+                                description: The filename of the attached file.
+                                type: string
+                                example: message.txt
+                            data:
+                                description: The file contents base64 encoded
+                                type: string
+                                example: aGVsbG8gdGhlcmUK
+                        example:
+                            filename: file.txt
+                            data: base64_encoded_file_contents
                     example: |-
                         [
                                 {
@@ -1131,43 +1205,6 @@ components:
                         filename: file.txt
                         data: base64_encoded_contents
                 id: 66
-        EmailAddressName:
-            title: Root Type for EmailAddressName
-            description: An email contact.
-            required:
-                - email
-            type: object
-            properties:
-                email:
-                    description: The email address.
-                    type: string
-                    example: user@domain.com
-                name:
-                    description: Name to use for the sending contact.
-                    type: string
-                    example: John Smith
-            example:
-                email: user@domain.com
-                name: John Smith
-        MailAttachment:
-            title: Root Type for MailAttachment
-            description: (optional) File attachments to include in the email.  The file contents must be base64
-            required:
-                - data
-                - filename
-            type: object
-            properties:
-                filename:
-                    description: The filename of the attached file.
-                    type: string
-                    example: message.txt
-                data:
-                    description: The file contents base64 encoded
-                    type: string
-                    example: aGVsbG8gdGhlcmUK
-            example:
-                filename: file.txt
-                data: base64_encoded_file_contents
     responses:
         BadInput:
             content:
