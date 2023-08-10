@@ -143,202 +143,6 @@
                 },
                 "operationId": "getMailBlocks",
                 "summary": "displays a list of blocked email addresses"
-            },
-            "delete": {
-                "tags": [
-                    "Blocking"
-                ],
-                "parameters": [
-                    {
-                        "example": 2604,
-                        "name": "id",
-                        "description": "The ID of your mail order this will be sent through.",
-                        "schema": {
-                            "format": "int64",
-                            "type": "integer"
-                        },
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericResponse"
-                                }
-                            }
-                        },
-                        "description": "search results matching criteria"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadInput"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                },
-                "operationId": "delistBlock",
-                "summary": "Removes an email address from the blocked list",
-                "description": "Removes an email address from the various block lists.\n"
-            }
-        },
-        "/mail/rules": {
-            "summary": "Deny Rules",
-            "description": "The deny rules allow you to setup assorted types of rules which will automatically deny the email from being sent through our system when  the citeria match.",
-            "get": {
-                "tags": [
-                    "Blocking"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/DenyRuleRecord"
-                                    }
-                                },
-                                "examples": {
-                                    "ExampleMailRulesList": {
-                                        "value": [
-                                            {
-                                                "id": "14",
-                                                "user": "mb20682",
-                                                "type": "email",
-                                                "data": "domeinwo@server.guesshost.net",
-                                                "created": "2022-03-22 19:16:35"
-                                            },
-                                            {
-                                                "id": "15",
-                                                "user": "mb20682",
-                                                "type": "email",
-                                                "data": "mamediieva@thedigital.gov.ua",
-                                                "created": "2022-03-22 19:18:01"
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        },
-                        "links": {
-                            "delistBlockLink": {
-                                "operationId": "delistBlock",
-                                "parameters": {
-                                    "id": "$response.body#/0/id"
-                                },
-                                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /mail/advsend`."
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    }
-                },
-                "operationId": "getRules",
-                "summary": "Displays a listing of deny email rules.",
-                "description": "Returns a listing of all the deny block rules you have configured."
-            },
-            "post": {
-                "requestBody": {
-                    "description": "These are the fields needed to create a new email deny rule.",
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/DenyRuleNew"
-                            },
-                            "examples": {
-                                "DenyRuleNewFormExample": {
-                                    "value": {
-                                        "user": "mb20682",
-                                        "type": "email",
-                                        "data": "domeinwo@server.guesshost.net"
-                                    }
-                                }
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/DenyRuleNew"
-                            },
-                            "examples": {
-                                "DenyRuleNewJsonExample": {
-                                    "value": {
-                                        "user": "mb20682",
-                                        "type": "email",
-                                        "data": "domeinwo@server.guesshost.net"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Blocking"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericResponse"
-                                }
-                            }
-                        },
-                        "description": "search results matching criteria"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadInput"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                },
-                "operationId": "addRule",
-                "summary": "Creates a new email deny rule.",
-                "description": "Adds a new email deny rule into the system to block new emails that match the given criteria"
-            },
-            "delete": {
-                "tags": [
-                    "Blocking"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/GenericResponse"
-                                }
-                            }
-                        },
-                        "description": "search results matching criteria"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/BadInput"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFound"
-                    }
-                },
-                "operationId": "deleteRule",
-                "summary": "Removes an deny mail rule.",
-                "description": "Removes one of the configured deny mail rules from the system."
             }
         },
         "/mail/stats": {
@@ -479,8 +283,8 @@
                                         ],
                                         "attachments": [
                                             {
-                                                "filename": "some text",
-                                                "data": "<FILE>"
+                                                "filename": "message.txt",
+                                                "data": "base64_encoded_contents"
                                             }
                                         ],
                                         "id": 66
@@ -508,8 +312,8 @@
                                         ],
                                         "attachments": [
                                             {
-                                                "filename": "some text",
-                                                "data": "<FILE>"
+                                                "filename": "message.txt",
+                                                "data": "base64_encoded_contents"
                                             }
                                         ],
                                         "id": 66
@@ -753,9 +557,69 @@
                 "summary": "Checks if the server is running"
             }
         },
-        "/maildenyrules": {
-            "summary": "Path used to manage the list of maildenyrules.",
-            "description": "The REST endpoint/path used to list and create zero or more `MailDenyRule` entities.  This path contains a `GET` and `POST` operation to perform the list and create tasks, respectively.",
+        "/mail/blocks/delete": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailAddress"
+                            },
+                            "examples": {
+                                "BlocksDeleteExample": {
+                                    "value": {
+                                        "email": "client@domain.com"
+                                    }
+                                }
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailAddress"
+                            },
+                            "examples": {
+                                "BlocksDeleteExampleForm": {
+                                    "value": {
+                                        "email": "client@domain.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Blocking"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericResponse"
+                                }
+                            }
+                        },
+                        "description": "search results matching criteria"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadInput"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "operationId": "delistBlock",
+                "summary": "Removes an email address from the blocked list",
+                "description": "Removes an email address from the various block lists.\n"
+            }
+        },
+        "/mail/rules": {
+            "summary": "Deny Rules",
+            "description": "The deny rules allow you to setup assorted types of rules which will automatically deny the email from being sent through our system when  the citeria match.",
             "get": {
                 "tags": [
                     "Blocking"
@@ -767,47 +631,88 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/MailDenyRule"
+                                        "$ref": "#/components/schemas/DenyRuleRecord"
+                                    }
+                                },
+                                "examples": {
+                                    "ExampleMailRulesList": {
+                                        "value": [
+                                            {
+                                                "id": "14",
+                                                "user": "mb20682",
+                                                "type": "email",
+                                                "data": "domeinwo@server.guesshost.net",
+                                                "created": "2022-03-22 19:16:35"
+                                            },
+                                            {
+                                                "id": "15",
+                                                "user": "mb20682",
+                                                "type": "email",
+                                                "data": "mamediieva@thedigital.gov.ua",
+                                                "created": "2022-03-22 19:18:01"
+                                            }
+                                        ]
                                     }
                                 }
                             }
                         },
-                        "description": "Successful response - returns an array of `MailDenyRule` entities."
+                        "links": {
+                            "delistBlockLink": {
+                                "operationId": "delistBlock",
+                                "parameters": {
+                                    "id": "$response.body#/0/id"
+                                },
+                                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /mail/advsend`."
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Unauthorized"
                     }
                 },
-                "operationId": "getMailDenyRules",
-                "summary": "List All MailDenyRules",
-                "description": "Gets a list of all `MailDenyRule` entities."
+                "operationId": "getRules",
+                "summary": "Displays a listing of deny email rules.",
+                "description": "Returns a listing of all the deny block rules you have configured."
             },
             "post": {
                 "requestBody": {
-                    "description": "A new `MailDenyRule` to be created.",
+                    "description": "These are the fields needed to create a new email deny rule.",
                     "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DenyRuleNew"
+                            },
+                            "examples": {
+                                "DenyRuleNewFormExample": {
+                                    "value": {
+                                        "user": "mb20682",
+                                        "type": "email",
+                                        "data": "domeinwo@server.guesshost.net"
+                                    }
+                                }
+                            }
+                        },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/MailDenyRule"
+                                "$ref": "#/components/schemas/DenyRuleNew"
+                            },
+                            "examples": {
+                                "DenyRuleNewJsonExample": {
+                                    "value": {
+                                        "user": "mb20682",
+                                        "type": "email",
+                                        "data": "domeinwo@server.guesshost.net"
+                                    }
+                                }
                             }
                         }
                     },
                     "required": true
                 },
-                "tags": [
-                    "Blocking"
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successful response."
-                    }
-                },
-                "operationId": "createMailDenyRule",
-                "summary": "Create a MailDenyRule",
-                "description": "Creates a new instance of a `MailDenyRule`."
-            }
-        },
-        "/maildenyrules/{maildenyruleId}": {
-            "summary": "Path used to manage a single MailDenyRule.",
-            "description": "The REST endpoint/path used to get, update, and delete single instances of an `MailDenyRule`. This path contains `GET`, `PUT`, and `DELETE` operations used to perform the get, update, and delete tasks, respectively.",
-            "get": {
                 "tags": [
                     "Blocking"
                 ],
@@ -816,65 +721,73 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MailDenyRule"
+                                    "$ref": "#/components/schemas/GenericResponse"
                                 }
                             }
                         },
-                        "description": "Successful response - returns a single `MailDenyRule`."
-                    }
-                },
-                "operationId": "getMailDenyRule",
-                "summary": "Get a MailDenyRule",
-                "description": "Gets the details of a single instance of a `MailDenyRule`."
-            },
-            "put": {
-                "requestBody": {
-                    "description": "Updated `MailDenyRule` information.",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/MailDenyRule"
-                            }
-                        }
+                        "description": "search results matching criteria"
                     },
-                    "required": true
-                },
-                "tags": [
-                    "Blocking"
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Successful response."
+                    "400": {
+                        "$ref": "#/components/responses/BadInput"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
-                "operationId": "updateMailDenyRule",
-                "summary": "Update a MailDenyRule",
-                "description": "Updates an existing `MailDenyRule`."
-            },
+                "operationId": "addRule",
+                "summary": "Creates a new email deny rule.",
+                "description": "Adds a new email deny rule into the system to block new emails that match the given criteria"
+            }
+        },
+        "/mail/rules/{ruleId}": {
             "delete": {
                 "tags": [
                     "Blocking"
                 ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "RuleIdExample": {
+                                "value": "34"
+                            }
+                        },
+                        "name": "ruleId",
+                        "description": "The ID of the Rules entry.",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
-                    "204": {
-                        "description": "Successful response."
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericResponse"
+                                }
+                            }
+                        },
+                        "description": "search results matching criteria"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadInput"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
                     }
                 },
-                "operationId": "deleteMailDenyRule",
-                "summary": "Delete a MailDenyRule",
-                "description": "Deletes an existing `MailDenyRule`."
-            },
-            "parameters": [
-                {
-                    "name": "maildenyruleId",
-                    "description": "A unique identifier for a `MailDenyRule`.",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                }
-            ]
+                "operationId": "deleteRule",
+                "summary": "Removes an deny mail rule.",
+                "description": "Removes one of the configured deny mail rules from the system."
+            }
         }
     },
     "components": {
@@ -956,38 +869,6 @@
                 "example": {
                     "id": 14,
                     "user": "mb20682",
-                    "type": "email",
-                    "data": "domeinwo@server.guesshost.net",
-                    "created": "2022-03-22 19:16:35"
-                }
-            },
-            "MailDenyRule": {
-                "title": "Root Type for MailDenyRule",
-                "description": "    A rule which will will be matched against new emails to be elivered and if it matches the mail will be denied delivery.",
-                "type": "object",
-                "properties": {
-                    "ruleId": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "mailId": {
-                        "format": "int32",
-                        "type": "integer"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": "string"
-                    },
-                    "created": {
-                        "format": "date-time",
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "ruleId": 14,
-                    "mailId": 412,
                     "type": "email",
                     "data": "domeinwo@server.guesshost.net",
                     "created": "2022-03-22 19:16:35"
@@ -1470,7 +1351,7 @@
                                 "example": "The Man"
                             }
                         },
-                        "example": "[{\"email\": \"user@domain.com\", \"name\": \"John Smith\"}]"
+                        "example": "{\"email\": \"user@domain.com\", \"name\": \"John Smith\"}"
                     },
                     "to": {
                         "description": "A list of destionation email addresses to send this to",
@@ -1478,7 +1359,7 @@
                         "items": {
                             "$ref": "#/components/schemas/EmailAddressName"
                         },
-                        "example": "{\"email\": \"user@domain.com\", \"name\": \"John Smith\"}"
+                        "example": "[{\"email\": \"user@domain.com\", \"name\": \"John Smith\"}]"
                     },
                     "replyto": {
                         "description": "(optional) A list of email addresses that specify where replies to the email should be sent instead of the _from_ address.",
@@ -1508,25 +1389,9 @@
                         "description": "(optional) File attachments to include in the email.  The file contents must be base64 encoded!",
                         "type": "array",
                         "items": {
-                            "description": "A File attachment for an email",
-                            "required": [
-                                "data"
-                            ],
-                            "type": "object",
-                            "properties": {
-                                "filename": {
-                                    "description": "(optional) Filename to specify for the attachment.",
-                                    "type": "string",
-                                    "example": "company_logo.png"
-                                },
-                                "data": {
-                                    "format": "binary",
-                                    "description": "Contents of the attached file (must be base64 encoded)",
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/MailAttachment"
                         },
-                        "example": "[\n        {\n            \"filename\": \"some text\",\n            \"data\": \"<FILE>\"\n        }\n]"
+                        "example": "[\n        {\n            \"filename\": \"text.txt\",\n            \"data\": \"base64_encoded_contents\"\n        }\n]"
                     },
                     "id": {
                         "format": "int64",
@@ -1549,8 +1414,8 @@
                     ],
                     "attachments": [
                         {
-                            "filename": "some text",
-                            "data": "<FILE>"
+                            "filename": "file.txt",
+                            "data": "base64_encoded_contents"
                         }
                     ],
                     "id": 66
@@ -1578,6 +1443,31 @@
                 "example": {
                     "email": "user@domain.com",
                     "name": "John Smith"
+                }
+            },
+            "MailAttachment": {
+                "title": "Root Type for MailAttachment",
+                "description": "(optional) File attachments to include in the email.  The file contents must be base64",
+                "required": [
+                    "data",
+                    "filename"
+                ],
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "description": "The filename of the attached file.",
+                        "type": "string",
+                        "example": "message.txt"
+                    },
+                    "data": {
+                        "description": "The file contents base64 encoded",
+                        "type": "string",
+                        "example": "aGVsbG8gdGhlcmUK"
+                    }
+                },
+                "example": {
+                    "filename": "file.txt",
+                    "data": "base64_encoded_file_contents"
                 }
             }
         },
@@ -1709,7 +1599,8 @@
     },
     "security": [
         {
-            "apiKeyAuth": []
+            "apiKeyAuth": [
+            ]
         }
     ],
     "tags": [
