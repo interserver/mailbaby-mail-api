@@ -1709,8 +1709,7 @@
     },
     "security": [
         {
-            "apiKeyAuth": [
-            ]
+            "apiKeyAuth": []
         }
     ],
     "tags": [
