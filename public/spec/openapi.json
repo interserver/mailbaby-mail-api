@@ -805,40 +805,73 @@
                     }
                 }
             },
-            "SendMail": {
-                "description": "Details for an Email",
+            "ErrorMessage": {
+                "title": "ErrorMessage",
+                "description": "The resposne when an error occurs.",
                 "required": [
-                    "to",
-                    "from",
-                    "subject",
-                    "body"
+                    "code",
+                    "message"
                 ],
                 "type": "object",
                 "properties": {
-                    "to": {
-                        "description": "The Contact whom is the primary recipient of this email.",
-                        "type": "string",
-                        "example": "johndoe@company.com"
+                    "code": {
+                        "format": "int32",
+                        "description": "The response code associated with the error.",
+                        "type": "integer",
+                        "example": "400"
                     },
-                    "from": {
-                        "description": "The contact whom is the this email is from.",
+                    "message": {
+                        "description": "The details or description of the error.",
                         "type": "string",
-                        "example": "janedoe@company.com"
-                    },
-                    "subject": {
-                        "description": "The subject or title of the email",
-                        "type": "string",
-                        "example": "Attention Client"
-                    },
-                    "body": {
-                        "description": "The main email contents.",
-                        "type": "string",
-                        "example": "This is an email to inform you that something noteworthy happened."
+                        "example": "There was an error."
                     }
+                },
+                "example": {
+                    "code": 400,
+                    "message": "There was an error."
+                }
+            },
+            "EmailAddressName": {
+                "title": "EmailAddressName",
+                "description": "An email contact.",
+                "required": [
+                    "email"
+                ],
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "description": "The email address.",
+                        "type": "string",
+                        "example": "user@domain.com"
+                    },
+                    "name": {
+                        "description": "Name to use for the sending contact.",
+                        "type": "string",
+                        "example": "John Smith"
+                    }
+                },
+                "example": {
+                    "email": "user@domain.com",
+                    "name": "John Smith"
+                }
+            },
+            "EmailAddress": {
+                "title": "EmailAddress",
+                "description": "an email address",
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "description": "an email address",
+                        "type": "string",
+                        "example": "user@domain.com"
+                    }
+                },
+                "example": {
+                    "email": "user@domain.com"
                 }
             },
             "DenyRuleRecord": {
-                "title": "Root Type for DenyRule",
+                "title": "DenyRuleRecord",
                 "description": "The data for a email deny rule record.",
                 "type": "object",
                 "allOf": [
@@ -875,7 +908,7 @@
                 }
             },
             "DenyRuleNew": {
-                "title": "Root Type for DenyRule",
+                "title": "DenyRuleNew",
                 "description": "The data for a email deny rule record.",
                 "required": [
                     "type",
@@ -910,45 +943,33 @@
                     "data": "domeinwo@server.guesshost.net"
                 }
             },
-            "MailOrder": {
-                "title": "Root Type for MailOrder",
-                "description": "A mail order record",
+            "MailAttachment": {
+                "title": "MailAttachment",
+                "description": "(optional) File attachments to include in the email.  The file contents must be base64",
                 "required": [
-                    "status",
-                    "id",
-                    "username"
+                    "data",
+                    "filename"
                 ],
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "format": "int32",
-                        "description": "The ID of the order.",
-                        "type": "integer",
-                        "example": "21472"
-                    },
-                    "status": {
-                        "description": "The order status.",
+                    "filename": {
+                        "description": "The filename of the attached file.",
                         "type": "string",
-                        "example": "active"
+                        "example": "message.txt"
                     },
-                    "username": {
-                        "description": "The username to use for this order.",
+                    "data": {
+                        "description": "The file contents base64 encoded",
                         "type": "string",
-                        "example": "mb21472"
-                    },
-                    "comment": {
-                        "description": "Optional order comment.",
-                        "type": "string"
+                        "example": "aGVsbG8gdGhlcmUK"
                     }
                 },
                 "example": {
-                    "id": 21472,
-                    "status": "active",
-                    "username": "mb21472"
+                    "filename": "file.txt",
+                    "data": "base64_encoded_file_contents"
                 }
             },
             "MailBlockClickHouse": {
-                "title": "Root Type for MailBlockClickHouse",
+                "title": "MailBlockClickHouse",
                 "description": "A block entry from the clickhouse mailblocks server.",
                 "required": [
                     "date",
@@ -985,7 +1006,7 @@
                 }
             },
             "MailBlockRspamd": {
-                "title": "Root Type for MailBlockRspamd",
+                "title": "MailBlockRspamd",
                 "description": "This is a block entry from the rspamd block list.",
                 "required": [
                     "subject",
@@ -1006,7 +1027,7 @@
                 }
             },
             "MailBlocks": {
-                "title": "Root Type for MailBlocks",
+                "title": "MailBlocks",
                 "description": "The listing of blocked emails.",
                 "required": [
                     "local",
@@ -1061,22 +1082,75 @@
                     ]
                 }
             },
-            "EmailAddress": {
-                "title": "Root Type for EmailAddress",
-                "description": "an email address",
+            "MailLog": {
+                "title": "MailLog",
+                "description": "Mail log records",
+                "required": [
+                    "total",
+                    "skip",
+                    "limit",
+                    "emails"
+                ],
                 "type": "object",
                 "properties": {
-                    "email": {
-                        "description": "an email address",
-                        "type": "string",
-                        "example": "user@domain.com"
+                    "total": {
+                        "description": "total number of mail log entries",
+                        "type": "integer",
+                        "example": "10234"
+                    },
+                    "skip": {
+                        "description": "number of emails skipped in listing",
+                        "type": "integer",
+                        "example": "0"
+                    },
+                    "limit": {
+                        "description": "number of emails to return",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "emails": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MailLogEntry"
+                        },
+                        "example": "[{\n    \"_id\": 103172,\n    \"id\": \"17c7eda538e0005d03\",\n    \"from\": \"person@mysite.com\",\n    \"to\": \"client@isp.com\",\n    \"subject\": \"sell 0.005 shares\",\n    \"messageId\": \"<vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>\",\n    \"created\": \"2021-10-14 08:50:10\",\n    \"time\": 1634215809,\n    \"user\": \"mb5658\",\n    \"transtype\": \"ESMTPSA\",\n    \"origin\": \"199.231.189.154\",\n    \"interface\": \"feeder\",\n    \"sendingZone\": \"interserver\",\n    \"bodySize\": 63,\n    \"seq\": 1,\n    \"recipient\": \"client@isp.com\",\n    \"domain\": \"interserver.net\",\n    \"locked\": 1,\n    \"lockTime\": \"1634215818533\",\n    \"assigned\": \"relay1\",\n    \"queued\": \"2021-10-14T12:50:15.487Z\",\n    \"mxHostname\": \"mx.j.is.cc\",\n    \"response\": \"250 2.0.0 Ok queued as C91D83E128C\"\n}]"
                     }
                 },
                 "example": {
-                    "email": "user@domain.com"
+                    "total": 1,
+                    "skip": 0,
+                    "limit": 100,
+                    "emails": [
+                        {
+                            "_id": 103172,
+                            "id": "17c7eda538e0005d03",
+                            "from": "person@mysite.com",
+                            "to": "client@isp.com",
+                            "subject": "sell 0.005 shares",
+                            "messageId": "<vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>",
+                            "created": "2021-10-14T08:50:10.000Z",
+                            "time": 1634215809,
+                            "user": "mb5658",
+                            "transtype": "ESMTPSA",
+                            "origin": "199.231.189.154",
+                            "interface": "feeder",
+                            "sendingZone": "interserver",
+                            "bodySize": 63,
+                            "seq": 1,
+                            "recipient": "client@isp.com",
+                            "domain": "interserver.net",
+                            "locked": 1,
+                            "lockTime": "1634215818533",
+                            "assigned": "relay1",
+                            "queued": "2021-10-14T12:50:15.487Z",
+                            "mxHostname": "mx.j.is.cc",
+                            "response": "250 2.0.0 Ok queued as C91D83E128C"
+                        }
+                    ]
                 }
             },
             "MailLogEntry": {
+                "title": "MailLogEntry",
                 "description": "An email record",
                 "required": [
                     "_id",
@@ -1246,74 +1320,78 @@
                     "response": "250 2.0.0 Ok queued as C91D83E128C"
                 }
             },
-            "MailLog": {
-                "description": "Mail log records",
+            "MailOrder": {
+                "title": "MailOrder",
+                "description": "A mail order record",
                 "required": [
-                    "total",
-                    "skip",
-                    "limit",
-                    "emails"
+                    "status",
+                    "id",
+                    "username"
                 ],
                 "type": "object",
                 "properties": {
-                    "total": {
-                        "description": "total number of mail log entries",
+                    "id": {
+                        "format": "int32",
+                        "description": "The ID of the order.",
                         "type": "integer",
-                        "example": "10234"
+                        "example": "21472"
                     },
-                    "skip": {
-                        "description": "number of emails skipped in listing",
-                        "type": "integer",
-                        "example": "0"
+                    "status": {
+                        "description": "The order status.",
+                        "type": "string",
+                        "example": "active"
                     },
-                    "limit": {
-                        "description": "number of emails to return",
-                        "type": "integer",
-                        "example": "100"
+                    "username": {
+                        "description": "The username to use for this order.",
+                        "type": "string",
+                        "example": "mb21472"
                     },
-                    "emails": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/MailLogEntry"
-                        },
-                        "example": "[{\n    \"_id\": 103172,\n    \"id\": \"17c7eda538e0005d03\",\n    \"from\": \"person@mysite.com\",\n    \"to\": \"client@isp.com\",\n    \"subject\": \"sell 0.005 shares\",\n    \"messageId\": \"<vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>\",\n    \"created\": \"2021-10-14 08:50:10\",\n    \"time\": 1634215809,\n    \"user\": \"mb5658\",\n    \"transtype\": \"ESMTPSA\",\n    \"origin\": \"199.231.189.154\",\n    \"interface\": \"feeder\",\n    \"sendingZone\": \"interserver\",\n    \"bodySize\": 63,\n    \"seq\": 1,\n    \"recipient\": \"client@isp.com\",\n    \"domain\": \"interserver.net\",\n    \"locked\": 1,\n    \"lockTime\": \"1634215818533\",\n    \"assigned\": \"relay1\",\n    \"queued\": \"2021-10-14T12:50:15.487Z\",\n    \"mxHostname\": \"mx.j.is.cc\",\n    \"response\": \"250 2.0.0 Ok queued as C91D83E128C\"\n}]"
+                    "comment": {
+                        "description": "Optional order comment.",
+                        "type": "string"
                     }
                 },
                 "example": {
-                    "total": 1,
-                    "skip": 0,
-                    "limit": 100,
-                    "emails": [
-                        {
-                            "_id": 103172,
-                            "id": "17c7eda538e0005d03",
-                            "from": "person@mysite.com",
-                            "to": "client@isp.com",
-                            "subject": "sell 0.005 shares",
-                            "messageId": "<vmiLEebsuCbSpUxD7oN3REpaN4VbN6BrdCAbNKIrdAo@relay0.mailbaby.net>",
-                            "created": "2021-10-14T08:50:10.000Z",
-                            "time": 1634215809,
-                            "user": "mb5658",
-                            "transtype": "ESMTPSA",
-                            "origin": "199.231.189.154",
-                            "interface": "feeder",
-                            "sendingZone": "interserver",
-                            "bodySize": 63,
-                            "seq": 1,
-                            "recipient": "client@isp.com",
-                            "domain": "interserver.net",
-                            "locked": 1,
-                            "lockTime": "1634215818533",
-                            "assigned": "relay1",
-                            "queued": "2021-10-14T12:50:15.487Z",
-                            "mxHostname": "mx.j.is.cc",
-                            "response": "250 2.0.0 Ok queued as C91D83E128C"
-                        }
-                    ]
+                    "id": 21472,
+                    "status": "active",
+                    "username": "mb21472"
+                }
+            },
+            "SendMail": {
+                "title": "SendMail",
+                "description": "Details for an Email",
+                "required": [
+                    "to",
+                    "from",
+                    "subject",
+                    "body"
+                ],
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "description": "The Contact whom is the primary recipient of this email.",
+                        "type": "string",
+                        "example": "johndoe@company.com"
+                    },
+                    "from": {
+                        "description": "The contact whom is the this email is from.",
+                        "type": "string",
+                        "example": "janedoe@company.com"
+                    },
+                    "subject": {
+                        "description": "The subject or title of the email",
+                        "type": "string",
+                        "example": "Attention Client"
+                    },
+                    "body": {
+                        "description": "The main email contents.",
+                        "type": "string",
+                        "example": "This is an email to inform you that something noteworthy happened."
+                    }
                 }
             },
             "SendMailAdv": {
-                "title": "Email details",
+                "title": "SendMailAdv",
                 "description": "Details for an Email",
                 "required": [
                     "from",
@@ -1419,81 +1497,6 @@
                         }
                     ],
                     "id": 66
-                }
-            },
-            "EmailAddressName": {
-                "title": "Root Type for EmailAddressName",
-                "description": "An email contact.",
-                "required": [
-                    "email"
-                ],
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "description": "The email address.",
-                        "type": "string",
-                        "example": "user@domain.com"
-                    },
-                    "name": {
-                        "description": "Name to use for the sending contact.",
-                        "type": "string",
-                        "example": "John Smith"
-                    }
-                },
-                "example": {
-                    "email": "user@domain.com",
-                    "name": "John Smith"
-                }
-            },
-            "MailAttachment": {
-                "title": "Root Type for MailAttachment",
-                "description": "(optional) File attachments to include in the email.  The file contents must be base64",
-                "required": [
-                    "data",
-                    "filename"
-                ],
-                "type": "object",
-                "properties": {
-                    "filename": {
-                        "description": "The filename of the attached file.",
-                        "type": "string",
-                        "example": "message.txt"
-                    },
-                    "data": {
-                        "description": "The file contents base64 encoded",
-                        "type": "string",
-                        "example": "aGVsbG8gdGhlcmUK"
-                    }
-                },
-                "example": {
-                    "filename": "file.txt",
-                    "data": "base64_encoded_file_contents"
-                }
-            },
-            "ErrorMessage": {
-                "title": "Root Type for ErrorMessage",
-                "description": "The resposne when an error occurs.",
-                "required": [
-                    "code",
-                    "message"
-                ],
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "format": "int32",
-                        "description": "The response code associated with the error.",
-                        "type": "integer",
-                        "example": "400"
-                    },
-                    "message": {
-                        "description": "The details or description of the error.",
-                        "type": "string",
-                        "example": "There was an error."
-                    }
-                },
-                "example": {
-                    "code": 400,
-                    "message": "There was an error."
                 }
             }
         },
