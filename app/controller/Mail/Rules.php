@@ -31,9 +31,9 @@ class Rules extends BaseController
         return json($return);
     }
 
-    public function delete(Request $request) : Response {
+    public function delete(Request $request, $id) : Response {
         $accountInfo = $request->accountInfo;
-        $id = $request->post('id');
+        //$id = $request->post('id');
         if (!v::intVal()->validate($id))
             return response('The specified ID was invalid.', 400);
         $rows = Db::table('mail')
