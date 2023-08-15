@@ -96,9 +96,9 @@ class Rules extends BaseController
         if ($type == 'startswith' && !v::regex('/^[A-Z0-9+_\.-]+$/')->validate($data)) {
             return $this->jsonErrorResponse('Invalid email start string, it should contain only alphanumeric characters, +_.-', 400);
         }
-        $rows = Db::connection('zonemta')
+        $transId = Db::connection('zonemta')
             ->table('mail_spam')
-            ->insert([
+            ->insertGetId([
                 'user' => $username,
                 'type' => $type,
                 'data' => $data
