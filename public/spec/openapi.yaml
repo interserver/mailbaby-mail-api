@@ -31,6 +31,9 @@ servers:
     -
         url: 'https://api.mailbaby.net'
         description: Live API Endpoint
+    -
+        url: 'https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0'
+        description: SwaggerHub API Auto Mocking
 paths:
     /mail:
         get:
@@ -1114,19 +1117,6 @@ components:
                         into many pieces, please blaim someone else.
                 from:
                     $ref: '#/components/schemas/EmailAddressName'
-                    description: The information to use for the From address in the email. from.
-                    required:
-                        - email
-                    properties:
-                        email:
-                            description: The email address
-                            type: string
-                            example: business@company.com
-                        name:
-                            description: (optional) Name to use for the sending contact.
-                            type: string
-                            example: The Man
-                    example: '{"email": "user@domain.com", "name": "John Smith"}'
                 to:
                     description: A list of destionation email addresses to send this to
                     type: array
@@ -1198,14 +1188,6 @@ components:
                 application/json:
                     schema:
                         $ref: '#/components/schemas/ErrorMessage'
-                        required:
-                            - code
-                            - message
-                        properties:
-                            code:
-                                type: string
-                            message:
-                                type: string
                     examples:
                         BadInputError:
                             value:
@@ -1217,14 +1199,6 @@ components:
                 application/json:
                     schema:
                         $ref: '#/components/schemas/ErrorMessage'
-                        required:
-                            - code
-                            - message
-                        properties:
-                            code:
-                                type: string
-                            message:
-                                type: string
                     examples:
                         AlreadyExistsError:
                             value:
@@ -1236,14 +1210,6 @@ components:
                 application/json:
                     schema:
                         $ref: '#/components/schemas/ErrorMessage'
-                        required:
-                            - code
-                            - message
-                        properties:
-                            code:
-                                type: string
-                            message:
-                                type: string
                     examples:
                         NotFoundError:
                             value:
@@ -1255,14 +1221,6 @@ components:
                 application/json:
                     schema:
                         $ref: '#/components/schemas/ErrorMessage'
-                        required:
-                            - code
-                            - message
-                        properties:
-                            code:
-                                type: string
-                            message:
-                                type: string
                     examples:
                         UnauthorizedError:
                             value:

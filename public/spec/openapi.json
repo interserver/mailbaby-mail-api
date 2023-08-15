@@ -19,6 +19,10 @@
         {
             "url": "https://api.mailbaby.net",
             "description": "Live API Endpoint"
+        },
+        {
+            "url": "https://virtserver.swaggerhub.com/InterServer/Mail-Baby/1.1.0",
+            "description": "SwaggerHub API Auto Mocking"
         }
     ],
     "paths": {
@@ -1413,24 +1417,7 @@
                         "example": "The package you ordered on 2021-01-23 has been delivered. If the package is broken into many pieces, please blaim someone else."
                     },
                     "from": {
-                        "$ref": "#/components/schemas/EmailAddressName",
-                        "description": "The information to use for the From address in the email. from.",
-                        "required": [
-                            "email"
-                        ],
-                        "properties": {
-                            "email": {
-                                "description": "The email address",
-                                "type": "string",
-                                "example": "business@company.com"
-                            },
-                            "name": {
-                                "description": "(optional) Name to use for the sending contact.",
-                                "type": "string",
-                                "example": "The Man"
-                            }
-                        },
-                        "example": "{\"email\": \"user@domain.com\", \"name\": \"John Smith\"}"
+                        "$ref": "#/components/schemas/EmailAddressName"
                     },
                     "to": {
                         "description": "A list of destionation email addresses to send this to",
@@ -1506,19 +1493,7 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "$ref": "#/components/schemas/ErrorMessage",
-                            "required": [
-                                "code",
-                                "message"
-                            ],
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/ErrorMessage"
                         },
                         "examples": {
                             "BadInputError": {
@@ -1536,19 +1511,7 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "$ref": "#/components/schemas/ErrorMessage",
-                            "required": [
-                                "code",
-                                "message"
-                            ],
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/ErrorMessage"
                         },
                         "examples": {
                             "AlreadyExistsError": {
@@ -1566,19 +1529,7 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "$ref": "#/components/schemas/ErrorMessage",
-                            "required": [
-                                "code",
-                                "message"
-                            ],
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/ErrorMessage"
                         },
                         "examples": {
                             "NotFoundError": {
@@ -1596,19 +1547,7 @@
                 "content": {
                     "application/json": {
                         "schema": {
-                            "$ref": "#/components/schemas/ErrorMessage",
-                            "required": [
-                                "code",
-                                "message"
-                            ],
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
+                            "$ref": "#/components/schemas/ErrorMessage"
                         },
                         "examples": {
                             "UnauthorizedError": {
