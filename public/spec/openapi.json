@@ -546,11 +546,11 @@
                     "Status"
                 ],
                 "responses": {
-                    "default": {
-                        "description": "Something is wrong"
-                    },
                     "200": {
                         "description": "Server is up and running"
+                    },
+                    "default": {
+                        "description": "Something is wrong"
                     }
                 },
                 "operationId": "pingServer",
@@ -1469,6 +1469,32 @@
                     "filename": "file.txt",
                     "data": "base64_encoded_file_contents"
                 }
+            },
+            "ErrorMessage": {
+                "title": "Root Type for ErrorMessage",
+                "description": "The resposne when an error occurs.",
+                "required": [
+                    "code",
+                    "message"
+                ],
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "format": "int32",
+                        "description": "The response code associated with the error.",
+                        "type": "integer",
+                        "example": "400"
+                    },
+                    "message": {
+                        "description": "The details or description of the error.",
+                        "type": "string",
+                        "example": "There was an error."
+                    }
+                },
+                "example": {
+                    "code": 400,
+                    "message": "There was an error."
+                }
             }
         },
         "responses": {
@@ -1476,11 +1502,11 @@
                 "content": {
                     "application/json": {
                         "schema": {
+                            "$ref": "#/components/schemas/ErrorMessage",
                             "required": [
                                 "code",
                                 "message"
                             ],
-                            "type": "object",
                             "properties": {
                                 "code": {
                                     "type": "string"
@@ -1489,20 +1515,28 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "examples": {
+                            "BadInputError": {
+                                "value": {
+                                    "code": 400,
+                                    "message": "There was a problem with the input parameters."
+                                }
+                            }
                         }
                     }
                 },
-                "description": "The specified resource was not found"
+                "description": "Error message when there was a problem with the input parameters."
             },
             "AlreadyExists": {
                 "content": {
                     "application/json": {
                         "schema": {
+                            "$ref": "#/components/schemas/ErrorMessage",
                             "required": [
                                 "code",
                                 "message"
                             ],
-                            "type": "object",
                             "properties": {
                                 "code": {
                                     "type": "string"
@@ -1511,26 +1545,42 @@
                                     "type": "string"
                                 }
                             }
+                        },
+                        "examples": {
+                            "AlreadyExistsError": {
+                                "value": {
+                                    "code": 400,
+                                    "message": "The specified resource already exists."
+                                }
+                            }
                         }
                     }
                 },
-                "description": "The specified resource was not found"
+                "description": "The specified resource already exists."
             },
             "NotFound": {
                 "content": {
                     "application/json": {
                         "schema": {
+                            "$ref": "#/components/schemas/ErrorMessage",
                             "required": [
                                 "code",
                                 "message"
                             ],
-                            "type": "object",
                             "properties": {
                                 "code": {
                                     "type": "string"
                                 },
                                 "message": {
                                     "type": "string"
+                                }
+                            }
+                        },
+                        "examples": {
+                            "NotFoundError": {
+                                "value": {
+                                    "code": 404,
+                                    "message": "The specified resource was not found."
                                 }
                             }
                         }
@@ -1542,17 +1592,25 @@
                 "content": {
                     "application/json": {
                         "schema": {
+                            "$ref": "#/components/schemas/ErrorMessage",
                             "required": [
                                 "code",
                                 "message"
                             ],
-                            "type": "object",
                             "properties": {
                                 "code": {
                                     "type": "string"
                                 },
                                 "message": {
                                     "type": "string"
+                                }
+                            }
+                        },
+                        "examples": {
+                            "UnauthorizedError": {
+                                "value": {
+                                    "code": 401,
+                                    "message": "Unauthorized"
                                 }
                             }
                         }
@@ -1599,8 +1657,7 @@
     },
     "security": [
         {
-            "apiKeyAuth": [
-            ]
+            "apiKeyAuth": []
         }
     ],
     "tags": [
