@@ -208,7 +208,8 @@
                     }
                 },
                 "operationId": "getStats",
-                "summary": "displays a list of blocked email addresses"
+                "summary": "Account usage statistics.",
+                "description": "Returns information about the usage on your mail accounts."
             }
         },
         "/mail/send": {
