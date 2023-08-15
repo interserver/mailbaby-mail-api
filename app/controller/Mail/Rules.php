@@ -59,10 +59,8 @@ class Rules extends BaseController
         $accountInfo = $request->accountInfo;
         $data = $request->post('data');
         $type = $request->post('type');
-        $orderId = $request->post('orderId', null);
-        if (!v::intVal()->validate($orderId))
-            return response('The specified ID was invalid.', 400);
-        if (is_null($orderId)) {
+        $username = $request->post('username', null);
+        if (is_null($username)) {
             $rows = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_status', 'active')
@@ -79,11 +77,11 @@ class Rules extends BaseController
             $row = Db::table('mail')
                 ->where('mail_custid', $accountInfo->account_id)
                 ->where('mail_status', 'active')
-                ->where('mail_id', $id)
+                ->where('mail_username', $username)
                 ->first();
             $username = $row->mail_username;
             if (count($users) == 0) {
-                return $this->jsonErrorResponse('No active mail orders.', 400);
+                return $this->jsonErrorResponse('Invalid or Inactive Username.', 400);
             }
         }
         if (!v::in(['domain', 'email', 'startswith'])->validate($type)) {
