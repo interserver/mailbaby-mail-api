@@ -78,7 +78,7 @@ class Blocks extends BaseController
             ->havingRaw('COUNT(headersubject) > 4')
             ->get();
         $return['subject'] = $rows->all();
-        return json($return);
+        return $this->jsonResponse($return);
     }
 
     public function delete(Request $request) : Response {
@@ -96,6 +96,6 @@ class Blocks extends BaseController
             ->table('mailbaby')
             ->where('emailfrom', $email)
             ->delete();
-        return json(['status' =>'ok', 'record deleted']);
+        return $this->jsonResponse(['status' =>'ok', 'record deleted']);
     }
 }

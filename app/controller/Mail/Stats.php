@@ -28,6 +28,6 @@ class Stats extends BaseController
             ->whereIn('user', $users)
             ->get();
         $return = $rows->all();
-        return json($return);
+        return $this->jsonResponse($return);
     }
 }

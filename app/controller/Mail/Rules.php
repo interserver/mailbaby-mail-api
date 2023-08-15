@@ -28,14 +28,14 @@ class Rules extends BaseController
             ->whereIn('user', $users)
             ->get();
         $return = $rows->all();
-        return json($return);
+        return $this->jsonResponse($return);
     }
 
     public function delete(Request $request, $id) : Response {
         $accountInfo = $request->accountInfo;
         //$id = $request->post('id');
         if (!v::intVal()->validate($id))
-            return response('The specified ID was invalid.', 400);
+            return $this->jsonErrorResponse('The specified ID was invalid.', 400);
         $rows = Db::table('mail')
             ->where('mail_custid', $accountInfo->account_id)
             ->where('mail_status', 'active')
@@ -52,7 +52,7 @@ class Rules extends BaseController
             ->whereIn('user', $users)
             ->where('id', $id)
             ->delete();
-        return json(['status' =>'ok', 'record deleted']);
+        return $this->jsonResponse(['status' =>'ok', 'text' => 'record deleted']);
     }
 
     public function post(Request $request) : Response {
@@ -103,6 +103,6 @@ class Rules extends BaseController
                 'type' => $type,
                 'data' => $data
             ]);
-        return json(['status' =>'ok', 'text' => $transId]);
+        return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
     }
 }

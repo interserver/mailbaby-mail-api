@@ -34,7 +34,7 @@ class Mail extends BaseController
 	public function view(Request $request, $id) : Response {
 		$accountInfo = $request->accountInfo;
 		if (!v::intVal()->validate($id))
-			return response('The specified ID was invalid.', 400);
+			return $this->jsonErrorResponse('The specified ID was invalid.', 400);
 		$order = Db::table('mail')
 			->where('mail_custid', $accountInfo->account_id)
 			->where('mail_id', $id)
@@ -107,12 +107,12 @@ class Mail extends BaseController
             $mailer->Body = $email;
             $mailer->preSend();
             if (!$mailer->send()) {
-                return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
+                return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
             }
             $transId = $mailer->getSMTPInstance()->getLastTransactionID();
-            return json(['status' =>'ok', 'text' => $transId]);
+            return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
-            return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
+            return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
         }
     }
 
@@ -154,7 +154,7 @@ class Mail extends BaseController
         }
         foreach (['from', 'to', 'subject', 'body'] as $field)
             if (!isset($data[$field]))
-                return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 404);
+                return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 400);
 
 
         $sent = false;
@@ -187,7 +187,7 @@ class Mail extends BaseController
                             }
                         }
                     } else {
-                        return $this->jsonErrorResponse('The "'.strtolower($type).'" field is supposed to be an array.', 404);
+                        return $this->jsonErrorResponse('The "'.strtolower($type).'" field is supposed to be an array.', 400);
                     }
                 }
             }
@@ -202,19 +202,19 @@ class Mail extends BaseController
                         }
                     }
                 } else {
-                    return $this->jsonErrorResponse('The "attachments" field is supposed to be an array.', 404);
+                    return $this->jsonErrorResponse('The "attachments" field is supposed to be an array.', 400);
                 }
             }
             $mailer->Body = $data['body'];
             $mailer->preSend();
             if (!$mailer->send()) {
-                return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
+                return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
             }
             // SERVER -> CLIENT: 250 Message queued as 185caa69ff7000f47c
             $transId = $mailer->getSMTPInstance()->getLastTransactionID();
-            return json(['status' =>'ok', 'text' => $transId]);
+            return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
-            return json(['status' => 'error', 'text' => $mailer->ErrorInfo]);
+            return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
         }
     }
 
@@ -314,7 +314,7 @@ class Mail extends BaseController
 			->limit($limit)
 			->get();
 		$return['emails'] = $orders->all();
-		return json($return);
+		return $this->jsonResponse($return);
 	}
 
 	public function viewtest(Request $request)
