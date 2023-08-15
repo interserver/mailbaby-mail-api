@@ -27,7 +27,7 @@ Route::group('/mail', function() {
     Route::any('/log', [app\controller\Mail::class, 'log']);
     Route::get('/rules', [app\controller\Mail\Rules::class, 'get']);
     Route::post('/rules', [app\controller\Mail\Rules::class, 'post']);
-    Route::post('/rules/{id}', [app\controller\Mail\Rules::class, 'delete']);
+    Route::delete('/rules/{id}', [app\controller\Mail\Rules::class, 'delete']);
     Route::get('/stats', [app\controller\Mail\Stats::class, 'get']);
     Route::get('/blocks', [app\controller\Mail\Blocks::class, 'get']);
     Route::post('/blocks/delete', [app\controller\Mail\Blocks::class, 'delete']);
