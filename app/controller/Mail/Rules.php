@@ -84,16 +84,15 @@ class Rules extends BaseController
                 return $this->jsonErrorResponse('Invalid or Inactive Username.', 400);
             }
         }
-        if (!v::in(['domain', 'email', 'startswith'])->validate($type)) {
+        if (!v::in(['domain', 'email', 'startswith', 'destination'])->validate($type)) {
             return $this->jsonErrorResponse('Invalid value for type.', 400);
-        }
-        if ($type == 'domain' && !v::domain()->validate($data)) {
+        } elseif ($type == 'domain' && !v::domain()->validate($data)) {
             return $this->jsonErrorResponse('Invalid domain name in data.', 400);
-        }
-        if ($type == 'email' && !v::email()->validate($data)) {
+        } elseif ($type == 'email' && !v::email()->validate($data)) {
             return $this->jsonErrorResponse('Invalid email address in data.', 400);
-        }
-        if ($type == 'startswith' && !v::regex('/^[A-Z0-9+_\.-]+$/')->validate($data)) {
+        } elseif ($type == 'destination' && !v::email()->validate($data)) {
+            return $this->jsonErrorResponse('Invalid email address in data.', 400);
+        } elseif ($type == 'startswith' && !v::regex('/^[A-Za-z0-9+_\.-]+$/')->validate($data)) {
             return $this->jsonErrorResponse('Invalid email start string, it should contain only alphanumeric characters, +_.-', 400);
         }
         $transId = Db::connection('zonemta')
