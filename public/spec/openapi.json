@@ -931,6 +931,7 @@
                         "enum": [
                             "domain",
                             "email",
+                            "destination",
                             "startswith"
                         ],
                         "type": "string",
