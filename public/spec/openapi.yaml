@@ -638,17 +638,6 @@ components:
             example:
                 email: user@domain.com
                 name: John Smith
-        EmailAddress:
-            title: EmailAddress
-            description: an email address
-            type: object
-            properties:
-                email:
-                    description: an email address
-                    type: string
-                    example: user@domain.com
-            example:
-                email: user@domain.com
         DenyRuleRecord:
             title: DenyRuleRecord
             description: The data for a email deny rule record.
@@ -959,16 +948,6 @@ components:
                 -
                     email: user@domain.com
                     name: John Smith
-        EmailAddressTypes:
-            oneOf:
-                -
-                    $ref: '#/components/schemas/EmailAddress'
-                -
-                    $ref: '#/components/schemas/EmailAddressNames'
-            title: EmailAddressTypes
-            description: ''
-            example:
-                email: user@domain.com
         SendMailAdv:
             title: SendMailAdv
             description: Details for an Email
@@ -990,36 +969,30 @@ components:
                         The package you ordered on 2021-01-23 has been delivered. If the package is broken
                         into many pieces, please blaim someone else.
                 from:
-                    $ref: '#/components/schemas/EmailAddressName'
-                to:
                     $ref: '#/components/schemas/EmailAddressTypes'
+                to:
+                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: A list of destionation email addresses to send this to
-                    example: '[{"email": "user@domain.com", "name": "John Smith"}]'
+                    example: ''
                 replyto:
+                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         (optional) A list of email addresses that specify where replies to the email should be
                         sent instead of the _from_ address.
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/EmailAddressName'
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 cc:
+                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         (optional) A list of email addresses to carbon copy this message to.  They are listed
                         on the email and anyone getting the email can see this full list of Contacts who
                         received the email as well.
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/EmailAddressName'
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 bcc:
+                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         (optional) list of email addresses that should receive copies of the email.  They are
                         hidden on the email and anyone gettitng the email would not see the other people
                         getting the email in this list.
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/EmailAddressName'
                     example: '[{"email": "user@domain.com", "name": "John Smith"}]'
                 attachments:
                     description: >-
@@ -1198,6 +1171,26 @@ components:
                 queued: '2021-10-14T12:50:15.487Z'
                 mxHostname: mx.j.is.cc
                 response: 250 2.0.0 Ok queued as C91D83E128C
+        EmailAddress:
+            description: an email address
+            type: string
+            example: user@domain.com
+        EmailAddressesTypes:
+            oneOf:
+                -
+                    $ref: '#/components/schemas/EmailAddress'
+                -
+                    $ref: '#/components/schemas/EmailAddressNames'
+            title: EmailAddressTypes
+            description: ''
+        EmailAddressTypes:
+            oneOf:
+                -
+                    $ref: '#/components/schemas/EmailAddress'
+                -
+                    $ref: '#/components/schemas/EmailAddressName'
+            title: EmailAddressTypes
+            description: ''
     responses:
         BadInput:
             content:
