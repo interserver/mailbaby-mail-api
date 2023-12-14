@@ -123,7 +123,7 @@ class Mail extends BaseController
         $accountInfo = $request->accountInfo;
         if ($request->header('content-type') == 'application/x-www-form-urlencoded') {
         	$data = [];
-            foreach (['subject', 'body', 'from', 'to', 'id', 'replyto', 'cc', 'bcc'] as $var) {
+            foreach (['id', 'subject', 'body', 'from', 'to', 'replyto', 'cc', 'bcc'] as $var) {
 				$value = $request->post($var);
 				if (!is_null($value)) {
 					$data[$var] = $value;
@@ -131,6 +131,27 @@ class Mail extends BaseController
             }
 		} else {
 			$data = json_decode($request->rawBody(), true);
+        }
+        if (isset($data['from']) && !is_array($data['from'])) {
+            $emails = mailparse_rfc822_parse_addresses($data['from']);
+            $email = ['email' => $emails[0]['address']];
+            if ($emails[0]['display'] != $emails[0]['address']) {
+                $email['name'] = $emails[0]['display'];
+            }
+            $data['from'] = $email;
+        }
+        foreach (['to', 'replyto', 'cc', 'bcc'] as $var) {
+            if (isset($data[$var]) && !is_array($data[$var])) {
+                $emails = mailparse_rfc822_parse_addresses($data[$var]);
+                $data[$var] = [];
+                foreach ($emails as $value) {
+                    $email = ['email' => $value['address']];
+                    if ($value['display'] != $value['address']) {
+                        $email['name'] = $value['display'];
+                    }
+                    $data[$var][] = $email;
+                }
+            }
         }
         $id = isset($data['id']) ? $data['id'] : null;
         if (!is_null($id)) {
