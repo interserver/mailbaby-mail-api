@@ -970,23 +970,25 @@ components:
                         into many pieces, please blaim someone else.
                 from:
                     $ref: '#/components/schemas/EmailAddressTypes'
+                    description: The from email address.
+                    example: me@company.com
                 to:
                     $ref: '#/components/schemas/EmailAddressesTypes'
                     description: A list of destionation email addresses to send this to
-                    example: ''
+                    example: user@domain.com
                 replyto:
                     $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         (optional) A list of email addresses that specify where replies to the email should be
                         sent instead of the _from_ address.
-                    example: '[{"email": "user@domain.com", "name": "John Smith"}]'
+                    example: user@domain.com
                 cc:
                     $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         (optional) A list of email addresses to carbon copy this message to.  They are listed
                         on the email and anyone getting the email can see this full list of Contacts who
                         received the email as well.
-                    example: '[{"email": "user@domain.com", "name": "John Smith"}]'
+                    example: user2@domain.com
                 bcc:
                     $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
@@ -1016,11 +1018,14 @@ components:
             example:
                 subject: Welcome
                 body: Hello
-                from:
-                    email: user@domain.com
-                to:
+                from: user@domain.com
+                to: someone@client.com
+                cc:
                     -
-                        email: someone@client.com
+                        email: someone2@client.com
+                        name: Mr Client
+                    -
+                        email: someone3@client.com
                         name: Mr Client
                 attachments:
                     -
