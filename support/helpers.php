@@ -30,7 +30,6 @@ use Workerman\Worker;
 use Webman\App;
 use Webman\Config;
 use Webman\Route;
-use Workerman\Worker;
 
 // Webman version
 const WEBMAN_VERSION = '1.4';
