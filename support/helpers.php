@@ -25,6 +25,8 @@ use support\view\Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Workerman\Protocols\Http\Session;
+use Workerman\Worker;
 use Webman\App;
 use Webman\Config;
 use Webman\Route;
@@ -304,7 +306,7 @@ function route(string $name, ...$parameters): string
  * Session
  * @param mixed $key
  * @param mixed $default
- * @return mixed
+ * @return mixed|bool|Session
  */
 function session($key = null, $default = null)
 {
