@@ -974,7 +974,12 @@ components:
                     example: me@company.com
                 to:
                     $ref: '#/components/schemas/EmailAddressesTypes'
-                    description: A list of destionation email addresses to send this to
+                    description: >-
+                        A list of destionation email addresses to send this to.  You can pass the `to` field
+                        either as a RFC 822 compliant comma seperated list of email addresses (like
+                        `user@domain.com, user2@domain.com, Guy <user3@domain.com>`) or as an array of objects
+                        each one having at least an `email` field with the email address and an optional
+                        `name` field with the display name.
                     example: user@domain.com
                 replyto:
                     $ref: '#/components/schemas/EmailAddressesTypes'
