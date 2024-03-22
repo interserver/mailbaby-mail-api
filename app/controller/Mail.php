@@ -250,6 +250,8 @@ class Mail extends BaseController
         $mx = $request->get('mx', null);
         $from = $request->get('from', null);
         $to = $request->get('to', null);
+        $reply = $request->get('replyto', null);
+        $headerfrom = $request->get('headerfrom,', null);
         $subject = $request->get('subject', null);
         $mailId = $request->get('mailid', null);
         if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
@@ -258,6 +260,10 @@ class Mail extends BaseController
             return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($to))
             return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
+        if (!v::anyOf(v::email(), v::nullType())->validate($replyto))
+            return $this->jsonErrorResponse('The specified replyto value was not a valid email address.', 400);
+        if (!v::anyOf(v::email(), v::nullType())->validate($headerfrom))
+            return $this->jsonErrorResponse('The specified headerfrom value was not a valid email address.', 400);
         if (!v::anyOf(v::domain(), v::nullType())->validate($mx))
             return $this->jsonErrorResponse('The specified mx value was not a valid hostname.', 400);
         if (!v::anyOf(v::ip(), v::nullType())->validate($origin))
@@ -306,7 +312,11 @@ class Mail extends BaseController
         if (!is_null($mailId))
             $where[] = ['mail_messagestore.id', '=', $mailId];
         if (!is_null($subject))
-            $where[] = ['mail_headers.value', '=', $subject];
+            $where[] = ['h1.value', '=', $subject];
+        if (!is_null($replyto))
+            $where[] = ['h2.value', '=', $subject];
+        if (!is_null($headerfrom))
+            $where[] = ['h3.value', '=', $subject];
    		$total = Db::connection('zonemta')
    			->table('mail_messagestore')
 			->where($where)
@@ -320,10 +330,25 @@ class Mail extends BaseController
 		];
    		$orders = Db::connection('zonemta')
    			->table('mail_messagestore')
-   			->leftJoin('mail_headers', function ($join) {
+   			->leftJoin('mail_headers h1', function ($join) {
                 $join->on('mail_messagestore.id', '=', 'mail_headers.id')
                     ->on('mail_headers.field','=', Db::raw('"subject"'));
-            })
+            });
+        if (!is_null($replyto)) {
+            $orders = $orders
+               ->leftJoin('mail_headers h2', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'h2.id')
+                    ->on('h2.field','=', Db::raw('"reply-to"'));
+            });
+        }
+        if (!is_null($headerfrom)) {
+            $orders = $orders
+               ->leftJoin('mail_headers h3', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'h3.id')
+                    ->on('h3.field','=', Db::raw('"from"'));
+            });
+        }
+        $orders = $orders
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_headers.value AS subject',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
