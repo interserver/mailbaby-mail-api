@@ -483,6 +483,22 @@
                         },
                         "in": "query",
                         "required": false
+                    },
+                    {
+                        "name": "replyto",
+                        "description": "Reply-To Email Address",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "headerfrom",
+                        "description": "Header From Email Address",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
