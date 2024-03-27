@@ -331,7 +331,7 @@ class Mail extends BaseController
    		$orders = Db::connection('zonemta')
    			->table('mail_messagestore')
    			->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
-                $join->on('mail_messagestore.id', '=', 'mail_headers.id')
+                $join->on('mail_messagestore.id', '=', 'h1.id')
                     ->on('mail_headers.field','=', Db::raw('"subject"'));
             });
         if (!is_null($replyto)) {
@@ -350,7 +350,7 @@ class Mail extends BaseController
         }
         $orders = $orders
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
-            ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'mail_headers.value AS subject',
+            ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
                 'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_senderdelivered.recipient',
                 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned', 'mail_senderdelivered.queued',
