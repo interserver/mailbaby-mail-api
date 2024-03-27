@@ -330,20 +330,20 @@ class Mail extends BaseController
 		];
    		$orders = Db::connection('zonemta')
    			->table('mail_messagestore')
-   			->leftJoin('mail_headers h1', function ($join) {
+   			->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'mail_headers.id')
                     ->on('mail_headers.field','=', Db::raw('"subject"'));
             });
         if (!is_null($replyto)) {
             $orders = $orders
-               ->leftJoin('mail_headers h2', function ($join) {
+               ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h2.id')
                     ->on('h2.field','=', Db::raw('"reply-to"'));
             });
         }
         if (!is_null($headerfrom)) {
             $orders = $orders
-               ->leftJoin('mail_headers h3', function ($join) {
+               ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h3.id')
                     ->on('h3.field','=', Db::raw('"from"'));
             });
