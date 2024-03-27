@@ -250,7 +250,7 @@ class Mail extends BaseController
         $mx = $request->get('mx', null);
         $from = $request->get('from', null);
         $to = $request->get('to', null);
-        $reply = $request->get('replyto', null);
+        $replyto = $request->get('replyto', null);
         $headerfrom = $request->get('headerfrom,', null);
         $subject = $request->get('subject', null);
         $mailId = $request->get('mailid', null);
