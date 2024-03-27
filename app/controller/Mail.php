@@ -332,7 +332,7 @@ class Mail extends BaseController
    			->table('mail_messagestore')
    			->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h1.id')
-                    ->on('mail_headers.field','=', Db::raw('"subject"'));
+                    ->on('h1.field','=', Db::raw('"subject"'));
             });
         if (!is_null($replyto)) {
             $orders = $orders
