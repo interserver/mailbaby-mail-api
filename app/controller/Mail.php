@@ -74,10 +74,13 @@ class Mail extends BaseController
                 return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
+        foreach (['from', 'to', 'subject', 'body'] as $field)
+            if (!isset($data[$field]))
+                return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 400);
         $sent = false;
         $from = $request->post('from');
-        $email = $request->post('body');
-        $subject = $request->post('subject');
+        $email = (string)$request->post('body');
+        $subject = (string)$request->post('subject');
         $isHtml = strip_tags($email) != $email;
         $who = $request->post('to');
         if (!is_array($who))
