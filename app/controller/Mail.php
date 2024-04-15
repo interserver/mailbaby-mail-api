@@ -176,8 +176,9 @@ class Mail extends BaseController
         foreach (['from', 'to', 'subject', 'body'] as $field)
             if (!isset($data[$field]))
                 return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 400);
-
-
+        foreach (['subject', 'body'] as $field)
+            if (!is_string($data[$field]))
+                return $this->jsonErrorResponse('The field "'.$field.'" must be a string', 400);
         $sent = false;
         $mailer = new PHPMailer(true);
         $mailer->CharSet = 'utf-8';
