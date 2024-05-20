@@ -205,7 +205,11 @@ class Mail extends BaseController
                         if (count($data[strtolower($type)]) > 0) {
                             foreach ($data[strtolower($type)] as $contact) {
                                 $call = 'add'.$type;
-                                $mailer->$call($contact['email'], isset($contact['name']) ? $contact['name'] : '');
+                                if (is_string($contact)) {
+                                    $mailer->$call($contact);
+                                } else {
+                                    $mailer->$call($contact['email'], isset($contact['name']) ? $contact['name'] : '');
+                                }
                             }
                         }
                     } else {
