@@ -15,7 +15,7 @@ else
 	passthru('cd '.__DIR__.'/mailbaby-api-samples && git pull --all');
 echo "Determining latest OpenAPI Generator jar\n";
 $prefix = 'https://oss.sonatype.org/content/repositories/snapshots/org/openapitools/openapi-generator-cli/';
-$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|tail -n 1|cut -d/ -f10|cut -d- -f1`);
+$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|grep -v 8.0.0-SNAP|tail -n 1|cut -d/ -f10|cut -d- -f1`);
 $latest = trim(`curl -s {$prefix}{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
 echo "Grabbing latest OpenAPI Generator jar {$latest}\n";
 passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O openapi-generator-cli.jar');
