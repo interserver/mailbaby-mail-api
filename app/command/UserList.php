@@ -21,7 +21,7 @@ class UserList extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $result = Db::connection('mongodb')->collection('users')->get();
         $output->writeln('MailBaby User Listing is as followsMySQL configuration information is as follows:');

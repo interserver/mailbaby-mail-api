@@ -29,7 +29,7 @@ class UserShow extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
         $result = Db::connection('mongodb')->collection('users')->where('username', $name)->get();

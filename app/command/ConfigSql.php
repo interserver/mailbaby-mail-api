@@ -20,7 +20,7 @@ class ConfigSql extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Sql configuration information is as follows:');
         $config = config('database');
