@@ -37,7 +37,8 @@
     "phpmailer/phpmailer": "dev-master",
     "respect/validation": "*",
     "webman/console": "*",
-    "webman/cors": "*"
+    "webman/cors": "*",
+    "webman/database": "*"
   },
   "suggest": {
     "ext-event": "For better performance. "
