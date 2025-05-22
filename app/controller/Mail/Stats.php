@@ -87,7 +87,7 @@ class Stats extends BaseController
         //$totals['cost'] = $totalCost->getAmount()->toFloat();
         $totals['cost'] = $baseCost + $countCost;
 
-        $time = $request->get('time', '1h');
+        $time = in_array($request->get('time', '1h'), array_keys($times)) ? $request->get('time', '1h') : '1h';
 
         $totals['time'] = $time;
         if ($time == 'month') {
@@ -105,7 +105,9 @@ class Stats extends BaseController
         } elseif ($time == 'day') {
             $minTime = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
         }
-        $where[] = 'time >= '.$minTime;
+        if (isset($minTime)) {
+            $where[] = 'time >= '.$minTime;
+        }
 
         $totals['received'] = Db::connection('zonemta')
             ->table('mail_messagestore')
