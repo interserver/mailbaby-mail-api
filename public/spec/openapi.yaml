@@ -229,7 +229,7 @@ paths:
                 are for application/json content-types.
 
 
-                ```
+                ```BasicForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -250,7 +250,7 @@ paths:
                 ```
 
 
-                ```
+                ```ArrayForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -273,7 +273,7 @@ paths:
                 ```
 
 
-                ```
+                ```NameEmailForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -294,7 +294,7 @@ paths:
                 ```
 
 
-                ```
+                ```MultToForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -315,7 +315,7 @@ paths:
                 ```
 
 
-                ```
+                ```MultToFullForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -336,7 +336,7 @@ paths:
                 ```
 
 
-                ```
+                ```MultToArrayForm
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -363,7 +363,7 @@ paths:
                 ```
 
 
-                ```
+                ```BasicJson
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -388,7 +388,7 @@ paths:
                 ```
 
 
-                ```
+                ```ArrayJson
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
@@ -413,7 +413,7 @@ paths:
                 ```
 
 
-                ```
+                ```NameEmailJson
 
                 curl -i --request POST --url https://api.mailbaby.net/mail/advsend \
 
