@@ -87,7 +87,8 @@ class Stats extends BaseController
         //$totals['cost'] = $totalCost->getAmount()->toFloat();
         $totals['cost'] = $baseCost + $countCost;
 
-        $time = isset($_GET['time']) && in_array($_GET['time'], array_keys($times)) ? $_GET['time'] : '1h';
+        $time = $request->get('time', '1h');
+
         $totals['time'] = $time;
         if ($time == 'month') {
             $minTime = mktime(0, 0, 0, date('n'), 1, date('Y'));
