@@ -10,6 +10,22 @@ use Respect\Validation\Validator as v;
 
 class Stats extends BaseController
 {
+    public function fromTimestamp($timestamp)
+    {
+        if (preg_match('/([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/', $timestamp, $parts)) {
+            $time = mktime($parts[4], $parts[5], $parts[6], $parts[2], $parts[3], $parts[1]);
+        } elseif (preg_match('/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/', $timestamp, $parts)) {
+            $time = mktime($parts[4], $parts[5], $parts[6], $parts[2], $parts[3], $parts[1]);
+        } elseif (preg_match('/([0-9]{4})([0-9]{2})([0-9]{2})/', $timestamp, $parts)) {
+            $time = mktime(1, 1, 1, $parts[2], $parts[3], $parts[1]);
+        } elseif (is_numeric($timestamp) && $timestamp >= 943938000) {
+            $time = $timestamp;
+        } else {
+            $time = false;
+        }
+        return $time;
+    }
+
     public function get(Request $request) : Response {
         $accountInfo = $request->accountInfo;
         $rows = Db::table('mail')
@@ -20,10 +36,15 @@ class Stats extends BaseController
         foreach ($rows as $row) {
             $currency = $row->mail_currency;
             $users[] = $row->mail_username;
+            $repeatId = $row->mail_invoice;
+            $orderDate = $row->mail_order_date;
         }
         if (count($users) == 0) {
             return $this->jsonErrorResponse('No active mail orders.', 400);
         }
+        $repeatInvoice = Db::table('repeat_invoices')
+            ->where('repeat_invoices_id', '=', $repeatId)
+            ->first();
 
         $fieldLabels = ['origin' => 'IP', 'mail_messagestore.to' => 'To', 'mail_messagestore.from' => 'From'];
         $fieldKeys = ['origin' => 'ip', 'mail_messagestore.to' => 'to', 'mail_messagestore.from' => 'from'];
@@ -34,18 +55,17 @@ class Stats extends BaseController
             'from' => 'mail_messagestore.from',
         ];
         $limit = 500;
-        $currencySymbol = Currency::getSymbol($currency);
-        $repeatInvoice = get_service_repeat_invoice($serviceInfo['mail_invoice'], $module);
+        //$currencySymbol = Currency::getSymbol($currency);
         $emailCost = 0.20 / 1000;
-        $baseCost = 1 * ($repeatInvoice === false ? 1 : $repeatInvoice['repeat_invoices_frequency']);
-        $baseCost = convertCurrency($baseCost, $currency, 'USD');
-        $startDate = $db->fromTimestamp(date('Y-m-d 00:00:01', $db->fromTimestamp($repeatInvoice === false ? $serviceInfo['mail_order_date'] : $repeatInvoice['repeat_invoices_last_date'])));
-        $endDate = $db->fromTimestamp(date('Y-m-d 00:00:01', $db->fromTimestamp($repeatInvoice === false ? date('Y-m-d H:i:s') : $repeatInvoice['repeat_invoices_next_date'])));
+        $baseCost = 1 * ($repeatInvoice === false ? 1 : $repeatInvoice->repeat_invoices_frequency);
+        //$baseCost = convertCurrency($baseCost, $currency, 'USD');
+        $startDate = $this->fromTimestamp(date('Y-m-d 00:00:01', $this->fromTimestamp($repeatInvoice === false ? $orderDate : $repeatInvoice->repeat_invoices_last_date)));
+        $endDate = $this->fromTimestamp(date('Y-m-d 00:00:01', $this->fromTimestamp($repeatInvoice === false ? date('Y-m-d H:i:s') : $repeatInvoice->repeat_invoices_next_date)));
         $totals = [
             'time' => '1h',
             'usage' => 0,
             'currency' => $currency,
-            'currencySymbol' => $currencySymbol,
+            //'currencySymbol' => $currencySymbol,
             'cost' => 0,
             'received' => 0,
             'sent' => 0,
@@ -62,11 +82,12 @@ class Stats extends BaseController
             ->count();
 
         $countCost = ceil($totals['usage'] * $emailCost * 100) / 100;
-        $countCost = convertCurrency($countCost, $currency, 'USD');
-        $totalCost = $baseCost->plus($countCost);
-        $totals['cost'] = $totalCost->getAmount()->toFloat();
+        //$countCost = convertCurrency($countCost, $currency, 'USD');
+        //$totalCost = $baseCost->plus($countCost);
+        //$totals['cost'] = $totalCost->getAmount()->toFloat();
+        $totals['cost'] = $baseCost + $countCost;
 
-        $time = isset($GLOBALS['tf']->variables->request['time']) && in_array($GLOBALS['tf']->variables->request['time'], array_keys($times)) ? $GLOBALS['tf']->variables->request['time'] : '1h';
+        $time = isset($_GET['time']) && in_array($_GET['time'], array_keys($times)) ? $_GET['time'] : '1h';
         $totals['time'] = $time;
         if ($time == 'month') {
             $minTime = mktime(0, 0, 0, date('n'), 1, date('Y'));
