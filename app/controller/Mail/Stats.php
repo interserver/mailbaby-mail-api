@@ -131,7 +131,7 @@ class Stats extends BaseController
                 ->whereIn('user', $users)
                 ->where('time', '>=', $minTime)
                 ->groupBy($field)
-                ->orderBy("count({$field})", 'desc')
+                ->orderByRaw("count({$field}) desc")
                 ->limit($limit)
                 ->get();
             foreach ($rows as $row) {
