@@ -145,73 +145,6 @@
                 "summary": "displays a list of blocked email addresses"
             }
         },
-        "/mail/stats": {
-            "get": {
-                "tags": [
-                    "History"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "required": [
-                                            "id",
-                                            "status",
-                                            "username"
-                                        ],
-                                        "type": "object",
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1234
-                                            },
-                                            "status": {
-                                                "type": "string",
-                                                "example": "active"
-                                            },
-                                            "username": {
-                                                "type": "string",
-                                                "example": "mb1234"
-                                            },
-                                            "password": {
-                                                "type": "string",
-                                                "example": "guest123"
-                                            },
-                                            "comment": {
-                                                "type": "string",
-                                                "example": "main mail account"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "links": {
-                            "delistBlockLink": {
-                                "operationId": "delistBlock",
-                                "parameters": {
-                                    "id": "$response.body#/0/id"
-                                },
-                                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /mail/advsend`."
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/Unauthorized"
-                    }
-                },
-                "operationId": "getStats",
-                "summary": "Account usage statistics.",
-                "description": "Returns information about the usage on your mail accounts."
-            }
-        },
         "/mail/send": {
             "post": {
                 "requestBody": {
@@ -804,6 +737,62 @@
                 "operationId": "deleteRule",
                 "summary": "Removes an deny mail rule.",
                 "description": "Removes one of the configured deny mail rules from the system."
+            }
+        },
+        "/mail/stats": {
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "name": "time",
+                        "description": "The timeframe for the statistics.",
+                        "schema": {
+                            "enum": [
+                                "all",
+                                "billing",
+                                "month",
+                                "7d",
+                                "24h",
+                                "1d",
+                                "1h"
+                            ],
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MailStatsType"
+                                }
+                            }
+                        },
+                        "links": {
+                            "delistBlockLink": {
+                                "operationId": "delistBlock",
+                                "parameters": {
+                                    "id": "$response.body#/0/id"
+                                },
+                                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /mail/advsend`."
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    }
+                },
+                "operationId": "getStats",
+                "summary": "Account usage statistics.",
+                "description": "Returns information about the usage on your mail accounts."
             }
         }
     },
@@ -1520,6 +1509,135 @@
                 ],
                 "title": "EmailAddressTypes",
                 "description": ""
+            },
+            "MailStatsType": {
+                "title": "Root Type for MailStatsType",
+                "description": "Statistics about the mail usage including volume by IP, To address, and From address; as well as total sent / delivered counts and cost.",
+                "type": "object",
+                "properties": {
+                    "time": {
+                        "default": "1h",
+                        "enum": [
+                            "all",
+                            "billing",
+                            "month",
+                            "7d",
+                            "24h",
+                            "today",
+                            "1h"
+                        ],
+                        "type": "string"
+                    },
+                    "usage": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "currencySymbol": {
+                        "type": "string"
+                    },
+                    "cost": {
+                        "format": "double",
+                        "type": "number"
+                    },
+                    "received": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "sent": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "volume": {
+                        "type": "object",
+                        "properties": {
+                            "to": {
+                                "type": "object",
+                                "properties": {
+                                    "client@domain.com": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "user@site.net": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "sales@company.com": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "client@anothersite.com": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "from": {
+                                "type": "object",
+                                "properties": {
+                                    "billing@somedomain.com": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "sales@somedomain.com": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "ip": {
+                                "type": "object",
+                                "properties": {
+                                    "1.1.1.1": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "2.2.2.2": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "3.3.3.3": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    },
+                                    "4.4.4.4": {
+                                        "format": "int32",
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "example": {
+                    "time": "all",
+                    "usage": 55,
+                    "currency": "USD",
+                    "currencySymbol": "$",
+                    "cost": 1.02,
+                    "received": 508,
+                    "sent": 495,
+                    "volume": {
+                        "to": {
+                            "client@domain.com": 395,
+                            "user@site.net": 57,
+                            "sales@company.com": 47,
+                            "client@anothersite.com": 9
+                        },
+                        "from": {
+                            "billing@somedomain.com": 369,
+                            "sales@somedomain.com": 139
+                        },
+                        "ip": {
+                            "1.1.1.1": 142,
+                            "2.2.2.2": 132,
+                            "3.3.3.3": 129,
+                            "4.4.4.4": 105
+                        }
+                    }
+                }
             }
         },
         "responses": {
