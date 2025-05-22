@@ -106,37 +106,55 @@ class Stats extends BaseController
             $minTime = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
         }
         if (isset($minTime)) {
-            $where[] = 'time >= '.$minTime;
+            $totals['received'] = Db::connection('zonemta')
+                ->table('mail_messagestore')
+                ->whereIn('user', $users)
+                ->where('time', '>=', $minTime)
+                ->count();
+            $totals['sent'] = Db::connection('zonemta')
+                ->table('mail_messagestore')
+                ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
+                ->whereIn('user', $users)
+                ->where('time', '>=', $minTime)
+                ->whereNotNull('mail_senderdelivered.id')
+                ->count();
+        } else {
+            $totals['received'] = Db::connection('zonemta')
+                ->table('mail_messagestore')
+                ->whereIn('user', $users)
+                ->count();
+            $totals['sent'] = Db::connection('zonemta')
+                ->table('mail_messagestore')
+                ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
+                ->whereIn('user', $users)
+                ->whereNotNull('mail_senderdelivered.id')
+                ->count();
         }
-
-        $totals['received'] = Db::connection('zonemta')
-            ->table('mail_messagestore')
-            ->whereIn('user', $users)
-            ->where('time', '>=', $minTime)
-            ->count();
-
-        $totals['sent'] = Db::connection('zonemta')
-            ->table('mail_messagestore')
-            ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
-            ->whereIn('user', $users)
-            ->where('time', '>=', $minTime)
-            ->whereNotNull('mail_senderdelivered.id')
-            ->count();
-
         foreach ($types as $idx => $field) {
             $values = [];
             /**
             * @var \Illuminate\Support\Collection<int, \stdClass>
             */
-            $rows = Db::connection('zonemta')
-                ->table('mail_messagestore')
-                ->selectRaw("{$field} as field, count({$field}) as fieldcount")
-                ->whereIn('user', $users)
-                ->where('time', '>=', $minTime)
-                ->groupBy($field)
-                ->orderByRaw("count({$field}) desc")
-                ->limit($limit)
-                ->get();
+            if (isset($minTime)) {
+                $rows = Db::connection('zonemta')
+                    ->table('mail_messagestore')
+                    ->selectRaw("{$field} as field, count({$field}) as fieldcount")
+                    ->whereIn('user', $users)
+                    ->where('time', '>=', $minTime)
+                    ->groupBy($field)
+                    ->orderByRaw("count({$field}) desc")
+                    ->limit($limit)
+                    ->get();
+            } else {
+                $rows = Db::connection('zonemta')
+                    ->table('mail_messagestore')
+                    ->selectRaw("{$field} as field, count({$field}) as fieldcount")
+                    ->whereIn('user', $users)
+                    ->groupBy($field)
+                    ->orderByRaw("count({$field}) desc")
+                    ->limit($limit)
+                    ->get();
+            }
             foreach ($rows as $row) {
                 $values[$row->field] = $row->fieldcount;
             }
