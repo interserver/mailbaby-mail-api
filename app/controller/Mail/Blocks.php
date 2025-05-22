@@ -35,9 +35,9 @@ class Blocks extends BaseController
             'subject' => [],
         ];
         $userStr = implode("','", $users);
-        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='LOCAL_BL_RCPT' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
-        if ($lines != '') {
-            $lines = explode("\n", $lines);
+        $lines = `echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='LOCAL_BL_RCPT' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`;
+        if (!is_null($lines) && $lines != '') {
+            $lines = explode("\n", trim($lines));
             foreach ($lines as $line) {
                 $line = explode("\t", $line);
                 $return['local'][]  = [
@@ -49,9 +49,9 @@ class Blocks extends BaseController
                 ];
             }
         }
-        $lines = trim(`echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='MBTRAP' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`);
-        if ($lines != '') {
-            $lines = explode("\n", $lines);
+        $lines = `echo "select Date,SMTPFrom,MessageId,Subject,MimeRecipients from rspamd where arrayJoin(Symbols.Names)='MBTRAP' and (TS > (NOW() - toIntervalHour({$hoursHistory}))) and AuthUser IN ('{$userStr}') order by Date desc" | curl -s 'http://clickhouse.mailbaby.net:8123/?query=' --data-binary  @-`;
+        if (!is_null($lines) && $lines != '') {
+            $lines = explode("\n", trim($lines));
             foreach ($lines as $line) {
                 $line = explode("\t", $line);
                 $return['mbtrap'][]  = [
