@@ -594,6 +594,7 @@ paths:
                                                 sendingZone: interserver
                                                 bodySize: 63
                                                 seq: 1
+                                                delivered: 1
                                                 recipient: client@isp.com
                                                 domain: interserver.net
                                                 locked: 1
@@ -1104,6 +1105,7 @@ components:
                         sendingZone: interserver
                         bodySize: 63
                         seq: 1
+                        delivered: 1
                         recipient: client@isp.com
                         domain: interserver.net
                         locked: 1
@@ -1402,6 +1404,7 @@ components:
                 sendingZone: interserver
                 bodySize: 63
                 seq: 1
+                delivered: 1
                 recipient: client@isp.com
                 domain: interserver.net
                 locked: 1
