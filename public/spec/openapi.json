@@ -432,6 +432,18 @@
                             "type": "string"
                         },
                         "in": "query"
+                    },
+                    {
+                        "name": "delivered",
+                        "description": "Limiting the emails to wether or not they were delivered.",
+                        "schema": {
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "type": "string"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
