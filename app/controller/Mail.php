@@ -259,6 +259,7 @@ class Mail extends BaseController
         $headerfrom = $request->get('headerfrom,', null);
         $subject = $request->get('subject', null);
         $mailId = $request->get('mailid', null);
+        $delivered = $request->get('delivered', null);
         if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
             return $this->jsonErrorResponse('The specified mailid value was not a valid email id.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($from))
@@ -281,6 +282,8 @@ class Mail extends BaseController
             return $this->jsonErrorResponse('The specified skip value was invalid.', 400);
         if (!v::intVal()->validate($limit))
             return $this->jsonErrorResponse('The specified limit value was invalid.', 400);
+        if (!v::anyOf(v::intVal()->in([1,0]), v::nullType())->validate($delivered))
+            return $this->jsonErrorResponse('The specified delivered value '.var_export($delivered).' was invalid.', 400);
 		if (!is_null($id)) {
 			if (!v::intVal()->validate($id))
 				return $this->jsonErrorResponse('The specified ID was invalid.', 400);
@@ -322,6 +325,8 @@ class Mail extends BaseController
             $where[] = ['h2.value', '=', $subject];
         if (!is_null($headerfrom))
             $where[] = ['h3.value', '=', $subject];
+        if (!is_null($delivered))
+            $where[] = ['mail_senderdelivered.delivered', '=', $delivered];
    		$total = Db::connection('zonemta')
    			->table('mail_messagestore')
 			->where($where)
@@ -357,9 +362,9 @@ class Mail extends BaseController
    			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
-                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_senderdelivered.recipient',
-                'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned', 'mail_senderdelivered.queued',
-                'mail_senderdelivered.mxHostname', 'mail_senderdelivered.response')
+                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_senderdelivered.delivered',
+                'mail_senderdelivered.recipient', 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
+                'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname', 'mail_senderdelivered.response')
             ->where($where)
 			->offset($skip)
 			->limit($limit)
