@@ -326,7 +326,7 @@ class Mail extends BaseController
         if (!is_null($headerfrom))
             $where[] = ['h3.value', '=', $subject];
         if (!is_null($delivered))
-            $where[] = ['mail_senderdelivered.delivered', '=', $delivered];
+            $where[] = ['mail_queuerelease.delivered', '=', $delivered];
         $total = Db::connection('zonemta')
                ->table('mail_messagestore');
         if (!is_null($delivered)) {
