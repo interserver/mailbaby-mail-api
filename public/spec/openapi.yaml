@@ -549,12 +549,14 @@ paths:
                     schema:
                         type: string
                     in: query
+                    required: false
                 -
                     name: headerfrom
                     description: Header From Email Address
                     schema:
                         type: string
                     in: query
+                    required: false
                 -
                     name: delivered
                     description: Limiting the emails to wether or not they were delivered.
@@ -564,6 +566,7 @@ paths:
                             - '1'
                         type: string
                     in: query
+                    required: false
             responses:
                 '200':
                     content:
