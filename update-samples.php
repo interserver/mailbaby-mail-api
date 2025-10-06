@@ -14,10 +14,9 @@ if (!file_exists(__DIR__.'/mailbaby-api-samples'))
 else
 	passthru('cd '.__DIR__.'/mailbaby-api-samples && git pull --all');
 echo "Determining latest OpenAPI Generator jar\n";
-$prefix = 'https://oss.sonatype.org/content/repositories/snapshots/org/openapitools/openapi-generator-cli/';
-$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|grep -v 8.0.0-SNAP|tail -n 1|cut -d/ -f10|cut -d- -f1`);
-$latest = trim(`curl -s {$prefix}{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
-$latest = 'https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.16.0/openapi-generator-cli-7.16.0.jar';
+//$latest = 'https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.16.0/openapi-generator-cli-7.16.0.jar';
+$prefix =  trim(`curl -s https://central.sonatype.com/repository/maven-snapshots/org/openapitools/openapi-generator/7.17.0-SNAPSHOT/maven-metadata.xml|grep "<value>"|cut -d">" -f2|cut -d"<" -f1|head -n 1`);
+$latest = "https://central.sonatype.com/repository/maven-snapshots/org/openapitools/openapi-generator-cli/7.17.0-SNAPSHOT/openapi-generator-cli-{$branch}.jar";
 echo "Grabbing latest OpenAPI Generator jar {$latest}\n";
 passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O openapi-generator-cli.jar');
 echo "Generating a list of OpenAPI Generator clients we can generate\n";
@@ -56,7 +55,7 @@ if ($buildSwagger === true) {
 	$prefix = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/';
 	$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|tail -n 1|cut -d/ -f12|cut -d- -f1`);
 	$latest = trim(`curl -s {$prefix}{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
-$latest = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.73/swagger-codegen-cli-3.0.73.jar';
+	$latest = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.74/swagger-codegen-cli-3.0.74.jar';
 	echo "Grabbing {$branch} latest {$latest} Swagger Generator jar {$latest}\n";
 	passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O swagger-codegen-cli.jar');
 	echo "Generating and parsing a list of Swagger Generator clients we can generate\n";
