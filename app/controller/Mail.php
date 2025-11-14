@@ -9,6 +9,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 use Respect\Validation\Validator as v;
+use PHPMailer\DKIMValidator\Validator as DKIMValidator;
+use PHPMailer\DKIMValidator\DKIMException;
 
 class Mail extends BaseController
 {
@@ -142,13 +144,6 @@ class Mail extends BaseController
             $id = $order->mail_id;
         }
         $sent = false;
-        $from = $request->post('from');
-        $email = (string)$request->post('body');
-        $subject = (string)$request->post('subject');
-        $isHtml = strip_tags($email) != $email;
-        $who = $request->post('to');
-        if (!is_array($who))
-            $who = [$who];
         $username = (string)$order->mail_username;
         $password = (string)$this->getMailPassword($request, $id);
         $mailer = new PHPMailer(true);
@@ -165,34 +160,52 @@ class Mail extends BaseController
         //SMTP::DEBUG_SERVER = client and server messages
         $mailer->SMTPDebug = SMTP::DEBUG_OFF;
 
-
-
-
-        $raw = file_get_contents('raw_message.eml'); // Raw RFC822 email
-        // Connect only — no message building
-        $mailer->preSend();
-        $mailer->postSend();
-        // Now we send raw RFC822 data ourselves
-        $mailer->smtpConnect();
-        $mailer->smtp->mail('sender@example.com');
-        $mailer->smtp->recipient('recipient@example.com');
-        // NOW send the raw DKIM-signed message WITHOUT altering it
-        $mailer->smtp->data($raw);
-        // Close connection
-        $mailer->smtpClose();
-
-
+        $rawEmail = $request->post('raw_email');  // Raw RFC822 email
+        // Validate the DKIM signed mail
+        /*
+        $dkimValidator = new DKIMValidator($rawEmail);
+        try {
+            if ($dkimValidator->validateBoolean()) {
+                echo "Cool, it's valid";
+            } else {
+                echo 'Uh oh, dodgy email!';
+            }
+        } catch (DKIMException $e) {
+            echo $e->getMessage();
+        }
+        */
+        // parse the email to get out the from and to addresses
+        $parser = new \PhpMimeMailParser\Parser();
+        $parser->setText($rawEmail);
+        $arrayHeaderTo = $parser->getAddresses('to'); // return [["display"=>"test", "address"=>"test@example.com", false]]                f
+        $arrayHeaderFrom = $parser->getAddresses('from'); // return [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
+        $from = $arrayHeaderFrom[0]['address'];
+        $to = $arrayHeaderTo[0]['address'];
 
         try {
-            $mailer->setFrom($from);
-            $mailer->addReplyTo($from);
-            foreach ($who as $to)
-                $mailer->addAddress($to);
-            $mailer->Body = $email;
+            // Connect only — no message building
             $mailer->preSend();
-            if (!$mailer->send()) {
-                return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
+            $mailer->postSend();
+            // Open connection
+            if (!$mailer->smtpConnect()) {
+                return $this->jsonErrorResponse("SMTP connect failed: " . $mailer->smtp->getLastReply(), 400);
             }
+            // Now we send raw RFC822 data ourselves
+            // MAIL FROM
+            if (!$mailer->smtp->mail($from)) {
+                return $this->jsonErrorResponse("MAIL FROM failed: " . $mailer->smtp->getLastReply(), 400);
+            }
+            // RCPT TO
+            if (!$mailer->smtp->recipient($to)) {
+                return $this->jsonErrorResponse("RCPT TO failed: " . $mailer->smtp->getLastReply(), 400);
+            }
+            // NOW send the raw DKIM-signed message WITHOUT altering it
+            // DATA
+            if (!$mailer->smtp->data($rawEmail)) {
+                return $this->jsonErrorResponse("DATA command failed: " . $mailer->smtp->getLastReply(), 400);
+            }
+            // Close
+            $mailer->smtpClose();
             $transId = $mailer->getSMTPInstance()->getLastTransactionID();
             return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
