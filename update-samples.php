@@ -18,7 +18,8 @@ $latest = 'https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli
 echo "Grabbing latest OpenAPI Generator jar {$latest}\n";
 passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O openapi-generator-cli.jar');
 echo "Generating a list of OpenAPI Generator clients we can generate\n";
-$cmd = 'java -jar '.__DIR__.'/openapi-generator-cli.jar list';
+//$cmd = 'java -jar '.__DIR__.'/openapi-generator-cli.jar list';
+$cmd = __DIR__.'/openapi-generator-cli.sh list';
 $out = `{$cmd}`;
 echo "Parsing OpenAPI Generator clients list\n";
 preg_match_all('/^([^\s]+) generators:.*\n\n/msuU', $out, $matches);
@@ -37,8 +38,10 @@ if ($buildOpenApi === true) {
 				continue;
 			echo "[$idx] OpenAPI {$type} Generator Language: $lang\n";
 			if (!file_exists(__DIR__.'/mailbaby-api-samples/openapi-config/'.$lang.'.yaml'))
-				passthru('java -jar '.__DIR__.'/openapi-generator-cli.jar config-help -g '.$lang.' -f yamlsample > mailbaby-api-samples/openapi-config/'.$lang.'.yaml');
-			$cmd = 'cd '.__DIR__.'/mailbaby-api-samples && rm -rf openapi-'.$type.'/'.$lang.';mkdir -p openapi-'.$type.'/'.$lang.';java -jar '.__DIR__.'/openapi-generator-cli.jar generate --enable-post-process-file -i '.$spec.' -g '.$lang.' -o openapi-'.$type.'/'.$lang.'/ '.(file_exists(__DIR__.'/mailbaby-api-samples/openapi-config/'.$lang.'.yaml') ? '-c openapi-config/'.$lang.'.yaml' : '').' 2>&1 | tee openapi-output/'.$type.'-'.$lang.'.txt;';
+				//passthru('java -jar '.__DIR__.'/openapi-generator-cli.jar config-help -g '.$lang.' -f yamlsample > mailbaby-api-samples/openapi-config/'.$lang.'.yaml');
+				passthru(__DIR__.'/openapi-generator-cli.sh config-help -g '.$lang.' -f yamlsample > mailbaby-api-samples/openapi-config/'.$lang.'.yaml');
+//			$cmd = 'cd '.__DIR__.'/mailbaby-api-samples && rm -rf openapi-'.$type.'/'.$lang.';mkdir -p openapi-'.$type.'/'.$lang.';java -jar '.__DIR__.'/openapi-generator-cli.jar generate --enable-post-process-file -i '.$spec.' -g '.$lang.' -o openapi-'.$type.'/'.$lang.'/ '.(file_exists(__DIR__.'/mailbaby-api-samples/openapi-config/'.$lang.'.yaml') ? '-c openapi-config/'.$lang.'.yaml' : '').' 2>&1 | tee openapi-output/'.$type.'-'.$lang.'.txt;';
+			$cmd = 'cd '.__DIR__.'/mailbaby-api-samples && rm -rf openapi-'.$type.'/'.$lang.';mkdir -p openapi-'.$type.'/'.$lang.';'.__DIR__.'/openapi-generator-cli.sh generate --enable-post-process-file -i '.$spec.' -g '.$lang.' -o openapi-'.$type.'/'.$lang.'/ '.(file_exists(__DIR__.'/mailbaby-api-samples/openapi-config/'.$lang.'.yaml') ? '-c openapi-config/'.$lang.'.yaml' : '').' 2>&1 | tee openapi-output/'.$type.'-'.$lang.'.txt;';
 			$cmds[] = $cmd;
 			if ($showCmds == true)
 				echo $cmd.PHP_EOL;
