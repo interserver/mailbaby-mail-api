@@ -89,5 +89,5 @@ if ($removeJars == true) {
 		passthru('cd '.__DIR__.' && rm -f swagger-codegen-cli.jar');
 }
 //passthru('cd '.__DIR__.' && rm -rf mailbaby-api-samples');
-//echo implode(PHP_EOL, $cmds).PHP_EOL;
+file_put_contents( 'update-samples.cmds', implode(PHP_EOL, $cmds).PHP_EOL);
 echo "done!\n";

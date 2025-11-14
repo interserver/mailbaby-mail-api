@@ -170,14 +170,17 @@ class Mail extends BaseController
         $to = $arrayHeaderTo[0]['address'];
 
         // Check if message is DKIM signed, and if so validate the signature.
-        if ($parser->getHeader('DKIM-Signature') !== false) {
-            $dkimValidator = new DKIMValidator($rawEmail);
-            try {
-                if (!$dkimValidator->validateBoolean()) {
-                    echo 'Uh oh, dodgy email!';
+        $validateDkim = false;
+        if ($validateDkim === true) {
+            if ($parser->getHeader('DKIM-Signature') !== false) {
+                $dkimValidator = new DKIMValidator($rawEmail);
+                try {
+                    if (!$dkimValidator->validateBoolean()) {
+                        //echo 'Uh oh, dodgy email!';
+                    }
+                } catch (DKIMException $e) {
+                    //ho $e->getMessage();
                 }
-            } catch (DKIMException $e) {
-                echo $e->getMessage();
             }
         }
 
