@@ -25,7 +25,7 @@ class Mail extends BaseController
 				'id' => $order->mail_id,
 				'status' => $order->mail_status,
 				'username' => $order->mail_username,
-			];z
+			];
 			if ($order->mail_comment != '')
 				$row['comment'] = $order->mail_comment;
 			$return[] = $row;
