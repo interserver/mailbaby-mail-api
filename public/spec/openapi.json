@@ -423,7 +423,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "in": "query"
+                        "in": "query",
+                        "required": false
                     },
                     {
                         "name": "headerfrom",
@@ -431,7 +432,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "in": "query"
+                        "in": "query",
+                        "required": false
                     },
                     {
                         "name": "delivered",
@@ -443,7 +445,8 @@
                             ],
                             "type": "string"
                         },
-                        "in": "query"
+                        "in": "query",
+                        "required": false
                     }
                 ],
                 "responses": {
@@ -806,6 +809,52 @@
                 "operationId": "getStats",
                 "summary": "Account usage statistics.",
                 "description": "Returns information about the usage on your mail accounts."
+            }
+        },
+        "/mail/rawsend": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RawMail"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RawMail"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Sending"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericResponse"
+                                }
+                            }
+                        },
+                        "description": "successful email response"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadInput"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFound"
+                    }
+                },
+                "operationId": "rawMail",
+                "summary": "Sends a raw email",
+                "description": "This call will let you pass the raw / complete email contents (including headers) as a string and have it get sent as-is.  This is useful for things like DKIM signed messages."
             }
         }
     },
@@ -1652,6 +1701,23 @@
                             "4.4.4.4": 105
                         }
                     }
+                }
+            },
+            "RawMail": {
+                "title": "Root Type for RawMail",
+                "description": "Raw Email Object",
+                "required": [
+                    "raw_email"
+                ],
+                "type": "object",
+                "properties": {
+                    "raw_email": {
+                        "description": "The entire email contents",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "raw_email": "<email contents here>"
                 }
             }
         },
