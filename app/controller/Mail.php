@@ -51,8 +51,75 @@ class Mail extends BaseController
 	}
 
     public function send(Request $request) : Response {
-    	if ($request->method() != 'POST')
-    		return $this->jsonErrorResponse('This should be a POST request.', 400);
+        if ($request->method() != 'POST')
+            return $this->jsonErrorResponse('This should be a POST request.', 400);
+        $accountInfo = $request->accountInfo;
+        $id = $request->post('id');
+        if (!is_null($id)) {
+            if (!v::intVal()->validate($id))
+                return $this->jsonErrorResponse('The specified ID was invalid.', 400);
+            $order = Db::table('mail')
+                ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_id', $id)
+                ->where('mail_status', 'active')
+                ->first();
+            if (is_null($order))
+                return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
+        } else {
+            $order = Db::table('mail')
+                ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_status', 'active')
+                ->first();
+            if (is_null($order))
+                return $this->jsonErrorResponse('No active mail order was found.', 404);
+            $id = $order->mail_id;
+        }
+        $sent = false;
+        $from = $request->post('from');
+        $email = (string)$request->post('body');
+        $subject = (string)$request->post('subject');
+        $isHtml = strip_tags($email) != $email;
+        $who = $request->post('to');
+        if (!is_array($who))
+            $who = [$who];
+        $username = (string)$order->mail_username;
+        $password = (string)$this->getMailPassword($request, $id);
+        $mailer = new PHPMailer(true);
+        $mailer->CharSet = 'utf-8';
+        $mailer->isSMTP();
+        $mailer->Port = 25;
+        $mailer->Host = 'relay.mailbaby.net';
+        $mailer->SMTPAuth = true;
+        $mailer->Username = $username;
+        $mailer->Password = $password;
+        //Enable SMTP debugging
+        //SMTP::DEBUG_OFF = off (for production use)
+        //SMTP::DEBUG_CLIENT = client messages
+        //SMTP::DEBUG_SERVER = client and server messages
+        $mailer->SMTPDebug = SMTP::DEBUG_OFF;
+        $mailer->Subject = $subject;
+        $mailer->isHTML($isHtml);
+        try {
+            $mailer->setFrom($from);
+            $mailer->addReplyTo($from);
+            foreach ($who as $to)
+                $mailer->addAddress($to);
+            $mailer->Body = $email;
+            $mailer->preSend();
+            if (!$mailer->send()) {
+                return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
+            }
+            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
+            return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
+        } catch (Exception $e) {
+            return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
+        }
+    }
+
+
+    public function rawsend(Request $request) : Response {
+        if ($request->method() != 'POST')
+            return $this->jsonErrorResponse('This should be a POST request.', 400);
         $accountInfo = $request->accountInfo;
         $id = $request->post('id');
         if (!is_null($id)) {

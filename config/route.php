@@ -22,8 +22,9 @@ Route::options('/ping', function($request) {
 
 Route::group('/mail', function() {
 	Route::any('', [app\controller\Mail::class, 'index']);
-    Route::any('/send', [app\controller\Mail::class, 'send']);
-    Route::any('/advsend', [app\controller\Mail::class, 'advsend']);
+    Route::post('/send', [app\controller\Mail::class, 'send']);
+    Route::post('/rawsend', [app\controller\Mail::class, 'rawsend']);
+    Route::post('/advsend', [app\controller\Mail::class, 'advsend']);
     Route::any('/log', [app\controller\Mail::class, 'log']);
     Route::get('/rules', [app\controller\Mail\Rules::class, 'get']);
     Route::post('/rules', [app\controller\Mail\Rules::class, 'post']);
