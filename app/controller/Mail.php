@@ -25,7 +25,7 @@ class Mail extends BaseController
 				'id' => $order->mail_id,
 				'status' => $order->mail_status,
 				'username' => $order->mail_username,
-			];
+			];z
 			if ($order->mail_comment != '')
 				$row['comment'] = $order->mail_comment;
 			$return[] = $row;
@@ -161,19 +161,6 @@ class Mail extends BaseController
         $mailer->SMTPDebug = SMTP::DEBUG_OFF;
 
         $rawEmail = $request->post('raw_email');  // Raw RFC822 email
-        // Validate the DKIM signed mail
-        /*
-        $dkimValidator = new DKIMValidator($rawEmail);
-        try {
-            if ($dkimValidator->validateBoolean()) {
-                echo "Cool, it's valid";
-            } else {
-                echo 'Uh oh, dodgy email!';
-            }
-        } catch (DKIMException $e) {
-            echo $e->getMessage();
-        }
-        */
         // parse the email to get out the from and to addresses
         $parser = new \PhpMimeMailParser\Parser();
         $parser->setText($rawEmail);
@@ -181,6 +168,18 @@ class Mail extends BaseController
         $arrayHeaderFrom = $parser->getAddresses('from'); // return [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
         $from = $arrayHeaderFrom[0]['address'];
         $to = $arrayHeaderTo[0]['address'];
+
+        // Check if message is DKIM signed, and if so validate the signature.
+        if ($parser->getHeader('DKIM-Signature') !== false) {
+            $dkimValidator = new DKIMValidator($rawEmail);
+            try {
+                if (!$dkimValidator->validateBoolean()) {
+                    echo 'Uh oh, dodgy email!';
+                }
+            } catch (DKIMException $e) {
+                echo $e->getMessage();
+            }
+        }
 
         try {
             // Connect only — no message building
