@@ -35,6 +35,8 @@
     "illuminate/events": "*",
     "symfony/var-dumper": "*",
     "phpmailer/phpmailer": "dev-master",
+    "phpmailer/dkimvalidator": "dev-master",
+    "php-mime-mail-parser/php-mime-mail-parser": "*",
     "respect/validation": "*",
     "webman/console": "*",
     "webman/cors": "*",
