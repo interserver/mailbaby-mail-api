@@ -164,8 +164,25 @@ class Mail extends BaseController
         //SMTP::DEBUG_CLIENT = client messages
         //SMTP::DEBUG_SERVER = client and server messages
         $mailer->SMTPDebug = SMTP::DEBUG_OFF;
-        $mailer->Subject = $subject;
-        $mailer->isHTML($isHtml);
+
+
+
+
+        $raw = file_get_contents('raw_message.eml'); // Raw RFC822 email
+        // Connect only — no message building
+        $mailer->preSend();
+        $mailer->postSend();
+        // Now we send raw RFC822 data ourselves
+        $mailer->smtpConnect();
+        $mailer->smtp->mail('sender@example.com');
+        $mailer->smtp->recipient('recipient@example.com');
+        // NOW send the raw DKIM-signed message WITHOUT altering it
+        $mailer->smtp->data($raw);
+        // Close connection
+        $mailer->smtpClose();
+
+
+
         try {
             $mailer->setFrom($from);
             $mailer->addReplyTo($from);
