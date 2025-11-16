@@ -193,28 +193,28 @@ class Mail extends BaseController
             //$mailer->postSend();
             // Open connection
             if (!$mailer->smtpConnect()) {
-                return $this->jsonErrorResponse("SMTP connect failed: " . $mailer->smtp->getLastReply(), 400);
+                return $this->jsonErrorResponse("SMTP connect failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
             }
             // Now we send raw RFC822 data ourselves
             // MAIL FROM
-            if (!$mailer->smtp->mail($from)) {
-                return $this->jsonErrorResponse("MAIL FROM failed: " . $mailer->smtp->getLastReply(), 400);
+            if (!$mailer->getSMTPInstance()->mail($from)) {
+                return $this->jsonErrorResponse("MAIL FROM failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
             }
             // RCPT TO
-            if (!$mailer->smtp->recipient($to)) {
-                return $this->jsonErrorResponse("RCPT TO failed: " . $mailer->smtp->getLastReply(), 400);
+            if (!$mailer->getSMTPInstance()->recipient($to)) {
+                return $this->jsonErrorResponse("RCPT TO failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
             }
             // NOW send the raw DKIM-signed message WITHOUT altering it
             // DATA
-            if (!$mailer->smtp->data($rawEmail)) {
-                return $this->jsonErrorResponse("DATA command failed: " . $mailer->smtp->getLastReply(), 400);
+            if (!$mailer->getSMTPInstance()->data($rawEmail)) {
+                return $this->jsonErrorResponse("DATA command failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
             }
-            $mailer->smtp->quit(true);
+            $mailer->getSMTPInstance()->quit(true);
 
             // Close
             //$mailer->smtpClose();
             //$transId = $mailer->getSMTPInstance()->getLastTransactionID();
-            $transId = $mailer->smtp->getLastTransactionID();
+            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
             return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
             return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
