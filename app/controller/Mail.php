@@ -158,10 +158,8 @@ class Mail extends BaseController
         //SMTP::DEBUG_OFF = off (for production use)
         //SMTP::DEBUG_CLIENT = client messages
         //SMTP::DEBUG_SERVER = client and server messages
-        $mailer->SMTPDebug = SMTP::DEBUG_SERVER;
-	$mailer->Mailer = 'smtp';
-
-
+        $mailer->SMTPDebug = SMTP::DEBUG_OFF;
+        $mailer->Mailer = 'smtp';
 
         $rawEmail = $request->post('raw_email');  // Raw RFC822 email
         // parse the email to get out the from and to addresses
