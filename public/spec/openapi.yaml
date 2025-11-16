@@ -1581,8 +1581,39 @@ components:
                 id:
                     description: Optional order id
                     type: integer
-            example:
-                raw_email: <email contents here>
+            example: |-
+                {
+                    "raw_email": "Date: Sun, 16 Nov 2025 14:30:11 -0500
+                To: Me <support@interserver.net>
+                From: Mail Test <support@interserver.net>
+                Reply-To: Mail Test <support@interserver.net>
+                Subject: testing out raw email api call
+                Message-ID: <9jeLkYQIw7KqYnoiCnnYj7EC0IrSHdp8XMuJq9a5qs@interserver.net>
+                X-Mailer: PHPMailer 7.0.0 (https://github.com/PHPMailer/PHPMailer)
+                MIME-Version: 1.0
+                Content-Type: text/html; charset=iso-8859-1
+                DKIM-Signature: v=1; d=interserver.net; s=my;
+                 a=rsa-sha256; q=dns/txt; t=1763321411; c=relaxed/simple;
+                 h=Date:To:From:Cc:Reply-To:Subject:Message-ID:X-Mailer:MIME-Version:Content-Type;
+                 i=support@interserver.net;
+                 z=Date:Sun,=2016=20Nov=202025=2014:30:11=20-0500
+                 |To:Me=20<support@interserver.net>
+                 |From:Mail=20Test=20<support@interserver.net>
+                 |Reply-To:Mail=20Test=20<support@interserver.net>
+                 |Subject:testing=20out=20raw=20email=20api=20call
+                 |Message-ID:<9jeLkYQIw7KqYnoiCnnYj7EC0IrSHdp8XMuJq9a5qs@.interserver.net>
+                 |X-Mailer:PHPMailer=207.0.0=20(https://github.com/PHPMailer/PHPMailer)
+                 |MIME-Version:1.0
+                 |Content-Type:text/html=3B=20charset=3Diso-8859-1;
+                 bh=fPFl0b98y3O5OC2/jlDIKjv1DgBrF8rWyQTuSQsVoQ4=;
+                 b=ZWe3RJSvqQjeWkg3EZHhPA3CMKWFrMlssMXVNuJ3woo2lG3BtRAZAKjf0Tv2NDZxm2AYh80zp
+                 mY4OxBGud4ZPzsSQ5VfieAoe/m6FAJ53deYkunDIq6IAiQjf3QhqyUeGiyQUxgKkhP+/1QlOW
+                 /TLRNf9mRTlOLx/mPiRVYyulA=
+
+                this is a test of the rawsend api call
+
+                "
+                }
     responses:
         BadInput:
             content:
