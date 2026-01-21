@@ -7,11 +7,12 @@ start=$PWD;
 for i in $(find $PWD|grep pom.xml); do
   cd $(dirname $i);
   pwd;
-#  mvn versions:use-latest-versions
-#  mvn -DnvdApiKey=$NVD_API_KEY org.owasp:dependency-check-maven:check
-  rm -f pom.xml.versionsBackup target
+  mvn versions:use-latest-versions
+  mvn -DnvdApiKey=$NVD_API_KEY org.owasp:dependency-check-maven:check
+  rm -rf pom.xml.versionsBackup target
   cd $start;
 done
+exit
 for i in $(find $PWD|grep package.json); do
   cd $(dirname $i);
   pwd;
