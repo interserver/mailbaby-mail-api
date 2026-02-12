@@ -55,7 +55,7 @@ if ($buildSwagger === true) {
 	$prefix = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/';
 	//$branch = trim(`curl -s {$prefix}|grep SNAPSHOT|sort|tail -n 1|cut -d/ -f12|cut -d- -f1`);
 	//$latest = trim(`curl -s {$prefix}{$branch}-SNAPSHOT/|grep "[0-9].jar<"|cut -d\" -f2|sort|tail -n 1`);
-	$latest = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.76/swagger-codegen-cli-3.0.76.jar';
+	$latest = 'https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.76/swagger-codegen-cli-3.0.77.jar';
 	echo "Grabbing {$branch} latest {$latest} Swagger Generator jar {$latest}\n";
 	passthru('cd '.__DIR__.' && wget -q "'.$latest.'" -O swagger-codegen-cli.jar');
 	echo "Generating and parsing a list of Swagger Generator clients we can generate\n";
