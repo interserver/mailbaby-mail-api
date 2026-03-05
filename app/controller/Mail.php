@@ -14,43 +14,43 @@ use PHPMailer\DKIMValidator\DKIMException;
 
 class Mail extends BaseController
 {
-	public function index(Request $request) : Response {
-		$accountInfo = $request->accountInfo;
-		$orders = Db::table('mail')
-			->where('mail_custid', $accountInfo->account_id)
-			->get();
-		$return = [];
-		foreach ($orders as $order) {
-			$row = [
-				'id' => $order->mail_id,
-				'status' => $order->mail_status,
-				'username' => $order->mail_username,
-			];
-			if ($order->mail_comment != '')
-				$row['comment'] = $order->mail_comment;
-			$return[] = $row;
-		}
-		return json($return);
-	}
+    public function index(Request $request) : Response {
+        $accountInfo = $request->accountInfo;
+        $orders = Db::table('mail')
+            ->where('mail_custid', $accountInfo->account_id)
+            ->get();
+        $return = [];
+        foreach ($orders as $order) {
+            $row = [
+                'id' => $order->mail_id,
+                'status' => $order->mail_status,
+                'username' => $order->mail_username,
+            ];
+            if ($order->mail_comment != '')
+                $row['comment'] = $order->mail_comment;
+            $return[] = $row;
+        }
+        return json($return);
+    }
 
-	public function view(Request $request, $id) : Response {
-		$accountInfo = $request->accountInfo;
-		if (!v::intVal()->validate($id))
-			return $this->jsonErrorResponse('The specified ID was invalid.', 400);
-		$order = Db::table('mail')
-			->where('mail_custid', $accountInfo->account_id)
-			->where('mail_id', $id)
-			->first();
-		$return = [
-			'id' => $order->mail_id,
-			'status' => $order->mail_status,
-			'username' => $order->mail_username,
-			'password' => $this->getMailPassword($request, $id),
-		];
-		if ($order->mail_comment != '')
-			$row['comment'] = $order->mail_comment;
-		return json($return);
-	}
+    public function view(Request $request, $id) : Response {
+        $accountInfo = $request->accountInfo;
+        if (!v::intVal()->validate($id))
+            return $this->jsonErrorResponse('The specified ID was invalid.', 400);
+        $order = Db::table('mail')
+            ->where('mail_custid', $accountInfo->account_id)
+            ->where('mail_id', $id)
+            ->first();
+        $return = [
+            'id' => $order->mail_id,
+            'status' => $order->mail_status,
+            'username' => $order->mail_username,
+            'password' => $this->getMailPassword($request, $id),
+        ];
+        if ($order->mail_comment != '')
+            $row['comment'] = $order->mail_comment;
+        return json($return);
+    }
 
     public function send(Request $request) : Response {
         if ($request->method() != 'POST')
@@ -83,7 +83,7 @@ class Mail extends BaseController
         $isHtml = strip_tags($email) != $email;
         $who = $request->post('to');
         if (!is_array($who))
-            $who = [$who];
+        $who = [$who];
         $username = (string)$order->mail_username;
         $password = (string)$this->getMailPassword($request, $id);
         $mailer = new PHPMailer(true);
@@ -221,19 +221,19 @@ class Mail extends BaseController
 
 
     public function advsend(Request $request) : Response {
-    	if ($request->method() != 'POST')
-    		return $this->jsonErrorResponse('This should be a POST request.', 400);
+        if ($request->method() != 'POST')
+            return $this->jsonErrorResponse('This should be a POST request.', 400);
         $accountInfo = $request->accountInfo;
         if ($request->header('content-type') == 'application/x-www-form-urlencoded') {
-        	$data = [];
+            $data = [];
             foreach (['id', 'subject', 'body', 'from', 'to', 'replyto', 'cc', 'bcc'] as $var) {
-				$value = $request->post($var);
-				if (!is_null($value)) {
-					$data[$var] = $value;
-				}
+                $value = $request->post($var);
+                if (!is_null($value)) {
+                    $data[$var] = $value;
+                }
             }
-		} else {
-			$data = json_decode($request->rawBody(), true);
+        } else {
+            $data = json_decode($request->rawBody(), true);
         }
         if (isset($data['from']) && !is_array($data['from'])) {
             $emails = mailparse_rfc822_parse_addresses($data['from']);
@@ -279,10 +279,10 @@ class Mail extends BaseController
         foreach (['from', 'to', 'subject', 'body'] as $field)
             if (!isset($data[$field]))
                 return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 400);
-        foreach (['subject', 'body'] as $field)
+            foreach (['subject', 'body'] as $field)
             if (!is_string($data[$field]))
-                return $this->jsonErrorResponse('The field "'.$field.'" must be a string', 400);
-        $sent = false;
+            return $this->jsonErrorResponse('The field "'.$field.'" must be a string', 400);
+            $sent = false;
         $mailer = new PHPMailer(true);
         $mailer->CharSet = 'utf-8';
         $mailer->isSMTP();
@@ -347,11 +347,11 @@ class Mail extends BaseController
         }
     }
 
-	public function log(Request $request) {
-		$accountInfo = $request->accountInfo;
-		$id = $request->get('id', null);
-		$limit = $request->get('limit', 100);
-		$skip = $request->get('skip', 0);
+    public function log(Request $request) {
+        $accountInfo = $request->accountInfo;
+        $id = $request->get('id', null);
+        $limit = $request->get('limit', 100);
+        $skip = $request->get('skip', 0);
         $startDate = $request->get('startDate', null);
         $endDate = $request->get('endDate', null);
         $origin = $request->get('origin', null);
@@ -361,6 +361,7 @@ class Mail extends BaseController
         $replyto = $request->get('replyto', null);
         $headerfrom = $request->get('headerfrom,', null);
         $subject = $request->get('subject', null);
+        $messageId = $request->get('messageId', null);
         $mailId = $request->get('mailid', null);
         $delivered = $request->get('delivered', null);
         if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
@@ -387,25 +388,25 @@ class Mail extends BaseController
             return $this->jsonErrorResponse('The specified limit value was invalid.', 400);
         if (!v::anyOf(v::intVal()->in([1,0]), v::nullType())->validate($delivered))
             return $this->jsonErrorResponse('The specified delivered value '.var_export($delivered).' was invalid.', 400);
-		if (!is_null($id)) {
-			if (!v::intVal()->validate($id))
-				return $this->jsonErrorResponse('The specified ID was invalid.', 400);
-			$order = Db::table('mail')
-				->where('mail_custid', $accountInfo->account_id)
-				->where('mail_id', $id)
-				->where('mail_status', 'active')
-				->first();
-			if (is_null($order))
-				return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
-		} else {
-			$order = Db::table('mail')
-				->where('mail_custid', $accountInfo->account_id)
-				->where('mail_status', 'active')
-				->first();
-			if (is_null($order))
-				return $this->jsonErrorResponse('No active mail order was found.', 404);
-		}
-		$id = $order->mail_id;
+        if (!is_null($id)) {
+            if (!v::intVal()->validate($id))
+                return $this->jsonErrorResponse('The specified ID was invalid.', 400);
+            $order = Db::table('mail')
+                ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_id', $id)
+                ->where('mail_status', 'active')
+                ->first();
+            if (is_null($order))
+                return $this->jsonErrorResponse('The mail order with the specified ID was not found or not active.', 404);
+        } else {
+            $order = Db::table('mail')
+                ->where('mail_custid', $accountInfo->account_id)
+                ->where('mail_status', 'active')
+                ->first();
+            if (is_null($order))
+                return $this->jsonErrorResponse('No active mail order was found.', 404);
+        }
+        $id = $order->mail_id;
         $where = [];
         $where[] = ['mail_messagestore.user', '=', 'mb'.$id];
         if (!is_null($startDate))
@@ -424,6 +425,8 @@ class Mail extends BaseController
             $where[] = ['mail_messagestore.id', '=', $mailId];
         if (!is_null($subject))
             $where[] = ['h1.value', '=', $subject];
+        if (!is_null($messageId))
+            $where[] = ['h4.value', 'like', '%'.$messageId.'%'];
         if (!is_null($replyto))
             $where[] = ['h2.value', '=', $subject];
         if (!is_null($headerfrom))
@@ -431,92 +434,125 @@ class Mail extends BaseController
         if (!is_null($delivered))
             $where[] = ['mail_queuerelease.delivered', '=', $delivered];
         $total = Db::connection('zonemta')
-               ->table('mail_messagestore');
+            ->table('mail_messagestore');
         if (!is_null($delivered)) {
             $total = $total
-               ->leftJoin('mail_queuerelease', 'mail_messagestore.id', 'mail_queuerelease.id');
+                ->leftJoin('mail_queuerelease', 'mail_messagestore.id', 'mail_queuerelease.id');
         }
-   		$total = $total
-			->where($where)
-			->count();
+        if (!is_null($subject)) {
+            $total = $total
+                ->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h1.id')
+                        ->on('h1.field','=', Db::raw('"subject"'));
+                });
+        }
+        if (!is_null($messageId)) {
+            $total = $total
+                ->leftJoin(Db::raw('mail_headers as h4'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h4.id')
+                        ->on('h4.field','=', Db::raw('"message-id"'));
+                });
+        }
+        if (!is_null($replyto)) {
+            $total = $total
+                ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h2.id')
+                        ->on('h2.field','=', Db::raw('"reply-to"'));
+                });
+        }
+        if (!is_null($headerfrom)) {
+            $total = $total
+                ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h3.id')
+                        ->on('h3.field','=', Db::raw('"from"'));
+                });
+        }
+
+        $total = $total
+            ->where($where)
+            ->count();
         //error_log('Mail Total:'.$total);
-		$return = [
-			'total' => $total,
-			'skip' => $skip,
-			'limit' => $limit,
-			'emails' => []
-		];
-   		$orders = Db::connection('zonemta')
-   			->table('mail_messagestore')
-   			->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
+        $return = [
+            'total' => $total,
+            'skip' => $skip,
+            'limit' => $limit,
+            'emails' => []
+        ];
+        $orders = Db::connection('zonemta')
+            ->table('mail_messagestore')
+            ->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h1.id')
                     ->on('h1.field','=', Db::raw('"subject"'));
+            })
+            ->leftJoin(Db::raw('mail_headers as h4'), function ($join) {
+                $join->on('mail_messagestore.id', '=', 'h4.id')
+                    ->on('h4.field','=', Db::raw('"message-id"'));
             });
         if (!is_null($replyto)) {
             $orders = $orders
-               ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
-                $join->on('mail_messagestore.id', '=', 'h2.id')
-                    ->on('h2.field','=', Db::raw('"reply-to"'));
-            });
+                ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h2.id')
+                        ->on('h2.field','=', Db::raw('"reply-to"'));
+                });
         }
         if (!is_null($headerfrom)) {
             $orders = $orders
-               ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
-                $join->on('mail_messagestore.id', '=', 'h3.id')
-                    ->on('h3.field','=', Db::raw('"from"'));
-            });
+                ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'h3.id')
+                        ->on('h3.field','=', Db::raw('"from"'));
+                });
         }
         $orders = $orders
-   			->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
+            ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->leftJoin('mail_queuerelease', 'mail_messagestore.id', '=', 'mail_queuerelease.id')
-            ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject',
+            ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject', 'h4.value AS messageId',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
                 'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_queuerelease.delivered', 'mail_queuerelease.response',
                 'mail_senderdelivered.recipient', 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
                 'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname')
             ->where($where)
-			->offset($skip)
-			->limit($limit)
-			->get();
-		$return['emails'] = $orders->all();
-		return $this->jsonResponse($return);
-	}
+            ->offset($skip)
+            ->limit($limit)
+            ->get();
+        $return['emails'] = $orders->all();
+        return $this->jsonResponse($return);
+    }
 
-	public function viewtest(Request $request)
-	{
-		return view('index/view', ['name' => 'webman']);
-	}
+    public function viewtest(Request $request)
+    {
+        return view('index/view', ['name' => 'webman']);
+    }
 
-	public function json(Request $request)
-	{
-		return json(['code' => 0, 'msg' => 'ok']);
-	}
+    public function json(Request $request)
+    {
+        return json(['code' => 0, 'msg' => 'ok']);
+    }
 
-	public function file(Request $request)
-	{
-		$file = $request->file('upload');
-		if ($file && $file->isValid()) {
-			$file->move(public_path().'/files/myfile.'.$file->getUploadExtension());
-			return json(['code' => 0, 'msg' => 'upload success']);
-		}
-		return json(['code' => 1, 'msg' => 'file not found']);
-	}
+    public function file(Request $request)
+    {
+        $file = $request->file('upload');
+        if ($file && $file->isValid()) {
+            $file->move(public_path().'/files/myfile.'.$file->getUploadExtension());
+            return json(['code' => 0, 'msg' => 'upload success']);
+        }
+        return json(['code' => 1, 'msg' => 'file not found']);
+    }
 
-	/**
-	* returns the current password for a mail account
-	*
-	* @param Request $request
-	* @param int $id
-	* @return null|string the current password or null on no matching password
-	*/
-	private function getMailPassword(Request $request, $id) {
-		$password = Db::table('history_log')
-			->where('history_type', 'password')
-			->where('history_section', 'mail')
-			->where('history_creator', $request->accountInfo->account_id)
-			->where('history_new_value', $id)
-			->orderBy('history_timestamp', 'desc')
-			->first('history_old_value');
-		return $password->history_old_value;
-	}
+    /**
+    * returns the current password for a mail account
+    *
+    * @param Request $request
+    * @param int $id
+    * @return null|string the current password or null on no matching password
+    */
+    private function getMailPassword(Request $request, $id) {
+        $password = Db::table('history_log')
+            ->where('history_type', 'password')
+            ->where('history_section', 'mail')
+            ->where('history_creator', $request->accountInfo->account_id)
+            ->where('history_new_value', $id)
+            ->orderBy('history_timestamp', 'desc')
+            ->first('history_old_value');
+        return $password->history_old_value;
+    }
 }
