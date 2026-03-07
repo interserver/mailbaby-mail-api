@@ -15,7 +15,7 @@
 use support\Request;
 
 return [
-    'debug' => true,
+    'debug' => false,
     'error_reporting' => E_ALL,
     'default_timezone' => 'America/New_York',
     'request_class' => Request::class,
@@ -24,6 +24,6 @@ return [
     'controller_suffix' => 'Controller',
     'controller_reuse' => false,
     'custom_ini' => '
-memory_limit = 512M
+memory_limit = 1024M
     ',
 ];
