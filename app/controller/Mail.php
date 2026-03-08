@@ -165,11 +165,21 @@ class Mail extends BaseController
         // parse the email to get out the from and to addresses
         $parser = new \PhpMimeMailParser\Parser();
         $parser->setText($rawEmail);
-        $arrayHeaderTo = $parser->getAddresses('to'); // return [["display"=>"test", "address"=>"test@example.com", false]]                f
         $arrayHeaderFrom = $parser->getAddresses('from'); // return [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
         $from = $arrayHeaderFrom[0]['address'];
-        $to = $arrayHeaderTo[0]['address'];
-
+        $recipients = [];
+        // collect recipients from all headers
+        foreach (['to','cc','bcc'] as $header) {
+            $addrs = $parser->getAddresses($header);
+            if ($addrs) {
+                foreach ($addrs as $addr) {
+                    if (!empty($addr['address'])) {
+                        $recipients[] = $addr['address'];
+                    }
+                }
+            }
+        }
+        $recipients = array_unique($recipients);
         // Check if message is DKIM signed, and if so validate the signature.
         $validateDkim = false;
         if ($validateDkim === true) {
@@ -184,7 +194,6 @@ class Mail extends BaseController
                 }
             }
         }
-
         try {
             // Connect only — no message building
             //$mailer->preSend();
@@ -193,26 +202,26 @@ class Mail extends BaseController
             if (!$mailer->smtpConnect()) {
                 return $this->jsonErrorResponse("SMTP connect failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
             }
+            $smtp = $mailer->getSMTPInstance();
             // Now we send raw RFC822 data ourselves
             // MAIL FROM
-            if (!$mailer->getSMTPInstance()->mail($from)) {
-                return $this->jsonErrorResponse("MAIL FROM failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
+            if (!$smtp->mail($from)) {
+                return $this->jsonErrorResponse("MAIL FROM failed: " . $smtp->getLastReply(), 400);
             }
             // RCPT TO
-            if (!$mailer->getSMTPInstance()->recipient($to)) {
-                return $this->jsonErrorResponse("RCPT TO failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
+            foreach ($recipients as $to) {
+                if (!$smtp->recipient($to)) {
+                    return $this->jsonErrorResponse("RCPT TO failed: $to " . $smtp->getLastReply(), 400);
+                }
             }
             // NOW send the raw DKIM-signed message WITHOUT altering it
             // DATA
-            if (!$mailer->getSMTPInstance()->data($rawEmail)) {
-                return $this->jsonErrorResponse("DATA command failed: " . $mailer->getSMTPInstance()->getLastReply(), 400);
+            if (!$smtp->data($rawEmail)) {
+                return $this->jsonErrorResponse("DATA command failed: " . $smtp->getLastReply(), 400);
             }
-            $mailer->getSMTPInstance()->quit(true);
 
-            // Close
-            //$mailer->smtpClose();
-            //$transId = $mailer->getSMTPInstance()->getLastTransactionID();
-            $transId = $mailer->getSMTPInstance()->getLastTransactionID();
+            $smtp->quit(true);
+            $transId = $smtp->getLastTransactionID();
             return $this->jsonResponse(['status' =>'ok', 'text' => $transId]);
         } catch (Exception $e) {
             return $this->jsonErrorResponse($mailer->ErrorInfo, 400);
