@@ -1335,6 +1335,7 @@ components:
             properties:
                 _id:
                     description: internal db id
+                    x-codegen-property-name: internalId
                     type: integer
                     example: '103172'
                 id:
@@ -1678,3 +1679,4 @@ tags:
 externalDocs:
     description: FAQ
     url: 'https://www.mail.baby/tips/'
+
