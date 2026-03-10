@@ -48,7 +48,7 @@ class Mail extends BaseController
             'password' => $this->getMailPassword($request, $id),
         ];
         if ($order->mail_comment != '')
-            $row['comment'] = $order->mail_comment;
+            $return['comment'] = $order->mail_comment;
         return json($return);
     }
 
@@ -368,7 +368,7 @@ class Mail extends BaseController
         $from = $request->get('from', null);
         $to = $request->get('to', null);
         $replyto = $request->get('replyto', null);
-        $headerfrom = $request->get('headerfrom,', null);
+        $headerfrom = $request->get('headerfrom', null);
         $subject = $request->get('subject', null);
         $messageId = $request->get('messageId', null);
         $mailId = $request->get('mailid', null);
@@ -437,9 +437,9 @@ class Mail extends BaseController
         if (!is_null($messageId))
             $where[] = ['h4.value', 'like', '%'.$messageId.'%'];
         if (!is_null($replyto))
-            $where[] = ['h2.value', '=', $subject];
+            $where[] = ['h2.value', '=', $replyto];
         if (!is_null($headerfrom))
-            $where[] = ['h3.value', '=', $subject];
+            $where[] = ['h3.value', '=', $headerfrom];
         if (!is_null($delivered))
             $where[] = ['mail_queuerelease.delivered', '=', $delivered];
         $total = Db::connection('zonemta')
