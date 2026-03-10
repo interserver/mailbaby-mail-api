@@ -6,7 +6,7 @@ $buildOpenApi = true;
 $buildSwagger = true;
 $runCmds = true;
 $showCmds = true;
-$removeJars = false;
+$removeJars = true;
 $onlyLangs = [];
 //$onlyLangs = ['php','html2'];
 $cmds = [];
@@ -232,7 +232,7 @@ if ($buildSwagger === true) {
     passthru('cd ' . escapeshellarg($rootDir) . ' && wget -q ' . escapeshellarg($swaggerJarUrl) . ' -O swagger-codegen-cli.jar');
 
     echo "Generating and parsing a list of Swagger Generator clients we can generate\n";
-    $langsOutput = runCommand('cd ' . escapeshellarg($rootDir) . ' && java -jar swagger-codegen-cli.jar langs', true);
+    $langsOutput = runCommand('cd ' . escapeshellarg($rootDir) . ' && java -jar swagger-codegen-cli.jar langs | grep languages: | cat -', true);
     $langs = parseSwaggerLangs($langsOutput);
 
     foreach (['output', 'options', 'config'] as $dir) {

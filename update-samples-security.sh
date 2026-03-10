@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -u
-
+set -x
 ROOT_DIR="${1:-/home/sites/mailbaby-mail-api/mailbaby-api-samples}"
 MODE="${SECURITY_UPDATE_MODE:-update}" # update|check
 export MODE
@@ -59,6 +59,7 @@ update_maven() {
   while IFS= read -r dir; do
     [ -z "$dir" ] && continue
     run_in_dir "$dir" "maven" bash -lc '
+set -x
       if [ "$MODE" = "check" ]; then
         mvn -B -q -DskipTests org.owasp:dependency-check-maven:check
       else
