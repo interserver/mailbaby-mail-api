@@ -79,10 +79,10 @@ class Rules extends BaseController
                 ->where('mail_status', 'active')
                 ->where('mail_username', $username)
                 ->first();
-            $username = $row->mail_username;
             if (is_null($row)) {
                 return $this->jsonErrorResponse('Invalid or Inactive Username.', 400);
             }
+            $username = $row->mail_username;
         }
         if (!v::in(['domain', 'email', 'startswith', 'destination'])->validate($type)) {
             return $this->jsonErrorResponse('Invalid value for type.', 400);
