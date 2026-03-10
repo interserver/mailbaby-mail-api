@@ -65,6 +65,7 @@ fi
 java -ea                          \
   ${JAVA_OPTS}                    \
   -Xms512M                        \
-  -Xmx1024M                       \
+  -Xmx1g                          \
+  -Dlog.level=warn                \
   -server                         \
   -jar ${DIR}/${jar} "$@"

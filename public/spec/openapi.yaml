@@ -728,10 +728,14 @@ paths:
                         that are still queued, deferred, or failed.  Omit to return all messages
                         regardless of delivery status.
                     schema:
+                        title: DeliveredStatus
                         type: integer
                         enum:
                             - 0
                             - 1
+                        x-enum-varnames:
+                            - NotDelivered
+                            - Delivered
                     example: 1
                 -
                     name: skip
@@ -1236,6 +1240,28 @@ paths:
                     $ref: '#/components/responses/NotFound'
 components:
     schemas:
+        SendMailTo:
+            title: SendMailTo
+            description: >-
+                The primary recipient address for a simple send request.
+                Accepts a single email address string or an array of email
+                address strings for multiple recipients.
+            oneOf:
+                -
+                    type: string
+                    format: email
+                    description: Single recipient email address.
+                    example: johndoe@company.com
+                -
+                    type: array
+                    items:
+                        type: string
+                        format: email
+                    description: Multiple recipient email addresses.
+                    example:
+                        - johndoe@company.com
+                        - janedoe@company.com
+            example: johndoe@company.com
         GenericResponse:
             title: GenericResponse
             description: >-
@@ -1402,6 +1428,7 @@ components:
                 an `email` field with an optional `name` field.
             oneOf:
                 -
+                    title: EmailAddressString
                     type: string
                     format: email
                     description: >-
@@ -1417,6 +1444,7 @@ components:
                 RFC 822 named-address string (`"Name <email>"`), or a structured contact object.
             oneOf:
                 -
+                    title: EmailAddressSingleString
                     type: string
                     description: >-
                         A single email address or RFC 822 named-address string.
@@ -1443,24 +1471,7 @@ components:
             type: object
             properties:
                 to:
-                    description: >-
-                        The primary recipient address.  Accepts a single email address string or
-                        an array of email address strings for multiple recipients.
-                    oneOf:
-                        -
-                            type: string
-                            format: email
-                            description: Single recipient email address.
-                            example: johndoe@company.com
-                        -
-                            type: array
-                            items:
-                                type: string
-                                format: email
-                            description: Multiple recipient email addresses.
-                            example:
-                                - johndoe@company.com
-                                - janedoe@company.com
+                    $ref: '#/components/schemas/SendMailTo'
                 from:
                     type: string
                     format: email
@@ -2038,6 +2049,40 @@ components:
                 queued: '2021-10-14T12:50:15.487Z'
                 mxHostname: mx.j.is.cc
                 response: '250 2.0.0 Ok queued as C91D83E128C'
+        MailStatsVolume:
+            title: MailStatsVolume
+            description: >-
+                Top-500 breakdown of message counts within the selected time window,
+                grouped by originating IP, destination address, and sender address.
+            type: object
+            properties:
+                to:
+                    type: object
+                    description: Message counts keyed by destination (envelope `to`) email address.
+                    additionalProperties:
+                        type: integer
+                        format: int32
+                from:
+                    type: object
+                    description: Message counts keyed by sender (envelope `from`) email address.
+                    additionalProperties:
+                        type: integer
+                        format: int32
+                ip:
+                    type: object
+                    description: Message counts keyed by originating client IP address.
+                    additionalProperties:
+                        type: integer
+                        format: int32
+            example:
+                to:
+                    'client@domain.com': 395
+                    'user@site.net': 57
+                from:
+                    'billing@somedomain.com': 369
+                ip:
+                    '1.1.1.1': 142
+                    '2.2.2.2': 132
         MailStatsType:
             title: MailStatsType
             description: >-
@@ -2086,29 +2131,7 @@ components:
                         Count of messages successfully delivered to the destination MX within
                         the selected `time` window.  Will be ≤ `received`.
                 volume:
-                    type: object
-                    description: >-
-                        Top-500 breakdown of message counts grouped by source IP, destination
-                        address, and sender address within the selected `time` window.
-                    properties:
-                        to:
-                            type: object
-                            description: Message counts keyed by destination (envelope `to`) email address.
-                            additionalProperties:
-                                type: integer
-                                format: int32
-                        from:
-                            type: object
-                            description: Message counts keyed by sender (envelope `from`) email address.
-                            additionalProperties:
-                                type: integer
-                                format: int32
-                        ip:
-                            type: object
-                            description: Message counts keyed by originating client IP address.
-                            additionalProperties:
-                                type: integer
-                                format: int32
+                    $ref: '#/components/schemas/MailStatsVolume'
             example:
                 time: all
                 usage: 55
