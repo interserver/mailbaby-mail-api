@@ -80,7 +80,7 @@ class Rules extends BaseController
                 ->where('mail_username', $username)
                 ->first();
             $username = $row->mail_username;
-            if (count($users) == 0) {
+            if (is_null($row)) {
                 return $this->jsonErrorResponse('Invalid or Inactive Username.', 400);
             }
         }
