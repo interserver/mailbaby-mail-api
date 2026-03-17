@@ -373,12 +373,19 @@ class Mail extends BaseController
         $messageId = $request->get('messageId', null);
         $mailId = $request->get('mailid', null);
         $delivered = $request->get('delivered', null);
+        $sort = $request->get('sort', 'time');
+        $dir = $request->get('dir', 'desc');
+        $sortFields = ['time' => 'mail_messagestore._id'];
+        if (!array_key_exists($sort, $sortFields))
+            return $this->jsonErrorResponse('The specified sort value was invalid.', 400);
+        if (!in_array($dir, ['asc', 'desc']))
+            return $this->jsonErrorResponse('The specified dir value was invalid.', 400);
         if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
             return $this->jsonErrorResponse('The specified mailid value was not a valid email id.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($from))
             return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($to))
-            return $this->jsonErrorResponse('The specified from value was not a valid email address.', 400);
+            return $this->jsonErrorResponse('The specified to value was not a valid email address.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($replyto))
             return $this->jsonErrorResponse('The specified replyto value was not a valid email address.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($headerfrom))
@@ -387,16 +394,22 @@ class Mail extends BaseController
             return $this->jsonErrorResponse('The specified mx value was not a valid hostname.', 400);
         if (!v::anyOf(v::ip(), v::nullType())->validate($origin))
             return $this->jsonErrorResponse('The specified origin value was not a valid IP address.', 400);
-        if (!v::anyOf(v::intVal(), v::nullType())->validate($startDate))
-            return $this->jsonErrorResponse('The specified startDate value '.var_export($startDate).' was invalid.', 400);
-        if (!v::anyOf(v::intVal(), v::nullType())->validate($endDate))
-            return $this->jsonErrorResponse('The specified endDate value '.var_export($endDate).' was invalid.', 400);
+        if (!is_null($startDate)) {
+            $startDate = is_numeric($startDate) ? (int)$startDate : strtotime($startDate);
+            if ($startDate === false)
+                return $this->jsonErrorResponse('The specified startDate value was invalid.', 400);
+        }
+        if (!is_null($endDate)) {
+            $endDate = is_numeric($endDate) ? (int)$endDate : strtotime($endDate);
+            if ($endDate === false)
+                return $this->jsonErrorResponse('The specified endDate value was invalid.', 400);
+        }
         if (!v::intVal()->validate($skip))
             return $this->jsonErrorResponse('The specified skip value was invalid.', 400);
         if (!v::intVal()->validate($limit))
             return $this->jsonErrorResponse('The specified limit value was invalid.', 400);
         if (!v::anyOf(v::intVal()->in([1,0]), v::nullType())->validate($delivered))
-            return $this->jsonErrorResponse('The specified delivered value '.var_export($delivered).' was invalid.', 400);
+            return $this->jsonErrorResponse('The specified delivered value '.var_export($delivered, true).' was invalid.', 400);
         if (!is_null($id)) {
             if (!v::intVal()->validate($id))
                 return $this->jsonErrorResponse('The specified ID was invalid.', 400);
@@ -516,14 +529,23 @@ class Mail extends BaseController
             ->leftJoin('mail_queuerelease', 'mail_messagestore.id', '=', 'mail_queuerelease.id')
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject', 'h4.value AS messageId',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
-                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq', 'mail_queuerelease.delivered', 'mail_queuerelease.response',
-                'mail_senderdelivered.recipient', 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
+                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq',
+                'mail_queuerelease.delivered', 'mail_queuerelease.response', 'mail_queuerelease.code', 'mail_queuerelease.to as recipient',
+                'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
                 'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname')
             ->where($where)
+            ->orderBy($sortFields[$sort], $dir)
             ->offset($skip)
             ->limit($limit)
             ->get();
-        $return['emails'] = $orders->all();
+        $emails = $orders->all();
+        foreach ($emails as &$email) {
+            if (!is_null($email->subject) && (preg_match('/\?utf-8\?/i', $email->subject) || preg_match('/\?iso-8859(-\d+)?\?/i', $email->subject) || preg_match('/\?us-ascii\?/i', $email->subject))) {
+                $email->subject = mb_decode_mimeheader($email->subject);
+            }
+        }
+        unset($email);
+        $return['emails'] = $emails;
         return $this->jsonResponse($return);
     }
 
