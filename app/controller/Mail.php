@@ -459,7 +459,11 @@ class Mail extends BaseController
             ->table('mail_messagestore');
         if (!is_null($delivered)) {
             $total = $total
-                ->leftJoin('mail_queuerelease', 'mail_messagestore.id', 'mail_queuerelease.id');
+                ->leftJoin('mail_senderdelivered as sd_count', 'mail_messagestore.id', 'sd_count.id')
+                ->leftJoin('mail_queuerelease', function ($join) {
+                    $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
+                        ->on('sd_count.seq', '=', 'mail_queuerelease.seq');
+                });
         }
         if (!is_null($subject)) {
             $total = $total
@@ -492,7 +496,8 @@ class Mail extends BaseController
 
         $total = $total
             ->where($where)
-            ->count();
+            ->distinct()
+            ->count('mail_messagestore._id');
         //error_log('Mail Total:'.$total);
         $return = [
             'total' => $total,
@@ -526,7 +531,10 @@ class Mail extends BaseController
         }
         $orders = $orders
             ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
-            ->leftJoin('mail_queuerelease', 'mail_messagestore.id', '=', 'mail_queuerelease.id')
+            ->leftJoin('mail_queuerelease', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
+                    ->on('mail_senderdelivered.seq', '=', 'mail_queuerelease.seq');
+            })
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject', 'h4.value AS messageId',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
                 'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq',
