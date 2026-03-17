@@ -375,11 +375,14 @@ class Mail extends BaseController
         $delivered = $request->get('delivered', null);
         $sort = $request->get('sort', 'time');
         $dir = $request->get('dir', 'desc');
+        $groupby = $request->get('groupby', 'recipient');
         $sortFields = ['time' => 'mail_messagestore._id'];
         if (!array_key_exists($sort, $sortFields))
             return $this->jsonErrorResponse('The specified sort value was invalid.', 400);
         if (!in_array($dir, ['asc', 'desc']))
             return $this->jsonErrorResponse('The specified dir value was invalid.', 400);
+        if (!in_array($groupby, ['message', 'recipient']))
+            return $this->jsonErrorResponse('The specified groupby value was invalid. Must be "message" or "recipient".', 400);
         if (!v::anyOf(v::stringType()->length(18, 19), v::nullType())->validate($mailId))
             return $this->jsonErrorResponse('The specified mailid value was not a valid email id.', 400);
         if (!v::anyOf(v::email(), v::nullType())->validate($from))
@@ -456,15 +459,12 @@ class Mail extends BaseController
         if (!is_null($delivered))
             $where[] = ['mail_queuerelease.delivered', '=', $delivered];
         $total = Db::connection('zonemta')
-            ->table('mail_messagestore');
-        if (!is_null($delivered)) {
-            $total = $total
-                ->leftJoin('mail_senderdelivered as sd_count', 'mail_messagestore.id', 'sd_count.id')
-                ->leftJoin('mail_queuerelease', function ($join) {
-                    $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
-                        ->on('sd_count.seq', '=', 'mail_queuerelease.seq');
-                });
-        }
+            ->table('mail_messagestore')
+            ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
+            ->leftJoin('mail_queuerelease', function ($join) {
+                $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
+                    ->on('mail_senderdelivered.seq', '=', 'mail_queuerelease.seq');
+            });
         if (!is_null($subject)) {
             $total = $total
                 ->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
@@ -494,10 +494,12 @@ class Mail extends BaseController
                 });
         }
 
-        $total = $total
-            ->where($where)
-            ->distinct()
-            ->count('mail_messagestore._id');
+        $total = $total->where($where);
+        if ($groupby === 'message') {
+            $total = $total->distinct()->count('mail_messagestore._id');
+        } else {
+            $total = $total->count();
+        }
         //error_log('Mail Total:'.$total);
         $return = [
             'total' => $total,
@@ -541,7 +543,11 @@ class Mail extends BaseController
                 'mail_queuerelease.delivered', 'mail_queuerelease.response', 'mail_queuerelease.code', 'mail_queuerelease.to as recipient',
                 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
                 'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname')
-            ->where($where)
+            ->where($where);
+        if ($groupby === 'message') {
+            $orders = $orders->groupBy('mail_messagestore._id');
+        }
+        $orders = $orders
             ->orderBy($sortFields[$sort], $dir)
             ->offset($skip)
             ->limit($limit)
