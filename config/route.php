@@ -22,17 +22,17 @@ Route::options('/ping', function($request) {
 
 Route::group('/mail', function() {
 	Route::any('', [app\controller\Mail::class, 'index']);
-	Route::get('/{id}', [app\controller\Mail::class, 'view']);
     Route::post('/send', [app\controller\Mail::class, 'send']);
     Route::post('/rawsend', [app\controller\Mail::class, 'rawsend']);
     Route::post('/advsend', [app\controller\Mail::class, 'advsend']);
     Route::any('/log', [app\controller\Mail::class, 'log']);
+    Route::delete('/rules/{id}', [app\controller\Mail\Rules::class, 'delete']);
     Route::get('/rules', [app\controller\Mail\Rules::class, 'get']);
     Route::post('/rules', [app\controller\Mail\Rules::class, 'post']);
-    Route::delete('/rules/{id}', [app\controller\Mail\Rules::class, 'delete']);
     Route::get('/stats', [app\controller\Mail\Stats::class, 'get']);
-    Route::get('/blocks', [app\controller\Mail\Blocks::class, 'get']);
     Route::post('/blocks/delete', [app\controller\Mail\Blocks::class, 'delete']);
+    Route::get('/blocks', [app\controller\Mail\Blocks::class, 'get']);
+    Route::get('/{id}', [app\controller\Mail::class, 'view']);
 })->middleware([
 	app\middleware\AuthCheck::class
 ]);
