@@ -44,7 +44,7 @@ $SUDO apt-get install -y \
 
 # ── Go (official installer, not the stale apt package) ──────────────────────
 echo "[install] installing Go (official)"
-GO_VERSION="1.23.5"
+GO_VERSION="1.26.1"
 GO_ARCH="amd64"
 GO_TAR="go${GO_VERSION}.linux-${GO_ARCH}.tar.gz"
 if ! command -v go >/dev/null 2>&1 || [[ "$(go version 2>/dev/null | awk '{print $3}')" != "go${GO_VERSION}" ]]; then
