@@ -221,6 +221,33 @@ paths:
                                         status: active
                                         username: mb39
                                         password: s3cr3tpassword
+                    links:
+                        sendMailByIdLink:
+                            operationId: sendMail
+                            parameters:
+                                id: '$response.body#/id'
+                            description: >-
+                                The `id` value can be used as the `id` body parameter in
+                                `POST /mail/send`.
+                        sendAdvMailByIdLink:
+                            operationId: sendAdvMail
+                            parameters:
+                                id: '$response.body#/id'
+                            description: >-
+                                The `id` value can be used as the `id` body parameter in
+                                `POST /mail/advsend`.
+                        viewMailLogByIdLink:
+                            operationId: viewMailLog
+                            parameters:
+                                id: '$response.body#/id'
+                            description: >-
+                                The `id` value can be used as the `id` query parameter in
+                                `GET /mail/log`.
+                        getStatsByIdLink:
+                            operationId: getStats
+                            description: >-
+                                Use `GET /mail/stats` to view sending statistics for this
+                                mail order.
                 '400':
                     $ref: '#/components/responses/BadInput'
                 '401':
@@ -479,7 +506,7 @@ paths:
                                     attachments:
                                         -
                                             filename: message.txt
-                                            data: base64_encoded_contents
+                                            data: aGVsbG8gdGhlcmUK
                                     id: 66
                     application/json:
                         schema:
@@ -536,7 +563,7 @@ paths:
                                     attachments:
                                         -
                                             filename: message.txt
-                                            data: base64_encoded_contents
+                                            data: aGVsbG8gdGhlcmUK
                                     id: 66
             responses:
                 '200':
@@ -1030,6 +1057,12 @@ paths:
                                             ip:
                                                 1.1.1.1: 142
                                                 2.2.2.2: 132
+                    links:
+                        viewMailLogLink:
+                            operationId: viewMailLog
+                            description: >-
+                                Use `GET /mail/log` to view individual message details behind
+                                the aggregate statistics.
                 '401':
                     $ref: '#/components/responses/Unauthorized'
     /mail/blocks:
@@ -1127,7 +1160,7 @@ paths:
                             BlocksDeleteExample:
                                 value:
                                     email: client@domain.com
-                    multipart/form-data:
+                    application/x-www-form-urlencoded:
                         schema:
                             $ref: '#/components/schemas/EmailAddressParam'
                         examples:
@@ -1536,7 +1569,6 @@ components:
                 -
                     title: EmailAddressString
                     type: string
-                    format: email
                     description: >-
                         A single email address or RFC 822 comma-separated list.
                         Example: `"joe@example.com"` or `"Joe <joe@example.com>, jane@example.com"`.
@@ -1640,31 +1672,36 @@ components:
                         automatically sent as `text/html`; otherwise it is sent as `text/plain`.
                     example: 'The package you ordered on 2021-01-23 has been delivered.'
                 from:
-                    $ref: '#/components/schemas/EmailAddressTypes'
                     description: >-
                         The sender address.  Accepts a plain email string, an RFC 822 named
                         string (`"Name <email>"`), or a `{"email": "...", "name": "..."}` object.
+                    allOf:
+                        - $ref: '#/components/schemas/EmailAddressTypes'
                 to:
-                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         One or more destination addresses.  Accepts a comma-separated RFC 822
                         string or an array of contact objects.
+                    allOf:
+                        - $ref: '#/components/schemas/EmailAddressesTypes'
                 replyto:
-                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         Optional.  One or more addresses to set as the `Reply-To` header.
                         When recipients reply to the message their email client will address
                         the reply to these addresses instead of `from`.
+                    allOf:
+                        - $ref: '#/components/schemas/EmailAddressesTypes'
                 cc:
-                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         Optional.  Carbon-copy recipients.  These addresses are listed in the
                         `Cc` header and are visible to all recipients.
+                    allOf:
+                        - $ref: '#/components/schemas/EmailAddressesTypes'
                 bcc:
-                    $ref: '#/components/schemas/EmailAddressesTypes'
                     description: >-
                         Optional.  Blind-carbon-copy recipients.  These addresses receive the
                         message but are not listed in any visible header.
+                    allOf:
+                        - $ref: '#/components/schemas/EmailAddressesTypes'
                 attachments:
                     type: array
                     items:
@@ -1692,7 +1729,7 @@ components:
                 attachments:
                     -
                         filename: file.txt
-                        data: base64_encoded_contents
+                        data: aGVsbG8gdGhlcmUK
                 id: 66
         SendMailRaw:
             title: SendMailRaw
@@ -1759,7 +1796,7 @@ components:
                     example: aGVsbG8gdGhlcmUK
             example:
                 filename: file.txt
-                data: base64_encoded_file_contents
+                data: aGVsbG8gdGhlcmUK
         MailBlocks:
             title: MailBlocks
             description: >-
