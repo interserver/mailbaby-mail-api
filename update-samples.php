@@ -12,7 +12,7 @@ $onlyLangs    = [];
 $cmds = [];
 $cats = ['client' => [], 'documentation' => []];
 
-const OPENAPI_FALLBACK_VERSION = '7.10.0';
+const OPENAPI_FALLBACK_VERSION = '7.21.0';
 const SWAGGER_FALLBACK_VERSION = '3.0.78';
 
 $rootDir    = __DIR__;
