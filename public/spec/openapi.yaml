@@ -94,6 +94,10 @@ paths:
                             schema:
                                 type: string
                                 example: Server is up and running
+                        application/json:
+                            schema:
+                                type: string
+                                example: Server is up and running
                     description: Server is up and running
                 default:
                     description: Something is wrong
@@ -754,14 +758,7 @@ paths:
                         monday`.  Messages with a `time` value **greater than or equal to** this value will be
                         included.
                     schema:
-                        oneOf:
-                            -
-                                format: int64
-                                maximum: 9999999999
-                                minimum: 0
-                                type: integer
-                            -
-                                type: string
+                        $ref: '#/components/schemas/DateOrTimestamp'
                     in: query
                     required: false
                 -
@@ -772,14 +769,7 @@ paths:
                         or a date string parseable by `strtotime()` such as `2024-01-31` or `yesterday`.
                         Messages with a `time` value **less than or equal to** this value will be included.
                     schema:
-                        oneOf:
-                            -
-                                format: int64
-                                maximum: 9999999999
-                                minimum: 0
-                                type: integer
-                            -
-                                type: string
+                        $ref: '#/components/schemas/DateOrTimestamp'
                     in: query
                     required: false
                 -
@@ -976,6 +966,14 @@ paths:
                             - 24h
                             - day
                             - 1h
+                        x-enum-varnames:
+                            - All
+                            - Billing
+                            - Month
+                            - SevenDays
+                            - TwentyFourHours
+                            - Day
+                            - OneHour
                         type: string
                     in: query
                     required: false
@@ -1350,11 +1348,13 @@ components:
         SendMailTo:
             oneOf:
                 -
+                    title: EmailAddressSingle
                     format: email
                     description: Single recipient email address.
                     type: string
                     example: johndoe@company.com
                 -
+                    title: EmailAddressList
                     description: Multiple recipient email addresses.
                     type: array
                     items:
@@ -1468,6 +1468,7 @@ components:
                 -
                     $ref: '#/components/schemas/MailOrder'
                 -
+                    title: MailOrderPassword
                     required:
                         - password
                     type: object
@@ -1878,6 +1879,7 @@ components:
                 required by `DELETE /mail/rules/{ruleId}`.
             allOf:
                 -
+                    title: DenyRuleMetadata
                     required:
                         - id
                         - created
@@ -2224,6 +2226,14 @@ components:
                         - 24h
                         - day
                         - 1h
+                    x-enum-varnames:
+                        - All
+                        - Billing
+                        - Month
+                        - SevenDays
+                        - TwentyFourHours
+                        - Day
+                        - OneHour
                     type: string
                 usage:
                     format: int32
@@ -2273,6 +2283,21 @@ components:
                         1.1.1.1: 142
                         2.2.2.2: 132
                         3.3.3.3: 129
+        DateOrTimestamp:
+            title: DateOrTimestamp
+            description: >-
+                A date/time value accepted as either a Unix timestamp (integer seconds since epoch) or
+                a date string parseable by `strtotime()` (e.g. `2024-01-15`, `last monday`).
+            oneOf:
+                -
+                    description: Unix timestamp (integer seconds since epoch, 0–9999999999).
+                    format: int64
+                    maximum: 9999999999
+                    minimum: 0
+                    type: integer
+                -
+                    description: Date string parseable by strtotime() such as `2024-01-15` or `last monday`.
+                    type: string
     responses:
         BadInput:
             content:
