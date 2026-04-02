@@ -96,6 +96,6 @@ class Blocks extends BaseController
             ->table('mailbaby')
             ->where('emailfrom', $email)
             ->delete();
-        return $this->jsonResponse(['status' =>'ok', 'record deleted']);
+        return $this->jsonResponse(['status' =>'ok', 'text' => 'record deleted']);
     }
 }
