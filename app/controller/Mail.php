@@ -456,8 +456,16 @@ class Mail extends BaseController
             $where[] = ['h2.value', '=', $replyto];
         if (!is_null($headerfrom))
             $where[] = ['h3.value', '=', $headerfrom];
-        if (!is_null($delivered))
-            $where[] = ['mail_queuerelease.delivered', '=', $delivered];
+        if (!is_null($delivered)) {
+            if ($delivered == 1) {
+                $where[] = ['mail_queuerelease.delivered', '=', 1];
+            } else {
+                $where[] = function ($query) {
+                    $query->whereNull('mail_queuerelease.delivered')
+                          ->orWhere('mail_queuerelease.delivered', '!=', 1);
+                };
+            }
+        }
         $total = Db::connection('zonemta')
             ->table('mail_messagestore')
             ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
