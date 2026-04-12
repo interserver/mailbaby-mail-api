@@ -456,15 +456,8 @@ class Mail extends BaseController
             $where[] = ['h2.value', '=', $replyto];
         if (!is_null($headerfrom))
             $where[] = ['h3.value', '=', $headerfrom];
-        if (!is_null($delivered)) {
-            if ($delivered == 1) {
-                $where[] = ['mail_queuerelease.delivered', '=', 1];
-            } else {
-                $where[] = function ($query) {
-                    $query->whereNull('mail_queuerelease.delivered')
-                          ->orWhere('mail_queuerelease.delivered', '!=', 1);
-                };
-            }
+        if (!is_null($delivered) && $delivered == 1) {
+            $where[] = ['mail_queuerelease.delivered', '=', 1];
         }
         $total = Db::connection('zonemta')
             ->table('mail_messagestore')
@@ -503,6 +496,12 @@ class Mail extends BaseController
         }
 
         $total = $total->where($where);
+        if (!is_null($delivered) && $delivered != 1) {
+            $total = $total->where(function ($query) {
+                $query->whereNull('mail_queuerelease.delivered')
+                      ->orWhere('mail_queuerelease.delivered', '!=', 1);
+            });
+        }
         if ($groupby === 'message') {
             $total = $total->distinct()->count('mail_messagestore._id');
         } else {
@@ -552,6 +551,12 @@ class Mail extends BaseController
                 'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
                 'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname')
             ->where($where);
+        if (!is_null($delivered) && $delivered != 1) {
+            $orders = $orders->where(function ($query) {
+                $query->whereNull('mail_queuerelease.delivered')
+                      ->orWhere('mail_queuerelease.delivered', '!=', 1);
+            });
+        }
         if ($groupby === 'message') {
             $orders = $orders->groupBy('mail_messagestore._id');
         }
