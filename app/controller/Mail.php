@@ -464,7 +464,7 @@ class Mail extends BaseController
             ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->leftJoin('mail_queuerelease', function ($join) {
                 $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
-                    ->on('mail_senderdelivered.seq', '=', 'mail_queuerelease.seq');
+                    ->whereRaw('(mail_senderdelivered.seq = mail_queuerelease.seq OR mail_senderdelivered.seq IS NULL)');
             });
         if (!is_null($subject)) {
             $total = $total
@@ -542,14 +542,14 @@ class Mail extends BaseController
             ->leftJoin('mail_senderdelivered', 'mail_messagestore.id', '=', 'mail_senderdelivered.id')
             ->leftJoin('mail_queuerelease', function ($join) {
                 $join->on('mail_messagestore.id', '=', 'mail_queuerelease.id')
-                    ->on('mail_senderdelivered.seq', '=', 'mail_queuerelease.seq');
+                    ->whereRaw('(mail_senderdelivered.seq = mail_queuerelease.seq OR mail_senderdelivered.seq IS NULL)');
             })
             ->select('mail_messagestore._id', 'mail_messagestore.id', 'mail_messagestore.from', 'mail_messagestore.to', 'h1.value AS subject', 'h4.value AS messageId',
                 'mail_messagestore.created', 'mail_messagestore.time', 'mail_messagestore.user', 'mail_messagestore.transtype', 'mail_messagestore.origin',
-                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', 'mail_senderdelivered.seq',
-                'mail_queuerelease.delivered', 'mail_queuerelease.response', 'mail_queuerelease.code', 'mail_queuerelease.to as recipient',
-                'mail_senderdelivered.domain', 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
-                'mail_senderdelivered.queued', 'mail_senderdelivered.mxHostname')
+                'mail_messagestore.interface', 'mail_senderdelivered.sendingZone', 'mail_senderdelivered.bodySize', Db::raw('COALESCE(mail_senderdelivered.seq, 1) as seq'),
+                Db::raw('COALESCE(mail_queuerelease.delivered, 0) as delivered'), 'mail_queuerelease.response', 'mail_queuerelease.code', Db::raw('COALESCE(mail_queuerelease.`to`, mail_messagestore.`to`) as recipient'),
+                Db::raw('COALESCE(mail_senderdelivered.domain, SUBSTRING_INDEX(mail_messagestore.`to`, \'@\', -1)) as domain'), 'mail_senderdelivered.locked', 'mail_senderdelivered.lockTime', 'mail_senderdelivered.assigned',
+                Db::raw('COALESCE(mail_senderdelivered.queued, mail_messagestore.created) as queued'), 'mail_senderdelivered.mxHostname')
             ->where($where);
         if (!is_null($delivered) && $delivered != 1) {
             $orders = $orders->where(function ($query) {
