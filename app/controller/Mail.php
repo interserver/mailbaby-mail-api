@@ -4,7 +4,7 @@ namespace app\controller;
 use support\Request;
 use support\Response;
 use support\Db;
-use support\bootstrap\Log;
+use support\Log;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -309,8 +309,13 @@ class Mail extends BaseController
         $mailer->isHTML(strip_tags($data['body']) != $data['body']);
         try {
             $mailer->setFrom($data['from']['email'], isset($data['from']['name']) ? $data['from']['name'] : '');
-            foreach ($data['to'] as $contact)
-                $mailer->addAddress($contact['email'], isset($contact['name']) ? $contact['name'] : '');
+            foreach ($data['to'] as $contact) {
+                if (!isset($contact['email'])) {
+                    Log:info('Contact did not have email field', ['context' => $contact]);
+                } else {
+                    $mailer->addAddress($contact['email'], isset($contact['name']) ? $contact['name'] : '');
+                }
+            }
             foreach (['ReplyTo', 'CC', 'BCC'] as $type) {
                 if (isset($data[strtolower($type)])) {
                     if (is_array($data[strtolower($type)])) {
@@ -333,10 +338,14 @@ class Mail extends BaseController
                 if (is_array($data['attachments'])) {
                     if (count($data['attachments']) > 0) {
                         foreach ($data['attachments'] as $idx => $attachment) {
-                            $fileData = base64_decode($attachment['data']);
-                            $localFile = tempnam(sys_get_temp_dir(), 'attachment');
-                            file_put_contents($localFile, $fileData);
-                            $mailer->addAttachment($localFile, isset($attachment['filename']) ? $attachment['filename'] : '');
+                            if (!isset($attachment['data'])) {
+                                Log::info('Attachment had no data', ['context' => $attachment]);
+                            } else {
+                                $fileData = base64_decode($attachment['data']);
+                                $localFile = tempnam(sys_get_temp_dir(), 'attachment');
+                                file_put_contents($localFile, $fileData);
+                                $mailer->addAttachment($localFile, isset($attachment['filename']) ? $attachment['filename'] : '');
+                            }
                         }
                     }
                 } else {
