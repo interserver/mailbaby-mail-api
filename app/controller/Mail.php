@@ -41,6 +41,9 @@ class Mail extends BaseController
             ->where('mail_custid', $accountInfo->account_id)
             ->where('mail_id', $id)
             ->first();
+        if (is_null($order)) {
+            return $this->jsonErrorResponse('The mail order with the specified ID was not found.', 404);
+        }
         $return = [
             'id' => $order->mail_id,
             'status' => $order->mail_status,
@@ -76,14 +79,14 @@ class Mail extends BaseController
                 return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
-        $sent = false;
         $from = $request->post('from');
         $email = (string)$request->post('body');
         $subject = (string)$request->post('subject');
         $isHtml = strip_tags($email) != $email;
         $who = $request->post('to');
-        if (!is_array($who))
-        $who = [$who];
+        if (!is_array($who)) {
+            $who = [$who];
+        }
         $username = (string)$order->mail_username;
         $password = (string)$this->getMailPassword($request, $id);
         $mailer = new PHPMailer(true);
@@ -143,7 +146,10 @@ class Mail extends BaseController
                 return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
-        $sent = false;
+        $rawEmail = $request->post('raw_email');  // Raw RFC822 email
+        if (!is_string($rawEmail) || trim($rawEmail) === '') {
+            return $this->jsonErrorResponse('The "raw_email" field is required and must be a non-empty RFC822 message.', 400);
+        }
         $username = (string)$order->mail_username;
         $password = (string)$this->getMailPassword($request, $id);
         $mailer = new PHPMailer(true);
@@ -161,11 +167,13 @@ class Mail extends BaseController
         $mailer->SMTPDebug = SMTP::DEBUG_OFF;
         $mailer->Mailer = 'smtp';
 
-        $rawEmail = $request->post('raw_email');  // Raw RFC822 email
         // parse the email to get out the from and to addresses
         $parser = new \PhpMimeMailParser\Parser();
         $parser->setText($rawEmail);
         $arrayHeaderFrom = $parser->getAddresses('from'); // return [["display"=>"test", "address"=>"test@example.com", "is_group"=>false]]
+        if (empty($arrayHeaderFrom) || empty($arrayHeaderFrom[0]['address'])) {
+            return $this->jsonErrorResponse('The raw email is missing a valid From address.', 400);
+        }
         $from = $arrayHeaderFrom[0]['address'];
         $recipients = [];
         // collect recipients from all headers
@@ -179,7 +187,10 @@ class Mail extends BaseController
                 }
             }
         }
-        $recipients = array_unique($recipients);
+        $recipients = array_values(array_unique($recipients));
+        if (empty($recipients)) {
+            return $this->jsonErrorResponse('The raw email must include at least one recipient (To, Cc, or Bcc).', 400);
+        }
         // Check if message is DKIM signed, and if so validate the signature.
         $validateDkim = false;
         if ($validateDkim === true) {
@@ -244,10 +255,16 @@ class Mail extends BaseController
         } else {
             $data = json_decode($request->rawBody(), true);
         }
+        if (!is_array($data)) {
+            return $this->jsonErrorResponse('Request body must be a JSON object or form-encoded data.', 400);
+        }
         if (isset($data['from']) && !is_array($data['from'])) {
             $emails = mailparse_rfc822_parse_addresses($data['from']);
+            if (empty($emails) || empty($emails[0]['address'])) {
+                return $this->jsonErrorResponse('The "from" field is not a valid email address.', 400);
+            }
             $email = ['email' => $emails[0]['address']];
-            if ($emails[0]['display'] != $emails[0]['address']) {
+            if (isset($emails[0]['display']) && $emails[0]['display'] != $emails[0]['address']) {
                 $email['name'] = $emails[0]['display'];
             }
             $data['from'] = $email;
@@ -255,10 +272,16 @@ class Mail extends BaseController
         foreach (['to', 'replyto', 'cc', 'bcc'] as $var) {
             if (isset($data[$var]) && !is_array($data[$var])) {
                 $emails = mailparse_rfc822_parse_addresses($data[$var]);
+                if (empty($emails)) {
+                    return $this->jsonErrorResponse('The "'.$var.'" field is not a valid email address list.', 400);
+                }
                 $data[$var] = [];
                 foreach ($emails as $value) {
+                    if (empty($value['address'])) {
+                        continue;
+                    }
                     $email = ['email' => $value['address']];
-                    if ($value['display'] != $value['address']) {
+                    if (isset($value['display']) && $value['display'] != $value['address']) {
                         $email['name'] = $value['display'];
                     }
                     $data[$var][] = $email;
@@ -285,13 +308,16 @@ class Mail extends BaseController
                 return $this->jsonErrorResponse('No active mail order was found.', 404);
             $id = $order->mail_id;
         }
-        foreach (['from', 'to', 'subject', 'body'] as $field)
-            if (!isset($data[$field]))
+        foreach (['from', 'to', 'subject', 'body'] as $field) {
+            if (!isset($data[$field])) {
                 return $this->jsonErrorResponse('Missing the required "'.$field.'" field', 400);
-            foreach (['subject', 'body'] as $field)
-            if (!is_string($data[$field]))
-            return $this->jsonErrorResponse('The field "'.$field.'" must be a string', 400);
-            $sent = false;
+            }
+        }
+        foreach (['subject', 'body'] as $field) {
+            if (!is_string($data[$field])) {
+                return $this->jsonErrorResponse('The field "'.$field.'" must be a string', 400);
+            }
+        }
         $mailer = new PHPMailer(true);
         $mailer->CharSet = 'utf-8';
         $mailer->isSMTP();
@@ -311,7 +337,7 @@ class Mail extends BaseController
             $mailer->setFrom($data['from']['email'], isset($data['from']['name']) ? $data['from']['name'] : '');
             foreach ($data['to'] as $contact) {
                 if (!isset($contact['email'])) {
-                    Log:info('Contact did not have email field', ['context' => $contact]);
+                    Log::info('Contact did not have email field', ['context' => $contact]);
                 } else {
                     $mailer->addAddress($contact['email'], isset($contact['name']) ? $contact['name'] : '');
                 }
@@ -340,12 +366,13 @@ class Mail extends BaseController
                         foreach ($data['attachments'] as $idx => $attachment) {
                             if (!isset($attachment['data'])) {
                                 Log::info('Attachment had no data', ['context' => $attachment]);
-                            } else {
-                                $fileData = base64_decode($attachment['data']);
-                                $localFile = tempnam(sys_get_temp_dir(), 'attachment');
-                                file_put_contents($localFile, $fileData);
-                                $mailer->addAttachment($localFile, isset($attachment['filename']) ? $attachment['filename'] : '');
+                                continue;
                             }
+                            $fileData = base64_decode($attachment['data'], true);
+                            if ($fileData === false) {
+                                return $this->jsonErrorResponse('Attachment #'.$idx.' data is not valid base64.', 400);
+                            }
+                            $mailer->addStringAttachment($fileData, isset($attachment['filename']) ? $attachment['filename'] : 'attachment');
                         }
                     }
                 } else {
@@ -385,6 +412,8 @@ class Mail extends BaseController
         $sort = $request->get('sort', 'time');
         $dir = $request->get('dir', 'desc');
         $groupby = $request->get('groupby', 'recipient');
+        // 'time' maps to _id because ZoneMTA's _id is a time-ordered ObjectId-style key;
+        // sorting by it is equivalent to sorting by insertion time but uses the primary key index.
         $sortFields = ['time' => 'mail_messagestore._id'];
         if (!array_key_exists($sort, $sortFields))
             return $this->jsonErrorResponse('The specified sort value was invalid.', 400);
@@ -420,6 +449,8 @@ class Mail extends BaseController
             return $this->jsonErrorResponse('The specified skip value was invalid.', 400);
         if (!v::intVal()->validate($limit))
             return $this->jsonErrorResponse('The specified limit value was invalid.', 400);
+        $skip = max(0, (int)$skip);
+        $limit = max(1, min(1000, (int)$limit));
         if (!v::anyOf(v::intVal()->in([1,0]), v::nullType())->validate($delivered))
             return $this->jsonErrorResponse('The specified delivered value '.var_export($delivered, true).' was invalid.', 400);
         if (!is_null($id)) {
@@ -459,8 +490,10 @@ class Mail extends BaseController
             $where[] = ['mail_messagestore.id', '=', $mailId];
         if (!is_null($subject))
             $where[] = ['h1.value', '=', $subject];
-        if (!is_null($messageId))
-            $where[] = ['h4.value', 'like', '%'.$messageId.'%'];
+        if (!is_null($messageId)) {
+            $escapedMessageId = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $messageId);
+            $where[] = ['h4.value', 'like', '%'.$escapedMessageId.'%'];
+        }
         if (!is_null($replyto))
             $where[] = ['h2.value', '=', $replyto];
         if (!is_null($headerfrom))
@@ -479,28 +512,28 @@ class Mail extends BaseController
             $total = $total
                 ->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h1.id')
-                        ->on('h1.field','=', Db::raw('"subject"'));
+                        ->on('h1.field','=', Db::raw("'subject'"));
                 });
         }
         if (!is_null($messageId)) {
             $total = $total
                 ->leftJoin(Db::raw('mail_headers as h4'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h4.id')
-                        ->on('h4.field','=', Db::raw('"message-id"'));
+                        ->on('h4.field','=', Db::raw("'message-id'"));
                 });
         }
         if (!is_null($replyto)) {
             $total = $total
                 ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h2.id')
-                        ->on('h2.field','=', Db::raw('"reply-to"'));
+                        ->on('h2.field','=', Db::raw("'reply-to'"));
                 });
         }
         if (!is_null($headerfrom)) {
             $total = $total
                 ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h3.id')
-                        ->on('h3.field','=', Db::raw('"from"'));
+                        ->on('h3.field','=', Db::raw("'from'"));
                 });
         }
 
@@ -527,24 +560,24 @@ class Mail extends BaseController
             ->table('mail_messagestore')
             ->leftJoin(Db::raw('mail_headers as h1'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h1.id')
-                    ->on('h1.field','=', Db::raw('"subject"'));
+                    ->on('h1.field','=', Db::raw("'subject'"));
             })
             ->leftJoin(Db::raw('mail_headers as h4'), function ($join) {
                 $join->on('mail_messagestore.id', '=', 'h4.id')
-                    ->on('h4.field','=', Db::raw('"message-id"'));
+                    ->on('h4.field','=', Db::raw("'message-id'"));
             });
         if (!is_null($replyto)) {
             $orders = $orders
                 ->leftJoin(Db::raw('mail_headers as h2'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h2.id')
-                        ->on('h2.field','=', Db::raw('"reply-to"'));
+                        ->on('h2.field','=', Db::raw("'reply-to'"));
                 });
         }
         if (!is_null($headerfrom)) {
             $orders = $orders
                 ->leftJoin(Db::raw('mail_headers as h3'), function ($join) {
                     $join->on('mail_messagestore.id', '=', 'h3.id')
-                        ->on('h3.field','=', Db::raw('"from"'));
+                        ->on('h3.field','=', Db::raw("'from'"));
                 });
         }
         $orders = $orders
@@ -575,34 +608,17 @@ class Mail extends BaseController
             ->limit($limit)
             ->get();
         $emails = $orders->all();
+        $encodedWordPattern = '/=\?(?:utf-8|iso-8859(?:-\d+)?|us-ascii|windows-125\d)\?/i';
         foreach ($emails as &$email) {
-            if (!is_null($email->subject) && (preg_match('/\?utf-8\?/i', $email->subject) || preg_match('/\?iso-8859(-\d+)?\?/i', $email->subject) || preg_match('/\?us-ascii\?/i', $email->subject))) {
-                $email->subject = mb_decode_mimeheader($email->subject);
+            foreach (['subject', 'from', 'to', 'recipient'] as $headerField) {
+                if (!empty($email->$headerField) && preg_match($encodedWordPattern, $email->$headerField)) {
+                    $email->$headerField = mb_decode_mimeheader($email->$headerField);
+                }
             }
         }
         unset($email);
         $return['emails'] = $emails;
         return $this->jsonResponse($return);
-    }
-
-    public function viewtest(Request $request)
-    {
-        return view('index/view', ['name' => 'webman']);
-    }
-
-    public function json(Request $request)
-    {
-        return json(['code' => 0, 'msg' => 'ok']);
-    }
-
-    public function file(Request $request)
-    {
-        $file = $request->file('upload');
-        if ($file && $file->isValid()) {
-            $file->move(public_path().'/files/myfile.'.$file->getUploadExtension());
-            return json(['code' => 0, 'msg' => 'upload success']);
-        }
-        return json(['code' => 1, 'msg' => 'file not found']);
     }
 
     /**
@@ -620,6 +636,6 @@ class Mail extends BaseController
             ->where('history_new_value', $id)
             ->orderBy('history_timestamp', 'desc')
             ->first('history_old_value');
-        return $password->history_old_value;
+        return $password ? $password->history_old_value : null;
     }
 }
