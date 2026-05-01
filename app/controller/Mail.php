@@ -80,13 +80,35 @@ class Mail extends BaseController
             $id = $order->mail_id;
         }
         $from = $request->post('from');
-        $email = (string)$request->post('body');
-        $subject = (string)$request->post('subject');
-        $isHtml = strip_tags($email) != $email;
+        $subject = $request->post('subject');
+        $email = $request->post('body');
         $who = $request->post('to');
+        foreach (['from' => $from, 'subject' => $subject, 'body' => $email, 'to' => $who] as $field => $value) {
+            if (is_null($value) || $value === '' || $value === [] || (!is_string($value) && !is_array($value))) {
+                return $this->jsonErrorResponse('Missing or invalid required field: "'.$field.'".', 400);
+            }
+        }
+        if (!is_string($from) || !v::email()->validate($from)) {
+            return $this->jsonErrorResponse('The "from" field must be a valid email address.', 400);
+        }
+        if (!is_string($subject)) {
+            return $this->jsonErrorResponse('The "subject" field must be a string.', 400);
+        }
+        if (!is_string($email)) {
+            return $this->jsonErrorResponse('The "body" field must be a string.', 400);
+        }
+        $isHtml = strip_tags($email) != $email;
         if (!is_array($who)) {
             $who = [$who];
         }
+        $cleanWho = [];
+        foreach ($who as $addr) {
+            if (!is_string($addr) || !v::email()->validate($addr)) {
+                return $this->jsonErrorResponse('Each "to" address must be a valid email address.', 400);
+            }
+            $cleanWho[] = $addr;
+        }
+        $who = $cleanWho;
         $username = (string)$order->mail_username;
         $password = (string)$this->getMailPassword($request, $id);
         $mailer = new PHPMailer(true);

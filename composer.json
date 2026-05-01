@@ -24,7 +24,7 @@
     "source": "https://github.com/interserver/mailbaby-mail-api"
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=8.1",
     "ext-mailparse": "*",
     "ext-mongodb": "*",
     "ext-pdo": "*",
@@ -33,19 +33,25 @@
     "illuminate/events": "*",
     "illuminate/redis": "*",
     "jenssegers/mongodb": "*",
+    "mcp/sdk": "dev-main",
     "monolog/monolog": "*",
+    "nyholm/psr7": "^1.8",
+    "nyholm/psr7-server": "^1.1",
     "phpmailer/dkimvalidator": "dev-master",
     "phpmailer/phpmailer": "dev-master",
     "php-mime-mail-parser/php-mime-mail-parser": "*",
     "psr/container": "*",
     "respect/validation": "*",
     "symfony/var-dumper": "*",
+    "symfony/yaml": "^6.4 || ^7.0",
     "vlucas/phpdotenv": "*",
     "webman/console": "*",
     "webman/cors": "*",
     "webman/database": "*",
     "workerman/webman-framework": "*"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "suggest": {
     "ext-event": "For better performance. "
   },
@@ -60,6 +66,11 @@
       "./support/helpers.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "test\\": "./test"
+    }
+  },
   "scripts": {
     "post-package-install": [
       "support\\Plugin::install"
@@ -69,10 +80,15 @@
     ],
     "pre-package-uninstall": [
       "support\\Plugin::uninstall"
-    ]
+    ],
+    "test": "phpunit --colors=always"
   },
   "require-dev": {
-    "league/openapi-psr7-validator": "^0.15.2"
+    "league/openapi-psr7-validator": "^0.15.2",
+    "phpunit/phpunit": "^9.6 || ^10.5"
+  },
+  "scripts-descriptions": {
+    "test": "Run the PHPUnit unit-test suite."
   },
   "config": {
     "allow-plugins": {

@@ -1,0 +1,50 @@
+# MailBaby Mail API
+
+> REST + MCP API for sending email through Mail.Baby (operated by InterServer). Authenticate every request with an `X-API-KEY` header. The full machine-readable contract is the OpenAPI 3 spec; an MCP server exposes every operation as a tool for agent use.
+
+## Quick start
+
+- Base URL: `https://api.mailbaby.net`
+- Auth header: `X-API-KEY: <your key from https://my.interserver.net/account_security>`
+- Health check: `GET /ping` (no auth)
+- List your sending accounts: `GET /mail`
+- Send simple email: `POST /mail/send` with `{from, to, subject, body[, id]}`
+
+## Discovery
+
+- [OpenAPI 3 spec (YAML)](https://api.mailbaby.net/spec/openapi.yaml)
+- [OpenAPI 3 spec (JSON)](https://api.mailbaby.net/spec/openapi.json)
+- [Swagger UI](https://api.mailbaby.net/swagger-ui.html)
+- [ReDoc](https://api.mailbaby.net/redoc.html)
+- [Stoplight Elements](https://api.mailbaby.net/elements.html)
+- [API catalog (RFC 9727)](https://api.mailbaby.net/.well-known/api-catalog)
+
+## MCP server
+
+- Endpoint: `https://api.mailbaby.net/mcp` (Streamable HTTP transport)
+- Server card: [/.well-known/mcp/server.json](https://api.mailbaby.net/.well-known/mcp/server.json)
+- Protected resource metadata: [/.well-known/oauth-protected-resource](https://api.mailbaby.net/.well-known/oauth-protected-resource)
+- Auth: pass your `X-API-KEY` header on every MCP request. Each OpenAPI operation is registered as one MCP tool with the same name as the OpenAPI `operationId`.
+
+## Endpoints
+
+- `GET /ping` — health check; returns "Server is up and running".
+- `GET /mail` — list your provisioned mail orders (each has an `id` and SMTP `username`).
+- `GET /mail/{id}` — full detail for one order, including the current SMTP password.
+- `POST /mail/send` — send a simple single-recipient email.
+- `POST /mail/advsend` — send with multiple recipients, CC/BCC, named contacts, and base64 attachments.
+- `POST /mail/rawsend` — submit a complete RFC 822 message verbatim (preserves DKIM signatures).
+- `GET /mail/log` — paginated, filterable mail log; supports `from`, `to`, `subject`, `messageId`, `mailid`, date range, delivery status, etc.
+- `GET /mail/stats` — usage and cost statistics over a selectable time window.
+- `GET /mail/blocks` — addresses currently flagged by spam-filter block lists.
+- `POST /mail/blocks/delete` — delist an address from the block lists.
+- `GET /mail/rules` — list custom sender / recipient deny rules.
+- `POST /mail/rules` — create a deny rule (type: `email`, `domain`, `destination`, `startswith`).
+- `DELETE /mail/rules/{ruleId}` — remove a deny rule by its numeric id.
+
+## Conventions
+
+- Most write endpoints accept either `application/json` or `application/x-www-form-urlencoded`.
+- The `id` parameter on sending and log calls is optional — when omitted the API auto-selects your first active mail order.
+- Successful sends return `{ "status": "ok", "text": "<transaction id>" }`. Pass the transaction id back as `mailid` to `GET /mail/log` to inspect delivery status.
+- Errors are JSON with `code` and `message`. Common statuses: `400` invalid input, `401` missing or wrong API key, `404` no matching record.

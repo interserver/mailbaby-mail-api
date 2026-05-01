@@ -7,6 +7,8 @@
 .env
 /tests/tmp
 /tests/.phpunit.result.cache
+/.phpunit.cache
+/phpunit.xml
 mailbaby-api-samples
 composer.lock
 .claude/settings.local.json

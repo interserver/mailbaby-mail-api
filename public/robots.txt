@@ -1,0 +1,54 @@
+# MailBaby Mail API — robots policy.
+#
+# This is a REST + MCP API host. Public assets (the OpenAPI spec, the rendered
+# documentation viewers, and the agent-discovery manifests under /.well-known)
+# are crawlable. Authenticated /mail/* paths are not — they require an API key
+# and have nothing to crawl.
+
+User-agent: *
+Allow: /
+Allow: /spec/
+Allow: /.well-known/
+Allow: /llms.txt
+Disallow: /mail
+Disallow: /mcp
+
+# Cloudflare content-signal hints — see https://contentsignals.com
+# `search` (yes), `ai-train` (no), `ai-input` (yes for tool-calling assistants).
+Content-Signal: search=yes, ai-train=no, ai-input=yes
+
+# Major AI crawlers. These are the bots most agent-readiness scanners check.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://api.mailbaby.net/sitemap.xml

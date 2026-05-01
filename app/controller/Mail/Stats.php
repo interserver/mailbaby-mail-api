@@ -12,14 +12,15 @@ class Stats extends BaseController
 {
     public function fromTimestamp($timestamp)
     {
-        if (preg_match('/([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/', $timestamp, $parts)) {
+        // Anchored: a 10-digit unix timestamp must NOT match the YYYYMMDD branch.
+        if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})$/', $timestamp, $parts)) {
             $time = mktime($parts[4], $parts[5], $parts[6], $parts[2], $parts[3], $parts[1]);
-        } elseif (preg_match('/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/', $timestamp, $parts)) {
+        } elseif (preg_match('/^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/', $timestamp, $parts)) {
             $time = mktime($parts[4], $parts[5], $parts[6], $parts[2], $parts[3], $parts[1]);
-        } elseif (preg_match('/([0-9]{4})([0-9]{2})([0-9]{2})/', $timestamp, $parts)) {
+        } elseif (preg_match('/^([0-9]{4})([0-9]{2})([0-9]{2})$/', $timestamp, $parts)) {
             $time = mktime(1, 1, 1, $parts[2], $parts[3], $parts[1]);
         } elseif (is_numeric($timestamp) && $timestamp >= 943938000) {
-            $time = $timestamp;
+            $time = (int)$timestamp;
         } else {
             $time = false;
         }
