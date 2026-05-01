@@ -32,7 +32,9 @@ Route::get('/', function($request) {
 		->withHeader('Content-Type', 'text/html; charset=utf-8')
 		->withHeader('Link', '<' . $base . '/spec/openapi.yaml>; rel="describedby"; type="application/yaml", '
 			. '<' . $base . '/.well-known/api-catalog>; rel="api-catalog", '
-			. '<' . $base . '/.well-known/mcp/server.json>; rel="mcp-server-card", '
+			. '<' . $base . '/.well-known/mcp/server-card.json>; rel="mcp-server-card", '
+			. '<' . $base . '/.well-known/webmcp>; rel="webmcp", '
+			. '<' . $base . '/.well-known/agent-skills/index.json>; rel="agent-skills", '
 			. '<' . $base . '/llms.txt>; rel="alternate"; type="text/markdown"');
 });
 
@@ -47,9 +49,24 @@ Route::options('/ping', function($request) {
 Route::any('/mcp', [app\controller\Mcp::class, 'handle']);
 Route::any('/mcp/{path:.+}', [app\controller\Mcp::class, 'handle']);
 
-// Discovery / agent-readiness endpoints.
+// Discovery / agent-readiness endpoints (https://isitagentready.com).
 Route::get('/.well-known/oauth-protected-resource', [app\controller\Mcp::class, 'oauthProtectedResource']);
-Route::get('/.well-known/mcp/server.json', [app\controller\Mcp::class, 'serverCard']);
+
+// MCP server card — canonical SEP-1649 path plus SEP-1960 + legacy aliases.
+Route::get('/.well-known/mcp/server-card.json', [app\controller\Mcp::class, 'serverCard']);
+Route::get('/.well-known/mcp.json',             [app\controller\Mcp::class, 'serverCard']);
+Route::get('/.well-known/mcp',                  [app\controller\Mcp::class, 'serverCard']);
+Route::get('/.well-known/mcp/server.json',      [app\controller\Mcp::class, 'serverCard']);
+
+// WebMCP manifest (https://github.com/webmachinelearning/webmcp).
+Route::get('/.well-known/webmcp',      [app\controller\Mcp::class, 'webmcpManifest']);
+Route::get('/.well-known/webmcp.json', [app\controller\Mcp::class, 'webmcpManifest']);
+
+// Agent Skills 0.2.0 discovery (https://agentskills.io/specification).
+Route::get('/.well-known/agent-skills/index.json',     [app\controller\Mcp::class, 'agentSkillsIndex']);
+Route::get('/.well-known/agent-skills/{name}/SKILL.md', [app\controller\Mcp::class, 'agentSkill']);
+
+// API catalog (RFC 9727 linkset).
 Route::get('/.well-known/api-catalog', function ($request) {
 	$base = ($request->header('x-forwarded-proto', null) ?: 'https') . '://' . ($request->header('host') ?: 'api.mailbaby.net');
 	return json([
