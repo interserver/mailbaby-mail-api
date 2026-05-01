@@ -92,7 +92,8 @@
   },
   "config": {
     "allow-plugins": {
-      "kylekatarnls/update-helper": false
+      "kylekatarnls/update-helper": false,
+      "php-http/discovery": true
     }
   }
 }
